@@ -1,18 +1,20 @@
 package application
 
 import (
+	"ProyectoFinal/internal/application/loader"
+	"fmt"
 	"github.com/go-chi/chi/v5"
 	"net/http"
 )
 
 type ConfigServerChi struct {
 	ServerAddress  string
-	LoaderFilePath string
+	LoaderFilePath map[string]string
 }
 
 type ServerChi struct {
 	serverAddress  string
-	loaderFilePath string
+	loaderFilePath map[string]string
 }
 
 func NewServerChi(cfg *ConfigServerChi) *ServerChi {
@@ -23,7 +25,7 @@ func NewServerChi(cfg *ConfigServerChi) *ServerChi {
 		if cfg.ServerAddress != "" {
 			defaultConfig.ServerAddress = cfg.ServerAddress
 		}
-		if cfg.LoaderFilePath != "" {
+		if len(cfg.LoaderFilePath) != 0 {
 			defaultConfig.LoaderFilePath = cfg.LoaderFilePath
 		}
 	}
@@ -36,6 +38,18 @@ func NewServerChi(cfg *ConfigServerChi) *ServerChi {
 
 func (a *ServerChi) Run() (err error) {
 	rt := chi.NewRouter()
+
+	factory := loader.NewLoaderFactory(a.loaderFilePath)
+
+	sellersDB, err := factory.NewSellerLoader().Load()
+
+	if err != nil {
+		panic(err)
+	}
+
+	// fmt.Println(a.loaderFilePath)
+
+	fmt.Println(sellersDB)
 	err = http.ListenAndServe(a.serverAddress, rt)
 	return
 }
