@@ -19,14 +19,47 @@ func (a *ApiError) Error() string {
 var (
 	ErrGeneral = errors.New("unexepected general error")
 
+	ErrSectionNotFound      = errors.New("section not found")
+	ErrSectionAlreadyExists = errors.New("section already exists")
+	ErrInvalidSectionID     = errors.New("invalid section ID")
+	ErrInvalidSectionData   = errors.New("invalid section data")
+	ErrSectionNumberExists  = errors.New("section number already exists")
+
 	mapErr = map[error]ApiError{
 		ErrGeneral: NewErrInternalServer(ErrGeneral.Error()),
+
+		ErrSectionNotFound:      NewErrNotFound(ErrSectionNotFound.Error()),
+		ErrSectionAlreadyExists: NewErrConflict(ErrSectionAlreadyExists.Error()),
+		ErrInvalidSectionID:     NewErrBadRequest(ErrInvalidSectionID.Error()),
+		ErrInvalidSectionData:   NewErrBadRequest(ErrInvalidSectionData.Error()),
+		ErrSectionNumberExists:  NewErrConflict(ErrSectionNumberExists.Error()),
 	}
 )
 
 func NewErrInternalServer(msg string) ApiError {
 	return ApiError{
 		StatusCode: http.StatusInternalServerError,
+		Message:    msg,
+	}
+}
+
+func NewErrNotFound(msg string) ApiError {
+	return ApiError{
+		StatusCode: http.StatusNotFound,
+		Message:    msg,
+	}
+}
+
+func NewErrBadRequest(msg string) ApiError {
+	return ApiError{
+		StatusCode: http.StatusBadRequest,
+		Message:    msg,
+	}
+}
+
+func NewErrConflict(msg string) ApiError {
+	return ApiError{
+		StatusCode: http.StatusConflict,
 		Message:    msg,
 	}
 }
