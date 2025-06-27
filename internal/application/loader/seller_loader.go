@@ -7,11 +7,11 @@ import (
 	"os"
 )
 
-type SellerJSONFile struct {
+type SellerLoader struct {
 	path string
 }
 
-func (s *SellerJSONFile) Load() (map[int]models.Seller, error) {
+func (s *SellerLoader) Load() (map[int]models.Seller, error) {
 	file, err := os.Open(s.path)
 
 	if err != nil {

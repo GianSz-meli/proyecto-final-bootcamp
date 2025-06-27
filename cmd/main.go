@@ -11,7 +11,6 @@ func main() {
 		ServerAddress: ":8080",
 		LoaderFilePath: map[string]string{
 			loader.Seller:  "../docs/db/sellers.json",
-			loader.Product: "../docs/db/product.json",
 		},
 	}
 	app := application.NewServerChi(cfg)

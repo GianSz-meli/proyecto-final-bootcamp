@@ -2,6 +2,12 @@ package loader
 
 import "ProyectoFinal/pkg/models"
 
+const (
+	Seller    string = "sellers"
+	Product   string = "products"
+	Warehouse string = "warehouse"
+)
+
 type FactoryLoader struct {
 	paths map[string]string
 }
@@ -11,5 +17,5 @@ func NewLoaderFactory(paths map[string]string) *FactoryLoader {
 }
 
 func (f *FactoryLoader) NewSellerLoader() Loader[models.Seller] {
-	return &SellerJSONFile{path: f.paths[Seller]}
+	return &SellerLoader{path: f.paths[Seller]}
 }

@@ -2,9 +2,9 @@ package application
 
 import (
 	"ProyectoFinal/internal/application/loader"
-	"fmt"
-	"github.com/go-chi/chi/v5"
 	"net/http"
+
+	"github.com/go-chi/chi/v5"
 )
 
 type ConfigServerChi struct {
@@ -40,16 +40,18 @@ func (a *ServerChi) Run() (err error) {
 	rt := chi.NewRouter()
 
 	factory := loader.NewLoaderFactory(a.loaderFilePath)
-
-	sellersDB, err := factory.NewSellerLoader().Load()
-
+	_, err = factory.NewSellerLoader().Load()
 	if err != nil {
 		panic(err)
 	}
 
-	// fmt.Println(a.loaderFilePath)
+	rt.Route("/api/v1", func(r chi.Router) {
+		r.Mount("/ping", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte("pong"))
+		})) // TODO: remove this
+	})
 
-	fmt.Println(sellersDB)
 	err = http.ListenAndServe(a.serverAddress, rt)
 	return
 }

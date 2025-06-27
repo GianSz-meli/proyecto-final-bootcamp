@@ -1,62 +1,43 @@
 package errors
 
 import (
-	"ProyectoFinal/internal/handler/utils"
-	"ProyectoFinal/pkg/models"
 	"errors"
 	"net/http"
+
+	"github.com/bootcamp-go/web/response"
 )
+
+type ApiError struct {
+	Message    string `json:"message"`
+	StatusCode int    `json:"status_code"`
+}
+
+func (a *ApiError) Error() string {
+	return a.Message
+}
 
 var (
-	ErrNotFound            = errors.New("not found")
-	ErrBadRequest          = errors.New("bad request")
-	ErrUnauthorized        = errors.New("unauthorized")
-	ErrInternalServerError = errors.New("internal server error")
+	ErrGeneral = errors.New("unexepected general error")
+
+	mapErr = map[error]ApiError{
+		ErrGeneral: NewErrInternalServer(ErrGeneral.Error()),
+	}
 )
 
-var mapErr = map[error]models.ApiError{
-	ErrNotFound:            NewErrNotFound(),
-	ErrBadRequest:          NewErrBadRequest(),
-	ErrUnauthorized:        NewErrUnauthorized(),
-	ErrInternalServerError: NewErrInternalServer(),
-}
-
-func NewErrNotFound() models.ApiError {
-	return models.ApiError{
-		StatusCode: http.StatusNotFound,
-		Message:    ErrNotFound.Error(),
-	}
-}
-func NewErrBadRequest() models.ApiError {
-	return models.ApiError{
-		StatusCode: http.StatusBadRequest,
-		Message:    ErrBadRequest.Error(),
-	}
-}
-func NewErrUnauthorized() models.ApiError {
-	return models.ApiError{
-		StatusCode: http.StatusBadRequest,
-		Message:    ErrUnauthorized.Error(),
-	}
-}
-func NewErrInternalServer() models.ApiError {
-	return models.ApiError{
-		StatusCode: http.StatusBadRequest,
-		Message:    ErrInternalServerError.Error(),
+func NewErrInternalServer(msg string) ApiError {
+	return ApiError{
+		StatusCode: http.StatusInternalServerError,
+		Message:    msg,
 	}
 }
 
-func HandleError(w http.ResponseWriter, err error, customMsg ...string) {
+func HandleError(w http.ResponseWriter, err error) {
 	mappedError, ok := mapErr[err]
+
 	if !ok {
-		apiError := NewErrInternalServer()
-		utils.SendError(w, apiError)
+		response.Error(w, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 		return
 	}
-	if len(customMsg) > 0 && customMsg[0] != "" {
-		//msgError := fmt.Errorf("%s %w", customMsg[0], err)
-		mappedError.Message = customMsg[0]
-	}
-	utils.SendError(w, mappedError)
-	return
+
+	response.Error(w, mappedError.StatusCode, mappedError.Message)
 }
