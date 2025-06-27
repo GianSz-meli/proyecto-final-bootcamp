@@ -2,42 +2,48 @@ package errors
 
 import (
 	"errors"
-	"net/http"
-
 	"github.com/bootcamp-go/web/response"
+	"net/http"
 )
 
 type ApiError struct {
-	Message    string `json:"message"`
-	StatusCode int    `json:"status_code"`
-}
-
-func (a *ApiError) Error() string {
-	return a.Message
+	StatusCode int `json:"status_code"`
 }
 
 var (
-	ErrGeneral = errors.New("unexepected general error")
+	ErrGeneral  = errors.New("internal server error")
+	ErrNotFound = errors.New("not found")
 
 	mapErr = map[error]ApiError{
-		ErrGeneral: NewErrInternalServer(ErrGeneral.Error()),
+		ErrGeneral:  NewErrInternalServer(),
+		ErrNotFound: NewErrNotFound(),
 	}
 )
 
-func NewErrInternalServer(msg string) ApiError {
+func NewErrInternalServer() ApiError {
 	return ApiError{
 		StatusCode: http.StatusInternalServerError,
-		Message:    msg,
 	}
 }
 
-func HandleError(w http.ResponseWriter, err error) {
-	mappedError, ok := mapErr[err]
+func NewErrNotFound() ApiError {
+	return ApiError{
+		StatusCode: http.StatusNotFound,
+	}
+}
 
-	if !ok {
-		response.Error(w, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
+func getMappedError(err error) *ApiError {
+	for baseError, mappedError := range mapErr {
+		if errors.Is(err, baseError) {
+			return &mappedError
+		}
+	}
+	return nil
+}
+func HandleError(w http.ResponseWriter, err error) {
+	if mappedError := getMappedError(err); mappedError != nil {
+		response.Error(w, mappedError.StatusCode, err.Error())
 		return
 	}
-
-	response.Error(w, mappedError.StatusCode, mappedError.Message)
+	response.Error(w, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 }
