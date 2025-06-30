@@ -1,8 +1,142 @@
 [
   {
-    "id": 1
+    "id": 1,
+    "cid": 1001,
+    "company_name": "FreshMart Produce Distributors",
+    "address": "123 Main St, New York, NY 10001",
+    "telephone": "+1-555-0123"
   },
   {
-    "id": 2
+    "id": 2,
+    "cid": 1002,
+    "company_name": "Ocean Fresh Seafood Co.",
+    "address": "456 Oak Ave, Los Angeles, CA 90210",
+    "telephone": "+1-555-0234"
+  },
+  {
+    "id": 3,
+    "cid": 1003,
+    "company_name": "Farm Valley Dairy Products",
+    "address": "789 Pine Rd, Chicago, IL 60601",
+    "telephone": "+1-555-0345"
+  },
+  {
+    "id": 4,
+    "cid": 1004,
+    "company_name": "Prime Cut Meat Supply",
+    "address": "321 Elm St, Houston, TX 77001",
+    "telephone": "+1-555-0456"
+  },
+  {
+    "id": 5,
+    "cid": 1005,
+    "company_name": "Organic Greens Wholesale",
+    "address": "654 Maple Dr, Phoenix, AZ 85001",
+    "telephone": "+1-555-0567"
+  },
+  {
+    "id": 6,
+    "cid": 1006,
+    "company_name": "Golden Harvest Fruits Ltd",
+    "address": "987 Cedar Blvd, Philadelphia, PA 19101",
+    "telephone": "+1-555-0678"
+  },
+  {
+    "id": 7,
+    "cid": 1007,
+    "company_name": "Frozen Foods Express",
+    "address": "147 Birch Lane, San Antonio, TX 78201",
+    "telephone": "+1-555-0789"
+  },
+  {
+    "id": 8,
+    "cid": 1008,
+    "company_name": "Fresh Catch Fish Market",
+    "address": "258 Spruce St, San Diego, CA 92101",
+    "telephone": "+1-555-0890"
+  },
+  {
+    "id": 9,
+    "cid": 1009,
+    "company_name": "Countryside Dairy Farms",
+    "address": "369 Willow Way, Dallas, TX 75201",
+    "telephone": "+1-555-0901"
+  },
+  {
+    "id": 10,
+    "cid": 1010,
+    "company_name": "Cold Chain Logistics Inc",
+    "address": "741 Aspen Ct, San Jose, CA 95101",
+    "telephone": "+1-555-1012"
+  },
+  {
+    "id": 11,
+    "cid": 1011,
+    "company_name": "Garden Fresh Vegetables",
+    "address": "852 Poplar Ave, Austin, TX 78701",
+    "telephone": "+1-555-1123"
+  },
+  {
+    "id": 12,
+    "cid": 1012,
+    "company_name": "Artisan Cheese & Deli",
+    "address": "963 Hickory St, Jacksonville, FL 32099",
+    "telephone": "+1-555-1234"
+  },
+  {
+    "id": 13,
+    "cid": 1013,
+    "company_name": "Ice Fresh Refrigerated Goods",
+    "address": "159 Walnut Rd, Fort Worth, TX 76101",
+    "telephone": "+1-555-1345"
+  },
+  {
+    "id": 14,
+    "cid": 1014,
+    "company_name": "Tropical Fruits Import Co",
+    "address": "357 Cherry Dr, Columbus, OH 43085",
+    "telephone": "+1-555-1456"
+  },
+  {
+    "id": 15,
+    "cid": 1015,
+    "company_name": "Butcher Block Meat Company",
+    "address": "468 Sycamore Blvd, Charlotte, NC 28201",
+    "telephone": "+1-555-1567"
+  },
+  {
+    "id": 16,
+    "cid": 1016,
+    "company_name": "Mountain Spring Water & Beverages",
+    "address": "579 Magnolia Lane, San Francisco, CA 94101",
+    "telephone": "+1-555-1678"
+  },
+  {
+    "id": 17,
+    "cid": 1017,
+    "company_name": "Fresh Bakery Goods Supply",
+    "address": "680 Dogwood Ave, Indianapolis, IN 46201",
+    "telephone": "+1-555-1789"
+  },
+  {
+    "id": 18,
+    "cid": 1018,
+    "company_name": "Seaside Shellfish Distributors",
+    "address": "791 Redwood St, Seattle, WA 98101",
+    "telephone": "+1-555-1890"
+  },
+  {
+    "id": 19,
+    "cid": 1019,
+    "company_name": "Farm to Table Produce Hub",
+    "address": "812 Cypress Way, Denver, CO 80201",
+    "telephone": "+1-555-1901"
+  },
+  {
+    "id": 20,
+    "cid": 1020,
+    "company_name": "Premium Ice Cream Wholesale",
+    "address": "923 Palm Tree Dr, Boston, MA 02101",
+    "telephone": "+1-555-2012"
   }
 ]

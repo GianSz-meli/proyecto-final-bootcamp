@@ -1,5 +1,9 @@
 package models
 
 type Seller struct {
-	Id int
+	Id int `json:"id"`
+	Cid int `json:"cid"`
+	CompanyName string `json:"company_name"`
+	Address   string `json:"address"`
+	Telephone string `json:"telephone"`
 }
