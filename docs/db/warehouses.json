@@ -1,0 +1,82 @@
+[
+  {
+    "id": 1,
+    "warehouse_code": "WH001",
+    "address": "123 Main Street, Downtown, NY 10001",
+    "telephone": "+1-555-123-4567",
+    "minimum_capacity": 1000,
+    "minimum_temperature": -5.0
+  },
+  {
+    "id": 2,
+    "warehouse_code": "WH002",
+    "address": "456 Oak Avenue, Midtown, NY 10002",
+    "telephone": "+1-555-987-6543",
+    "minimum_capacity": 2000,
+    "minimum_temperature": -10.0
+  },
+  {
+    "id": 3,
+    "warehouse_code": "WH003",
+    "address": "789 Pine Road, Uptown, NY 10003",
+    "telephone": "+1-555-456-7890",
+    "minimum_capacity": 1500,
+    "minimum_temperature": -2.5
+  },
+  {
+    "id": 4,
+    "warehouse_code": "WH004",
+    "address": "321 Elm Street, Brooklyn, NY 11201",
+    "telephone": "+1-555-789-0123",
+    "minimum_capacity": 3000,
+    "minimum_temperature": -15.0
+  },
+  {
+    "id": 5,
+    "warehouse_code": "WH005",
+    "address": "654 Maple Drive, Queens, NY 11101",
+    "telephone": "+1-555-321-6540",
+    "minimum_capacity": 2500,
+    "minimum_temperature": -8.0
+  },
+  {
+    "id": 6,
+    "warehouse_code": "WH006",
+    "address": "987 Cedar Lane, Bronx, NY 10451",
+    "telephone": "+1-555-654-3210",
+    "minimum_capacity": 1800,
+    "minimum_temperature": -3.0
+  },
+  {
+    "id": 7,
+    "warehouse_code": "WH007",
+    "address": "147 Birch Boulevard, Staten Island, NY 10301",
+    "telephone": "+1-555-012-3456",
+    "minimum_capacity": 1200,
+    "minimum_temperature": -1.5
+  },
+  {
+    "id": 8,
+    "warehouse_code": "WH008",
+    "address": "258 Spruce Street, Manhattan, NY 10004",
+    "telephone": "+1-555-345-6789",
+    "minimum_capacity": 4000,
+    "minimum_temperature": -20.0
+  },
+  {
+    "id": 9,
+    "warehouse_code": "WH009",
+    "address": "369 Willow Way, Long Island, NY 11501",
+    "telephone": "+1-555-678-9012",
+    "minimum_capacity": 2200,
+    "minimum_temperature": -6.5
+  },
+  {
+    "id": 10,
+    "warehouse_code": "WH010",
+    "address": "741 Aspen Court, Westchester, NY 10501",
+    "telephone": "+1-555-901-2345",
+    "minimum_capacity": 2800,
+    "minimum_temperature": -12.0
+  }
+]
