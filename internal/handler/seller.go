@@ -22,7 +22,7 @@ var validate = validator.New()
 
 func (h *SellerHandler) Create() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var reqBody models.Seller
+		var reqBody models.SellerDoc
 
 		if err := request.JSON(r, &reqBody); err != nil {
 			newErr := errors.WrapErrBadRequest(err)
@@ -36,8 +36,11 @@ func (h *SellerHandler) Create() http.HandlerFunc {
 			return
 		}
 
-		body, err := h.service.Create(reqBody)
+		model := reqBody.DocToModel()
 
+		seller, err := h.service.Create(model)
+
+		body := seller.ModelToDoc()
 		if err != nil {
 			errors.HandleError(w, err)
 			return

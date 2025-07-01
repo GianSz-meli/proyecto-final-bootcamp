@@ -19,11 +19,6 @@ func NewSellerService(repository repository.Repository) Service {
 }
 
 func (s *SellerService) Create(seller models.Seller) (models.Seller, error) {
-	if _, ok := s.repository.GetById(seller.Id); ok {
-		newError := errors.WrapErrAlreadyExist("seller", "id", seller.Id)
-		return models.Seller{}, newError
-	}
-
 	if s.repository.ExistsByCid(seller.Cid) {
 		newError := errors.WrapErrAlreadyExist("seller", "cid", seller.Cid)
 		return models.Seller{}, newError
