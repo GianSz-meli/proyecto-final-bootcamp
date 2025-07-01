@@ -8,17 +8,7 @@
     "minimum_capacity": 10,
     "maximum_capacity": 100,
     "warehouse_id": 1,
-    "product_type_id": 1,
-    "product_batches": [
-      {
-        "id": 1,
-        "products_id": [101, 102, 103]
-      },
-      {
-        "id": 2,
-        "products_id": [104, 105]
-      }
-    ]
+    "product_type_id": 1
   },
   {
     "id": 2,
@@ -29,13 +19,7 @@
     "minimum_capacity": 10,
     "maximum_capacity": 100,
     "warehouse_id": 1,
-    "product_type_id": 1,
-    "product_batches": [
-      {
-        "id": 3,
-        "products_id": [106, 107, 108, 109]
-      }
-    ]
+    "product_type_id": 1
   },
   {
     "id": 3,
@@ -46,17 +30,7 @@
     "minimum_capacity": 15,
     "maximum_capacity": 80,
     "warehouse_id": 1,
-    "product_type_id": 2,
-    "product_batches": [
-      {
-        "id": 4,
-        "products_id": [201, 202]
-      },
-      {
-        "id": 5,
-        "products_id": [203, 204, 205]
-      }
-    ]
+    "product_type_id": 2
   },
   {
     "id": 4,
@@ -67,13 +41,7 @@
     "minimum_capacity": 15,
     "maximum_capacity": 80,
     "warehouse_id": 1,
-    "product_type_id": 2,
-    "product_batches": [
-      {
-        "id": 6,
-        "products_id": [206, 207, 208]
-      }
-    ]
+    "product_type_id": 2
   },
   {
     "id": 5,
@@ -84,12 +52,6 @@
     "minimum_capacity": 5,
     "maximum_capacity": 50,
     "warehouse_id": 1,
-    "product_type_id": 3,
-    "product_batches": [
-      {
-        "id": 7,
-        "products_id": [301, 302, 303, 304, 305]
-      }
-    ]
+    "product_type_id": 3
   }
 ]

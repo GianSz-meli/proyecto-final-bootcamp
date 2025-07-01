@@ -17,6 +17,20 @@ type SectionAttributes struct {
 	ProductBatches     []ProductBatch `json:"product_batches,omitempty"`
 }
 
+func (s Section) ToSectionDoc() SectionDoc {
+	return SectionDoc{
+		ID:                 s.ID,
+		SectionNumber:      s.SectionNumber,
+		CurrentTemperature: s.CurrentTemperature,
+		MinimumTemperature: s.MinimumTemperature,
+		CurrentCapacity:    s.CurrentCapacity,
+		MinimumCapacity:    s.MinimumCapacity,
+		MaximumCapacity:    s.MaximumCapacity,
+		WarehouseID:        s.WarehouseID,
+		ProductTypeID:      s.ProductTypeID,
+	}
+}
+
 type SectionDoc struct {
 	ID                 int     `json:"id"`
 	SectionNumber      int     `json:"section_number"`

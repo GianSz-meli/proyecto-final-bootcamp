@@ -23,28 +23,29 @@ func (l *SectionJSONFile) Load() (s map[int]models.Section, err error) {
 	}
 	defer file.Close()
 
-	var sectionsJSON []models.Section
-	err = json.NewDecoder(file).Decode(&sectionsJSON)
+	var sectionsDoc []models.SectionDoc
+	err = json.NewDecoder(file).Decode(&sectionsDoc)
 	if err != nil {
 		return
 	}
 
 	s = make(map[int]models.Section)
-	for _, sec := range sectionsJSON {
-		s[sec.ID] = models.Section{
-			ID: sec.ID,
+	for _, secDoc := range sectionsDoc {
+		section := models.Section{
+			ID: secDoc.ID,
 			SectionAttributes: models.SectionAttributes{
-				SectionNumber:      sec.SectionNumber,
-				CurrentTemperature: sec.CurrentTemperature,
-				MinimumTemperature: sec.MinimumTemperature,
-				CurrentCapacity:    sec.CurrentCapacity,
-				MinimumCapacity:    sec.MinimumCapacity,
-				MaximumCapacity:    sec.MaximumCapacity,
-				WarehouseID:        sec.WarehouseID,
-				ProductTypeID:      sec.ProductTypeID,
-				ProductBatches:     sec.ProductBatches,
+				SectionNumber:      secDoc.SectionNumber,
+				CurrentTemperature: secDoc.CurrentTemperature,
+				MinimumTemperature: secDoc.MinimumTemperature,
+				CurrentCapacity:    secDoc.CurrentCapacity,
+				MinimumCapacity:    secDoc.MinimumCapacity,
+				MaximumCapacity:    secDoc.MaximumCapacity,
+				WarehouseID:        secDoc.WarehouseID,
+				ProductTypeID:      secDoc.ProductTypeID,
+				ProductBatches:     nil,
 			},
 		}
+		s[section.ID] = section
 	}
 
 	return

@@ -28,13 +28,13 @@ func (h *SectionDefault) GetAll() http.HandlerFunc {
 			return
 		}
 
-		sections := make([]models.Section, 0, len(sectionsMap))
+		sectionsDoc := make([]models.SectionDoc, 0, len(sectionsMap))
 		for _, section := range sectionsMap {
-			sections = append(sections, section)
+			sectionsDoc = append(sectionsDoc, section.ToSectionDoc())
 		}
 
 		response.JSON(w, http.StatusOK, map[string]any{
-			"data": sections,
+			"data": sectionsDoc,
 		})
 	}
 }
@@ -57,7 +57,7 @@ func (h *SectionDefault) GetByID() http.HandlerFunc {
 		}
 
 		response.JSON(w, http.StatusOK, map[string]any{
-			"data": section,
+			"data": section.ToSectionDoc(),
 		})
 	}
 }
@@ -79,7 +79,7 @@ func (h *SectionDefault) Create() http.HandlerFunc {
 		}
 
 		response.JSON(w, http.StatusCreated, map[string]any{
-			"data": createdSection,
+			"data": createdSection.ToSectionDoc(),
 		})
 	}
 }
@@ -110,7 +110,7 @@ func (h *SectionDefault) Update() http.HandlerFunc {
 		}
 
 		response.JSON(w, http.StatusOK, map[string]any{
-			"data": updatedSection,
+			"data": updatedSection.ToSectionDoc(),
 		})
 	}
 }
