@@ -2,6 +2,10 @@ package application
 
 import (
 	"ProyectoFinal/internal/application/loader"
+	"ProyectoFinal/internal/application/router"
+	"ProyectoFinal/internal/handler"
+	"ProyectoFinal/internal/repository"
+	"ProyectoFinal/internal/service"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -40,22 +44,19 @@ func (a *ServerChi) Run() (err error) {
 	rt := chi.NewRouter()
 
 	factory := loader.NewLoaderFactory(a.loaderFilePath)
-	_, err = factory.NewSellerLoader().Load()
-
+  
+	sellerDB, err := factory.NewSellerLoader().Load()
+  
 	if err != nil {
 		panic(err)
 	}
 
-	_, err = factory.NewEmployeeLoader().Load()
-	if err != nil {
-		panic(err)
-	}
+	repoSeller := repository.NewSellerRepository(sellerDB)
+	srvSeller := service.NewSellerService(repoSeller)
+	ctrSeller := handler.NewSellerHandler(srvSeller)
 
 	rt.Route("/api/v1", func(r chi.Router) {
-		r.Mount("/ping", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.WriteHeader(http.StatusOK)
-			w.Write([]byte("pong"))
-		})) // TODO: remove this
+		r.Mount("/seller", router.SellerRoutes(ctrSeller))
 	})
 
 	err = http.ListenAndServe(a.serverAddress, rt)
