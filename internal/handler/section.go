@@ -10,7 +10,10 @@ import (
 
 	"github.com/bootcamp-go/web/response"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-playground/validator/v10"
 )
+
+var sectionValidator = validator.New()
 
 func NewSectionDefault(sv service.SectionService) *SectionDefault {
 	return &SectionDefault{sv: sv}
@@ -68,7 +71,7 @@ func (h *SectionDefault) Create() http.HandlerFunc {
 			return
 		}
 
-		if err := validate.Struct(section); err != nil {
+		if err := sectionValidator.Struct(section); err != nil {
 			errors.HandleError(w, errors.WrapErrBadRequest(err))
 			return
 		}
@@ -100,7 +103,7 @@ func (h *SectionDefault) Update() http.HandlerFunc {
 			return
 		}
 
-		if err := validate.Struct(section); err != nil {
+		if err := sectionValidator.Struct(section); err != nil {
 			errors.HandleError(w, errors.WrapErrBadRequest(err))
 			return
 		}
