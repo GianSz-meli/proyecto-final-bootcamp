@@ -40,7 +40,10 @@ func (h *SellerHandler) Create() http.HandlerFunc {
 
 		seller, err := h.service.Create(model)
 
-		body := seller.ModelToDoc()
+		body := models.SuccessResponse[models.SellerDoc]{
+			Data: []models.SellerDoc{seller.ModelToDoc()},
+		}
+
 		if err != nil {
 			errors.HandleError(w, err)
 			return
