@@ -2,9 +2,12 @@ package application
 
 import (
 	"ProyectoFinal/internal/application/loader"
+	"ProyectoFinal/internal/application/router"
 	handler "ProyectoFinal/internal/handler"
-	repository "ProyectoFinal/internal/repository/section"
-	service "ProyectoFinal/internal/service/section"
+	repository "ProyectoFinal/internal/repository"
+	repositorySection "ProyectoFinal/internal/repository/section"
+	service "ProyectoFinal/internal/service"
+	serviceSection "ProyectoFinal/internal/service/section"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -45,20 +48,28 @@ func (a *ServerChi) Run() (err error) {
 	factory := loader.NewLoaderFactory(a.loaderFilePath)
 
 	// Load sellers
-	_, err = factory.NewSellerLoader().Load()
+	sellerDB, err := factory.NewSellerLoader().Load()
 	if err != nil {
 		panic(err)
 	}
 
+	// Load sections
 	sections, err := factory.NewSectionLoader().Load()
 	if err != nil {
 		panic(err)
 	}
 
-	sectionRepo := repository.NewSectionMap(sections)
-	sectionService := service.NewSectionDefault(sectionRepo)
+	// Initialize section components
+	sectionRepo := repositorySection.NewSectionMap(sections)
+	sectionService := serviceSection.NewSectionDefault(sectionRepo)
 	sectionHandler := handler.NewSectionDefault(sectionService)
 
+	// Initialize seller components
+	repoSeller := repository.NewSellerRepository(sellerDB)
+	srvSeller := service.NewSellerService(repoSeller)
+	ctrSeller := handler.NewSellerHandler(srvSeller)
+
+	// Setup routes
 	rt.Route("/api/v1", func(r chi.Router) {
 		r.Mount("/ping", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
@@ -73,6 +84,9 @@ func (a *ServerChi) Run() (err error) {
 			r.Patch("/{id}", sectionHandler.Update())
 			r.Delete("/{id}", sectionHandler.Delete())
 		})
+
+		// Seller routes
+		r.Mount("/seller", router.SellerRoutes(ctrSeller))
 	})
 
 	err = http.ListenAndServe(a.serverAddress, rt)

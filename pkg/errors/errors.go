@@ -2,74 +2,80 @@ package errors
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/bootcamp-go/web/response"
 )
 
 type ApiError struct {
-	Message    string `json:"message"`
-	StatusCode int    `json:"status_code"`
-}
-
-func (a *ApiError) Error() string {
-	return a.Message
+	StatusCode int `json:"status_code"`
 }
 
 var (
-	ErrGeneral = errors.New("unexpected general error")
-
-	ErrSectionNotFound      = errors.New("section not found")
-	ErrSectionAlreadyExists = errors.New("section already exists")
-	ErrInvalidSectionID     = errors.New("invalid section ID")
-	ErrInvalidSectionData   = errors.New("invalid section data")
-	ErrSectionNumberExists  = errors.New("section number already exists")
-
-	mapErr = map[error]ApiError{
-		ErrGeneral:              NewErrInternalServer(ErrGeneral.Error()),
-		ErrSectionNotFound:      NewErrNotFound(ErrSectionNotFound.Error()),
-		ErrSectionAlreadyExists: NewErrConflict(ErrSectionAlreadyExists.Error()),
-		ErrInvalidSectionID:     NewErrBadRequest(ErrInvalidSectionID.Error()),
-		ErrInvalidSectionData:   NewErrBadRequest(ErrInvalidSectionData.Error()),
-		ErrSectionNumberExists:  NewErrConflict(ErrSectionNumberExists.Error()),
+	ErrGeneral             = errors.New("internal server error")
+	ErrNotFound            = errors.New("not found")
+	ErrAlreadyExists       = errors.New("resource already exists")
+	ErrBadRequest          = errors.New("bad request")
+	ErrSectionNotFound     = errors.New("section not found")
+	ErrSectionNumberExists = errors.New("section number already exists")
+	ErrInvalidSectionID    = errors.New("invalid section id")
+	ErrInvalidSectionData  = errors.New("invalid section data")
+	mapErr                 = map[error]ApiError{
+		ErrGeneral:             NewErrInternalServer(),
+		ErrNotFound:            NewErrNotFound(),
+		ErrAlreadyExists:       NewErrAlreadyExists(),
+		ErrBadRequest:          NewErrBadRequest(),
+		ErrSectionNotFound:     NewErrNotFound(),
+		ErrSectionNumberExists: NewErrAlreadyExists(),
+		ErrInvalidSectionID:    NewErrBadRequest(),
+		ErrInvalidSectionData:  NewErrBadRequest(),
 	}
 )
 
-func NewErrInternalServer(msg string) ApiError {
+func NewErrInternalServer() ApiError {
 	return ApiError{
 		StatusCode: http.StatusInternalServerError,
-		Message:    msg,
 	}
 }
 
-func NewErrNotFound(msg string) ApiError {
+func NewErrNotFound() ApiError {
 	return ApiError{
 		StatusCode: http.StatusNotFound,
-		Message:    msg,
 	}
 }
 
-func NewErrBadRequest(msg string) ApiError {
-	return ApiError{
-		StatusCode: http.StatusBadRequest,
-		Message:    msg,
-	}
-}
-
-func NewErrConflict(msg string) ApiError {
+func NewErrAlreadyExists() ApiError {
 	return ApiError{
 		StatusCode: http.StatusConflict,
-		Message:    msg,
 	}
 }
 
-func HandleError(w http.ResponseWriter, err error) {
-	mappedError, ok := mapErr[err]
+func NewErrBadRequest() ApiError {
+	return ApiError{
+		StatusCode: http.StatusBadRequest,
+	}
+}
 
-	if !ok {
-		response.Error(w, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
+func getMappedError(err error) *ApiError {
+	for baseError, mappedError := range mapErr {
+		if errors.Is(err, baseError) {
+			return &mappedError
+		}
+	}
+	return nil
+}
+func HandleError(w http.ResponseWriter, err error) {
+	if mappedError := getMappedError(err); mappedError != nil {
+		response.Error(w, mappedError.StatusCode, err.Error())
 		return
 	}
+	response.Error(w, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
+}
 
-	response.Error(w, mappedError.StatusCode, mappedError.Message)
+func WrapErrAlreadyExist(domain, property string, value int) error {
+	return fmt.Errorf("%w : %s with %s %d already exists", ErrAlreadyExists, domain, property, value)
+}
+func WrapErrBadRequest(err error) error {
+	return fmt.Errorf("%w : %s", ErrBadRequest, err.Error())
 }

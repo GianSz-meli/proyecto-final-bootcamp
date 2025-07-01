@@ -44,9 +44,7 @@ func (h *SectionDefault) GetByID() http.HandlerFunc {
 		id := chi.URLParam(r, "id")
 		idNum, err := strconv.Atoi(id)
 		if err != nil {
-			response.JSON(w, http.StatusBadRequest, map[string]any{
-				"message": "invalid id parameter",
-			})
+			errors.HandleError(w, errors.ErrInvalidSectionID)
 			return
 		}
 
@@ -66,9 +64,12 @@ func (h *SectionDefault) Create() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var section models.Section
 		if err := json.NewDecoder(r.Body).Decode(&section); err != nil {
-			response.JSON(w, http.StatusBadRequest, map[string]any{
-				"message": "invalid request body",
-			})
+			errors.HandleError(w, errors.WrapErrBadRequest(err))
+			return
+		}
+
+		if err := validate.Struct(section); err != nil {
+			errors.HandleError(w, errors.WrapErrBadRequest(err))
 			return
 		}
 
@@ -89,17 +90,18 @@ func (h *SectionDefault) Update() http.HandlerFunc {
 		id := chi.URLParam(r, "id")
 		idNum, err := strconv.Atoi(id)
 		if err != nil {
-			response.JSON(w, http.StatusBadRequest, map[string]any{
-				"message": "invalid id parameter",
-			})
+			errors.HandleError(w, errors.ErrInvalidSectionID)
 			return
 		}
 
 		var section models.Section
 		if err := json.NewDecoder(r.Body).Decode(&section); err != nil {
-			response.JSON(w, http.StatusBadRequest, map[string]any{
-				"message": "invalid request body",
-			})
+			errors.HandleError(w, errors.WrapErrBadRequest(err))
+			return
+		}
+
+		if err := validate.Struct(section); err != nil {
+			errors.HandleError(w, errors.WrapErrBadRequest(err))
 			return
 		}
 
@@ -120,9 +122,7 @@ func (h *SectionDefault) Delete() http.HandlerFunc {
 		id := chi.URLParam(r, "id")
 		idNum, err := strconv.Atoi(id)
 		if err != nil {
-			response.JSON(w, http.StatusBadRequest, map[string]any{
-				"message": "invalid id parameter",
-			})
+			errors.HandleError(w, errors.ErrInvalidSectionID)
 			return
 		}
 
