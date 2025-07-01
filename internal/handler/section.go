@@ -26,14 +26,14 @@ type SectionDefault struct {
 
 func (h *SectionDefault) GetAll() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		sectionsMap, err := h.sv.GetAll()
+		sections, err := h.sv.GetAll()
 		if err != nil {
 			errors.HandleError(w, err)
 			return
 		}
 
-		sectionsDoc := make([]models.SectionDoc, 0, len(sectionsMap))
-		for _, section := range sectionsMap {
+		sectionsDoc := make([]models.SectionDoc, 0, len(sections))
+		for _, section := range sections {
 			sectionsDoc = append(sectionsDoc, section.ToSectionDoc())
 		}
 

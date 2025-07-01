@@ -14,7 +14,7 @@ type SectionDefault struct {
 	rp repository.SectionRepository
 }
 
-func (s *SectionDefault) GetAll() (sections map[int]models.Section, err error) {
+func (s *SectionDefault) GetAll() (sections []models.Section, err error) {
 	sections, err = s.rp.GetAll()
 	if err != nil {
 		return nil, err

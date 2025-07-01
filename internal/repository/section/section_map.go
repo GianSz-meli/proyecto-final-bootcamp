@@ -19,10 +19,10 @@ type SectionMap struct {
 	lastID int
 }
 
-func (r *SectionMap) GetAll() (s map[int]models.Section, err error) {
-	s = make(map[int]models.Section)
-	for key, value := range r.db {
-		s[key] = value
+func (r *SectionMap) GetAll() (s []models.Section, err error) {
+	s = make([]models.Section, 0, len(r.db))
+	for _, value := range r.db {
+		s = append(s, value)
 	}
 	return
 }
