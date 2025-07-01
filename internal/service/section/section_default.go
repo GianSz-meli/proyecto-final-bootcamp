@@ -67,7 +67,6 @@ func (s *SectionDefault) Update(id int, section models.Section) (updatedSection 
 		return models.Section{}, err
 	}
 
-	// Check for section_number uniqueness only if it's being updated
 	if section.SectionNumber != 0 {
 		sections, err := s.rp.GetAll()
 		if err != nil {
@@ -81,7 +80,6 @@ func (s *SectionDefault) Update(id int, section models.Section) (updatedSection 
 		}
 	}
 
-	// Create a merged section for validation
 	mergedSection := existingSection
 	if section.SectionNumber != 0 {
 		mergedSection.SectionNumber = section.SectionNumber
@@ -111,7 +109,6 @@ func (s *SectionDefault) Update(id int, section models.Section) (updatedSection 
 		mergedSection.ProductBatches = section.ProductBatches
 	}
 
-	// Validate the merged section
 	if err := s.validateSection(mergedSection); err != nil {
 		return models.Section{}, errors.ErrInvalidSectionData
 	}

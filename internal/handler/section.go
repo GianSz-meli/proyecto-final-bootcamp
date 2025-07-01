@@ -28,7 +28,6 @@ func (h *SectionDefault) GetAll() http.HandlerFunc {
 			return
 		}
 
-		// Convert map to array for JSON response
 		sections := make([]models.Section, 0, len(sectionsMap))
 		for _, section := range sectionsMap {
 			sections = append(sections, section)
