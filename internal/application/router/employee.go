@@ -1,12 +1,12 @@
 package router
 
 import (
-	employeeHandler "ProyectoFinal/internal/handler/employee"
+	"ProyectoFinal/internal/handler"
 
 	"github.com/go-chi/chi/v5"
 )
 
-func EmployeeRoutes(ctr *employeeHandler.EmployeeHandler) chi.Router {
+func EmployeeRoutes(ctr *handler.EmployeeHandler) chi.Router {
 	r := chi.NewRouter()
 	r.Get("/", ctr.GetAll())
 	r.Get("/{id}", ctr.GetById())

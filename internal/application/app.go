@@ -5,11 +5,8 @@ import (
 	"ProyectoFinal/internal/application/loader"
 	"ProyectoFinal/internal/application/router"
 	"ProyectoFinal/internal/handler"
-	employeeHandler "ProyectoFinal/internal/handler/employee"
 	"ProyectoFinal/internal/repository"
-	employeeRepository "ProyectoFinal/internal/repository/employee"
 	"ProyectoFinal/internal/service"
-	employeeService "ProyectoFinal/internal/service/employee"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -49,33 +46,31 @@ func (a *ServerChi) Run() (err error) {
 
 	factory := loader.NewLoaderFactory(a.loaderFilePath)
 
+	// Load seller data and build dependencies manually (no DI yet)
 	sellerDB, err := factory.NewSellerLoader().Load()
 	if err != nil {
 		panic(err)
 	}
+	repoSeller := repository.NewSellerRepository(sellerDB)
+	srvSeller := service.NewSellerService(repoSeller)
+	ctrSeller := handler.NewSellerHandler(srvSeller)
 
 	warehouseDB, err := factory.NewWarehouseLoader().Load()
 	if err != nil {
 		panic(err)
 	}
-
 	warehouseHandler := di.GetWarehouseHandler(warehouseDB)
 
-	repoSeller := repository.NewSellerRepository(sellerDB)
-	srvSeller := service.NewSellerService(repoSeller)
-	ctrSeller := handler.NewSellerHandler(srvSeller)
-
+	// Load employee data and use DI
 	employeeDB, err := factory.NewEmployeeLoader().Load()
 	if err != nil {
 		panic(err)
 	}
-	repoEmployee := employeeRepository.NewRepository(employeeDB)
-	srvEmployee := employeeService.NewService(repoEmployee)
-	ctrEmployee := employeeHandler.NewEmployeeHandler(srvEmployee)
+	employeeHandler := di.GetEmployeeHandler(employeeDB)
 
 	rt.Route("/api/v1", func(r chi.Router) {
 		r.Mount("/seller", router.SellerRoutes(ctrSeller))
-		r.Mount("/employees", router.EmployeeRoutes(ctrEmployee))
+		r.Mount("/employees", router.EmployeeRoutes(employeeHandler))
 		r.Mount("/warehouses", router.GetWarehouseRouter(warehouseHandler))
 	})
 
