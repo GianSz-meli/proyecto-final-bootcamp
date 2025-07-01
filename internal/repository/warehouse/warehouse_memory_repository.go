@@ -21,3 +21,11 @@ func (r *MemoryWarehouseRepository) GetAll() []models.Warehouse {
 	}
 	return warehouses
 }
+
+func (r *MemoryWarehouseRepository) GetById(id int) *models.Warehouse {
+	warehouse, exists := r.db[id]
+	if !exists {
+		return nil
+	}
+	return &warehouse
+}
