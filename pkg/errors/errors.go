@@ -17,7 +17,7 @@ func (a *ApiError) Error() string {
 }
 
 var (
-	ErrGeneral = errors.New("unexepected general error")
+	ErrGeneral = errors.New("unexpected general error")
 
 	ErrSectionNotFound      = errors.New("section not found")
 	ErrSectionAlreadyExists = errors.New("section already exists")

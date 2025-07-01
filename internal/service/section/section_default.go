@@ -113,7 +113,7 @@ func (s *SectionDefault) Update(id int, section models.Section) (updatedSection 
 		return models.Section{}, errors.ErrInvalidSectionData
 	}
 
-	updatedSection, err = s.rp.Update(id, section)
+	updatedSection, err = s.rp.Update(id, mergedSection)
 	if err != nil {
 		return models.Section{}, err
 	}
