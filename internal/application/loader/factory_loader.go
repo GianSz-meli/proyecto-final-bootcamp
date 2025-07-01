@@ -24,7 +24,9 @@ func (f *FactoryLoader) NewSellerLoader() Loader[models.Seller] {
 	return &SellerLoader{path: f.paths[Seller]}
 }
 
-// Nueva función para crear EmployeeLoader
 func (f *FactoryLoader) NewEmployeeLoader() Loader[employeemodel.Employee] {
 	return &EmployeeLoader{path: f.paths[Employee]}
+}
+func (f *FactoryLoader) NewWarehouseLoader() Loader[models.Warehouse] {
+	return &WarehouseLoader{path: f.paths[Warehouse]}
 }
