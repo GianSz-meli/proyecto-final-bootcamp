@@ -5,6 +5,7 @@ import (
 	"ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -47,7 +48,12 @@ func (h *SectionDefault) GetByID() http.HandlerFunc {
 		id := chi.URLParam(r, "id")
 		idNum, err := strconv.Atoi(id)
 		if err != nil {
-			errors.HandleError(w, errors.ErrBadRequest)
+			errors.HandleError(w, errors.WrapErrBadRequest(err))
+			return
+		}
+
+		if idNum <= 0 {
+			errors.HandleError(w, errors.WrapErrBadRequest(fmt.Errorf("invalid id: %d", idNum)))
 			return
 		}
 
@@ -76,6 +82,11 @@ func (h *SectionDefault) Create() http.HandlerFunc {
 			return
 		}
 
+		if err := h.validateSectionBusinessRules(section); err != nil {
+			errors.HandleError(w, errors.WrapErrBadRequest(err))
+			return
+		}
+
 		createdSection, err := h.sv.Create(section)
 		if err != nil {
 			errors.HandleError(w, err)
@@ -93,7 +104,12 @@ func (h *SectionDefault) Update() http.HandlerFunc {
 		id := chi.URLParam(r, "id")
 		idNum, err := strconv.Atoi(id)
 		if err != nil {
-			errors.HandleError(w, errors.ErrBadRequest)
+			errors.HandleError(w, errors.WrapErrBadRequest(err))
+			return
+		}
+
+		if idNum <= 0 {
+			errors.HandleError(w, errors.WrapErrBadRequest(fmt.Errorf("invalid id: %d", idNum)))
 			return
 		}
 
@@ -104,6 +120,11 @@ func (h *SectionDefault) Update() http.HandlerFunc {
 		}
 
 		if err := sectionValidator.Struct(section); err != nil {
+			errors.HandleError(w, errors.WrapErrBadRequest(err))
+			return
+		}
+
+		if err := h.validateSectionBusinessRules(section); err != nil {
 			errors.HandleError(w, errors.WrapErrBadRequest(err))
 			return
 		}
@@ -125,7 +146,12 @@ func (h *SectionDefault) Delete() http.HandlerFunc {
 		id := chi.URLParam(r, "id")
 		idNum, err := strconv.Atoi(id)
 		if err != nil {
-			errors.HandleError(w, errors.ErrBadRequest)
+			errors.HandleError(w, errors.WrapErrBadRequest(err))
+			return
+		}
+
+		if idNum <= 0 {
+			errors.HandleError(w, errors.WrapErrBadRequest(fmt.Errorf("invalid id: %d", idNum)))
 			return
 		}
 
@@ -137,4 +163,24 @@ func (h *SectionDefault) Delete() http.HandlerFunc {
 
 		w.WriteHeader(http.StatusNoContent)
 	}
+}
+
+func (h *SectionDefault) validateSectionBusinessRules(section models.Section) error {
+	if section.CurrentTemperature < section.MinimumTemperature {
+		return fmt.Errorf("current temperature cannot be less than minimum temperature")
+	}
+
+	if section.MinimumCapacity > section.MaximumCapacity {
+		return fmt.Errorf("minimum capacity cannot be greater than maximum capacity")
+	}
+
+	if section.CurrentCapacity > section.MaximumCapacity {
+		return fmt.Errorf("current capacity cannot be greater than maximum capacity")
+	}
+
+	if section.CurrentCapacity < section.MinimumCapacity {
+		return fmt.Errorf("current capacity cannot be less than minimum capacity")
+	}
+
+	return nil
 }

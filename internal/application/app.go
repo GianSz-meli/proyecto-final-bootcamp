@@ -77,13 +77,7 @@ func (a *ServerChi) Run() (err error) {
 		})) // TODO: remove this
 
 		// Section routes
-		r.Route("/sections", func(r chi.Router) {
-			r.Get("/", sectionHandler.GetAll())
-			r.Get("/{id}", sectionHandler.GetByID())
-			r.Post("/", sectionHandler.Create())
-			r.Patch("/{id}", sectionHandler.Update())
-			r.Delete("/{id}", sectionHandler.Delete())
-		})
+		r.Mount("/sections", router.SectionRoutes(sectionHandler))
 
 		// Seller routes
 		r.Mount("/seller", router.SellerRoutes(ctrSeller))

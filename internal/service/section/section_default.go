@@ -23,31 +23,20 @@ func (s *SectionDefault) GetAll() (sections map[int]models.Section, err error) {
 }
 
 func (s *SectionDefault) GetByID(id int) (section models.Section, err error) {
-	if id <= 0 {
-		return models.Section{}, errors.ErrBadRequest
-	}
-
 	section, err = s.rp.GetByID(id)
 	if err != nil {
-		return models.Section{}, err
+		return models.Section{}, errors.WrapErrNotFound("Section", "id", id)
 	}
 	return section, nil
 }
 
 func (s *SectionDefault) Create(section models.Section) (createdSection models.Section, err error) {
-	if err := s.validateSection(section); err != nil {
-		return models.Section{}, errors.ErrBadRequest
-	}
-
-	sections, err := s.rp.GetAll()
+	exists, err := s.rp.ExistBySectionNumber(section.SectionNumber)
 	if err != nil {
 		return models.Section{}, err
 	}
-
-	for _, existingSection := range sections {
-		if existingSection.SectionNumber == section.SectionNumber {
-			return models.Section{}, errors.ErrAlreadyExists
-		}
+	if exists {
+		return models.Section{}, errors.WrapErrAlreadyExist("Section", "section_number", section.SectionNumber)
 	}
 
 	createdSection, err = s.rp.Create(section)
@@ -58,25 +47,18 @@ func (s *SectionDefault) Create(section models.Section) (createdSection models.S
 }
 
 func (s *SectionDefault) Update(id int, section models.Section) (updatedSection models.Section, err error) {
-	if id <= 0 {
-		return models.Section{}, errors.ErrBadRequest
-	}
-
 	existingSection, err := s.rp.GetByID(id)
 	if err != nil {
-		return models.Section{}, err
+		return models.Section{}, errors.WrapErrNotFound("Section", "id", id)
 	}
 
-	if section.SectionNumber != 0 {
-		sections, err := s.rp.GetAll()
+	if section.SectionNumber != 0 && section.SectionNumber != existingSection.SectionNumber {
+		exists, err := s.rp.ExistBySectionNumber(section.SectionNumber)
 		if err != nil {
 			return models.Section{}, err
 		}
-
-		for _, sec := range sections {
-			if sec.ID != id && sec.SectionNumber == section.SectionNumber {
-				return models.Section{}, errors.ErrAlreadyExists
-			}
+		if exists {
+			return models.Section{}, errors.WrapErrAlreadyExist("Section", "section_number", section.SectionNumber)
 		}
 	}
 
@@ -109,10 +91,6 @@ func (s *SectionDefault) Update(id int, section models.Section) (updatedSection 
 		mergedSection.ProductBatches = section.ProductBatches
 	}
 
-	if err := s.validateSection(mergedSection); err != nil {
-		return models.Section{}, errors.ErrBadRequest
-	}
-
 	updatedSection, err = s.rp.Update(id, mergedSection)
 	if err != nil {
 		return models.Section{}, err
@@ -121,70 +99,9 @@ func (s *SectionDefault) Update(id int, section models.Section) (updatedSection 
 }
 
 func (s *SectionDefault) Delete(id int) (err error) {
-	if id <= 0 {
-		return errors.ErrBadRequest
-	}
-
-	_, err = s.rp.GetByID(id)
-	if err != nil {
-		return err
-	}
-
 	err = s.rp.Delete(id)
 	if err != nil {
-		return err
+		return errors.WrapErrNotFound("Section", "id", id)
 	}
-	return nil
-}
-
-func (s *SectionDefault) validateSection(section models.Section) error {
-	if section.SectionNumber <= 0 {
-		return errors.ErrBadRequest
-	}
-
-	if section.CurrentTemperature < -50 || section.CurrentTemperature > 50 {
-		return errors.ErrBadRequest
-	}
-
-	if section.MinimumTemperature < -50 || section.MinimumTemperature > 50 {
-		return errors.ErrBadRequest
-	}
-
-	if section.CurrentTemperature < section.MinimumTemperature {
-		return errors.ErrBadRequest
-	}
-
-	if section.CurrentCapacity < 0 {
-		return errors.ErrBadRequest
-	}
-
-	if section.MinimumCapacity < 0 {
-		return errors.ErrBadRequest
-	}
-
-	if section.MaximumCapacity <= 0 {
-		return errors.ErrBadRequest
-	}
-
-	if section.MinimumCapacity > section.MaximumCapacity {
-		return errors.ErrBadRequest
-	}
-
-	if section.CurrentCapacity > section.MaximumCapacity {
-		return errors.ErrBadRequest
-	}
-
-	if section.CurrentCapacity < section.MinimumCapacity {
-		return errors.ErrBadRequest
-	}
-
-	if section.WarehouseID <= 0 {
-		return errors.ErrBadRequest
-	}
-
-	if section.ProductTypeID <= 0 {
-		return errors.ErrBadRequest
-	}
-
 	return nil
 }

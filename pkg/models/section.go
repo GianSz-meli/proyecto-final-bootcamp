@@ -6,14 +6,14 @@ type Section struct {
 }
 
 type SectionAttributes struct {
-	SectionNumber      int            `json:"section_number"`
-	CurrentTemperature float64        `json:"current_temperature"`
-	MinimumTemperature float64        `json:"minimum_temperature"`
-	CurrentCapacity    int            `json:"current_capacity"`
-	MinimumCapacity    int            `json:"minimum_capacity"`
-	MaximumCapacity    int            `json:"maximum_capacity"`
-	WarehouseID        int            `json:"warehouse_id"`
-	ProductTypeID      int            `json:"product_type_id"`
+	SectionNumber      int            `json:"section_number" validate:"required,gt=0"`
+	CurrentTemperature float64        `json:"current_temperature" validate:"gte=-50,lte=50"`
+	MinimumTemperature float64        `json:"minimum_temperature" validate:"gte=-50,lte=50"`
+	CurrentCapacity    int            `json:"current_capacity" validate:"gte=0"`
+	MinimumCapacity    int            `json:"minimum_capacity" validate:"gte=0"`
+	MaximumCapacity    int            `json:"maximum_capacity" validate:"required,gt=0"`
+	WarehouseID        int            `json:"warehouse_id" validate:"required,gt=0"`
+	ProductTypeID      int            `json:"product_type_id" validate:"required,gt=0"`
 	ProductBatches     []ProductBatch `json:"product_batches,omitempty"`
 }
 
