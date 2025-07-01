@@ -4,7 +4,6 @@ import (
 	"ProyectoFinal/internal/service"
 	"ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
-	"fmt"
 	"github.com/bootcamp-go/web/request"
 	"github.com/bootcamp-go/web/response"
 	"github.com/go-playground/validator/v10"

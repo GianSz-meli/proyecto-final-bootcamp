@@ -44,9 +44,9 @@ func (a *ServerChi) Run() (err error) {
 	rt := chi.NewRouter()
 
 	factory := loader.NewLoaderFactory(a.loaderFilePath)
-  
+
 	sellerDB, err := factory.NewSellerLoader().Load()
-  
+
 	if err != nil {
 		panic(err)
 	}
