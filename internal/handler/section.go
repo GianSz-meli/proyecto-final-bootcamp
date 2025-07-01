@@ -22,15 +22,20 @@ type SectionDefault struct {
 
 func (h *SectionDefault) GetAll() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		sections, err := h.sv.GetAll()
+		sectionsMap, err := h.sv.GetAll()
 		if err != nil {
 			errors.HandleError(w, err)
 			return
 		}
 
+		// Convert map to array for JSON response
+		sections := make([]models.Section, 0, len(sectionsMap))
+		for _, section := range sectionsMap {
+			sections = append(sections, section)
+		}
+
 		response.JSON(w, http.StatusOK, map[string]any{
-			"message": "success",
-			"data":    sections,
+			"data": sections,
 		})
 	}
 }
@@ -53,8 +58,7 @@ func (h *SectionDefault) GetByID() http.HandlerFunc {
 		}
 
 		response.JSON(w, http.StatusOK, map[string]any{
-			"message": "success",
-			"data":    section,
+			"data": section,
 		})
 	}
 }
@@ -76,8 +80,7 @@ func (h *SectionDefault) Create() http.HandlerFunc {
 		}
 
 		response.JSON(w, http.StatusCreated, map[string]any{
-			"message": "section created successfully",
-			"data":    createdSection,
+			"data": createdSection,
 		})
 	}
 }
@@ -108,8 +111,7 @@ func (h *SectionDefault) Update() http.HandlerFunc {
 		}
 
 		response.JSON(w, http.StatusOK, map[string]any{
-			"message": "section updated successfully",
-			"data":    updatedSection,
+			"data": updatedSection,
 		})
 	}
 }

@@ -70,7 +70,7 @@ func (a *ServerChi) Run() (err error) {
 			r.Get("/", sectionHandler.GetAll())
 			r.Get("/{id}", sectionHandler.GetByID())
 			r.Post("/", sectionHandler.Create())
-			r.Put("/{id}", sectionHandler.Update())
+			r.Patch("/{id}", sectionHandler.Update())
 			r.Delete("/{id}", sectionHandler.Delete())
 		})
 	})
