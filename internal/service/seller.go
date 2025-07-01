@@ -8,6 +8,7 @@ import (
 
 type Service interface {
 	Create(seller models.Seller) (models.Seller, error)
+	GetAll() map[int]models.Seller
 }
 
 type SellerService struct {
@@ -29,4 +30,10 @@ func (s *SellerService) Create(seller models.Seller) (models.Seller, error) {
 	}
 
 	return seller, nil
+}
+
+func (s *SellerService) GetAll() map[int]models.Seller {
+	sellers := s.repository.GetAll()
+	return sellers
+
 }

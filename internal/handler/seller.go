@@ -53,3 +53,19 @@ func (h *SellerHandler) Create() http.HandlerFunc {
 	}
 
 }
+
+func (h *SellerHandler) GetAll() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		sellers := h.service.GetAll()
+
+		var sellersDoc []models.SellerDoc
+
+		for _, seller := range sellers {
+			sellersDoc = append(sellersDoc, seller.ModelToDoc())
+		}
+		response.JSON(w, http.StatusOK, map[string][]models.SellerDoc{
+			"data": sellersDoc,
+		})
+	}
+}

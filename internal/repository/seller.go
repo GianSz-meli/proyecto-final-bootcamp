@@ -1,11 +1,14 @@
 package repository
 
-import "ProyectoFinal/pkg/models"
+import (
+	"ProyectoFinal/pkg/models"
+)
 
 type Repository interface {
 	Create(seller *models.Seller) error
 	GetById(id int) (models.Seller, bool)
 	ExistsByCid(cid int) bool
+	GetAll() map[int]models.Seller
 }
 type SellerRepository struct {
 	db map[int]models.Seller
@@ -35,4 +38,8 @@ func (r *SellerRepository) ExistsByCid(cid int) bool {
 		}
 	}
 	return false
+}
+
+func (r *SellerRepository) GetAll() map[int]models.Seller {
+	return r.db
 }
