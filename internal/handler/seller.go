@@ -41,14 +41,14 @@ func (h *SellerHandler) Create() http.HandlerFunc {
 
 		seller, err := h.service.Create(model)
 
-		body := map[string]models.SellerDoc{
-			"data": seller.ModelToDoc(),
-		}
 		if err != nil {
 			errors.HandleError(w, err)
 			return
 		}
 
+		body := map[string]models.SellerDoc{
+			"data": seller.ModelToDoc(),
+		}
 		response.JSON(w, http.StatusCreated, body)
 
 	}
