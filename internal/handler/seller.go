@@ -26,7 +26,7 @@ func (h *SellerHandler) Create() http.HandlerFunc {
 		var reqBody models.SellerDoc
 
 		if err := request.JSON(r, &reqBody); err != nil {
-			newErr := fmt.Errorf("%w : SELLER BAD REQUEST %s", errors.ErrBadRequest, err.Error())
+			newErr := errors.WrapErrBadRequest(err)
 			errors.HandleError(w, newErr)
 			return
 		}
