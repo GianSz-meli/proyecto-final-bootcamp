@@ -4,6 +4,7 @@ import (
 	"ProyectoFinal/internal/service"
 	"ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
+	"fmt"
 	"github.com/bootcamp-go/web/request"
 	"github.com/bootcamp-go/web/response"
 	"github.com/go-playground/validator/v10"
@@ -25,7 +26,7 @@ func (h *SellerHandler) Create() http.HandlerFunc {
 		var reqBody models.SellerDoc
 
 		if err := request.JSON(r, &reqBody); err != nil {
-			newErr := errors.WrapErrBadRequest(err)
+			newErr := fmt.Errorf("%w : SELLER BAD REQUEST %s", errors.ErrBadRequest, err.Error())
 			errors.HandleError(w, newErr)
 			return
 		}
@@ -40,10 +41,9 @@ func (h *SellerHandler) Create() http.HandlerFunc {
 
 		seller, err := h.service.Create(model)
 
-		body := models.SuccessResponse[models.SellerDoc]{
-			Data: []models.SellerDoc{seller.ModelToDoc()},
+		body := map[string]models.SellerDoc{
+			"data": seller.ModelToDoc(),
 		}
-
 		if err != nil {
 			errors.HandleError(w, err)
 			return
