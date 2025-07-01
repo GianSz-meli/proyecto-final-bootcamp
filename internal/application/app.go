@@ -3,10 +3,10 @@ package application
 import (
 	"ProyectoFinal/internal/application/loader"
 	"ProyectoFinal/internal/application/router"
-	handler "ProyectoFinal/internal/handler"
-	repository "ProyectoFinal/internal/repository"
+	"ProyectoFinal/internal/handler"
+	"ProyectoFinal/internal/repository"
 	repositorySection "ProyectoFinal/internal/repository/section"
-	service "ProyectoFinal/internal/service"
+	"ProyectoFinal/internal/service"
 	serviceSection "ProyectoFinal/internal/service/section"
 	"net/http"
 
