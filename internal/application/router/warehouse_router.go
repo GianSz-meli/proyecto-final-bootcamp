@@ -10,6 +10,7 @@ func GetWarehouseRouter(handler *handler.WarehouseHandler) chi.Router {
 	rt := chi.NewRouter()
 
 	rt.Get("/", handler.GetAllWarehouses)
+	rt.Get("/{id}", handler.GetWarehouseById)
 
 	return rt
 }
