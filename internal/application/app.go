@@ -4,8 +4,11 @@ import (
 	"ProyectoFinal/internal/application/loader"
 	"ProyectoFinal/internal/application/router"
 	"ProyectoFinal/internal/handler"
+	employeeHandler "ProyectoFinal/internal/handler/employee"
 	"ProyectoFinal/internal/repository"
+	employeeRepository "ProyectoFinal/internal/repository/employee"
 	"ProyectoFinal/internal/service"
+	employeeService "ProyectoFinal/internal/service/employee"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -44,9 +47,9 @@ func (a *ServerChi) Run() (err error) {
 	rt := chi.NewRouter()
 
 	factory := loader.NewLoaderFactory(a.loaderFilePath)
-  
+
 	sellerDB, err := factory.NewSellerLoader().Load()
-  
+
 	if err != nil {
 		panic(err)
 	}
@@ -55,8 +58,17 @@ func (a *ServerChi) Run() (err error) {
 	srvSeller := service.NewSellerService(repoSeller)
 	ctrSeller := handler.NewSellerHandler(srvSeller)
 
+	employeeDB, err := factory.NewEmployeeLoader().Load()
+	if err != nil {
+		panic(err)
+	}
+	repoEmployee := employeeRepository.NewRepository(employeeDB)
+	srvEmployee := employeeService.NewService(repoEmployee)
+	ctrEmployee := employeeHandler.NewEmployeeHandler(srvEmployee)
+
 	rt.Route("/api/v1", func(r chi.Router) {
 		r.Mount("/seller", router.SellerRoutes(ctrSeller))
+		r.Mount("/employees", router.EmployeeRoutes(ctrEmployee))
 	})
 
 	err = http.ListenAndServe(a.serverAddress, rt)
