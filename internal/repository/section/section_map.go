@@ -32,7 +32,7 @@ func (r *SectionMap) GetAll() (s map[int]models.Section, err error) {
 func (r *SectionMap) GetByID(id int) (models.Section, error) {
 	var s, exist = r.db[id]
 	if !exist {
-		return models.Section{}, errors.ErrSectionNotFound
+		return models.Section{}, errors.ErrNotFound
 	}
 	return s, nil
 }
@@ -40,7 +40,7 @@ func (r *SectionMap) GetByID(id int) (models.Section, error) {
 func (r *SectionMap) Create(section models.Section) (s models.Section, err error) {
 	for _, value := range r.db {
 		if value.SectionNumber == section.SectionNumber {
-			return models.Section{}, errors.ErrSectionNumberExists
+			return models.Section{}, errors.ErrAlreadyExists
 		}
 	}
 	r.lastID++
@@ -52,7 +52,7 @@ func (r *SectionMap) Create(section models.Section) (s models.Section, err error
 func (r *SectionMap) Update(id int, section models.Section) (models.Section, error) {
 	var s, exist = r.db[id]
 	if !exist {
-		return models.Section{}, errors.ErrSectionNotFound
+		return models.Section{}, errors.ErrNotFound
 	}
 
 	if section.SectionNumber != 0 {
@@ -98,7 +98,7 @@ func (r *SectionMap) Update(id int, section models.Section) (models.Section, err
 func (r *SectionMap) Delete(id int) error {
 	_, exist := r.db[id]
 	if !exist {
-		return errors.ErrSectionNotFound
+		return errors.ErrNotFound
 	}
 
 	delete(r.db, id)

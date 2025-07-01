@@ -47,7 +47,7 @@ func (h *SectionDefault) GetByID() http.HandlerFunc {
 		id := chi.URLParam(r, "id")
 		idNum, err := strconv.Atoi(id)
 		if err != nil {
-			errors.HandleError(w, errors.ErrInvalidSectionID)
+			errors.HandleError(w, errors.ErrBadRequest)
 			return
 		}
 
@@ -93,7 +93,7 @@ func (h *SectionDefault) Update() http.HandlerFunc {
 		id := chi.URLParam(r, "id")
 		idNum, err := strconv.Atoi(id)
 		if err != nil {
-			errors.HandleError(w, errors.ErrInvalidSectionID)
+			errors.HandleError(w, errors.ErrBadRequest)
 			return
 		}
 
@@ -125,7 +125,7 @@ func (h *SectionDefault) Delete() http.HandlerFunc {
 		id := chi.URLParam(r, "id")
 		idNum, err := strconv.Atoi(id)
 		if err != nil {
-			errors.HandleError(w, errors.ErrInvalidSectionID)
+			errors.HandleError(w, errors.ErrBadRequest)
 			return
 		}
 

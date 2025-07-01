@@ -13,23 +13,15 @@ type ApiError struct {
 }
 
 var (
-	ErrGeneral             = errors.New("internal server error")
-	ErrNotFound            = errors.New("not found")
-	ErrAlreadyExists       = errors.New("resource already exists")
-	ErrBadRequest          = errors.New("bad request")
-	ErrSectionNotFound     = errors.New("section not found")
-	ErrSectionNumberExists = errors.New("section number already exists")
-	ErrInvalidSectionID    = errors.New("invalid section id")
-	ErrInvalidSectionData  = errors.New("invalid section data")
-	mapErr                 = map[error]ApiError{
-		ErrGeneral:             NewErrInternalServer(),
-		ErrNotFound:            NewErrNotFound(),
-		ErrAlreadyExists:       NewErrAlreadyExists(),
-		ErrBadRequest:          NewErrBadRequest(),
-		ErrSectionNotFound:     NewErrNotFound(),
-		ErrSectionNumberExists: NewErrAlreadyExists(),
-		ErrInvalidSectionID:    NewErrBadRequest(),
-		ErrInvalidSectionData:  NewErrBadRequest(),
+	ErrGeneral       = errors.New("internal server error")
+	ErrNotFound      = errors.New("not found")
+	ErrAlreadyExists = errors.New("resource already exists")
+	ErrBadRequest    = errors.New("bad request")
+	mapErr           = map[error]ApiError{
+		ErrGeneral:       NewErrInternalServer(),
+		ErrNotFound:      NewErrNotFound(),
+		ErrAlreadyExists: NewErrAlreadyExists(),
+		ErrBadRequest:    NewErrBadRequest(),
 	}
 )
 

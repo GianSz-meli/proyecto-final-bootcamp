@@ -24,7 +24,7 @@ func (s *SectionDefault) GetAll() (sections map[int]models.Section, err error) {
 
 func (s *SectionDefault) GetByID(id int) (section models.Section, err error) {
 	if id <= 0 {
-		return models.Section{}, errors.ErrInvalidSectionID
+		return models.Section{}, errors.ErrBadRequest
 	}
 
 	section, err = s.rp.GetByID(id)
@@ -36,7 +36,7 @@ func (s *SectionDefault) GetByID(id int) (section models.Section, err error) {
 
 func (s *SectionDefault) Create(section models.Section) (createdSection models.Section, err error) {
 	if err := s.validateSection(section); err != nil {
-		return models.Section{}, errors.ErrInvalidSectionData
+		return models.Section{}, errors.ErrBadRequest
 	}
 
 	sections, err := s.rp.GetAll()
@@ -46,7 +46,7 @@ func (s *SectionDefault) Create(section models.Section) (createdSection models.S
 
 	for _, existingSection := range sections {
 		if existingSection.SectionNumber == section.SectionNumber {
-			return models.Section{}, errors.ErrSectionNumberExists
+			return models.Section{}, errors.ErrAlreadyExists
 		}
 	}
 
@@ -59,7 +59,7 @@ func (s *SectionDefault) Create(section models.Section) (createdSection models.S
 
 func (s *SectionDefault) Update(id int, section models.Section) (updatedSection models.Section, err error) {
 	if id <= 0 {
-		return models.Section{}, errors.ErrInvalidSectionID
+		return models.Section{}, errors.ErrBadRequest
 	}
 
 	existingSection, err := s.rp.GetByID(id)
@@ -75,7 +75,7 @@ func (s *SectionDefault) Update(id int, section models.Section) (updatedSection 
 
 		for _, sec := range sections {
 			if sec.ID != id && sec.SectionNumber == section.SectionNumber {
-				return models.Section{}, errors.ErrSectionNumberExists
+				return models.Section{}, errors.ErrAlreadyExists
 			}
 		}
 	}
@@ -110,7 +110,7 @@ func (s *SectionDefault) Update(id int, section models.Section) (updatedSection 
 	}
 
 	if err := s.validateSection(mergedSection); err != nil {
-		return models.Section{}, errors.ErrInvalidSectionData
+		return models.Section{}, errors.ErrBadRequest
 	}
 
 	updatedSection, err = s.rp.Update(id, mergedSection)
@@ -122,7 +122,7 @@ func (s *SectionDefault) Update(id int, section models.Section) (updatedSection 
 
 func (s *SectionDefault) Delete(id int) (err error) {
 	if id <= 0 {
-		return errors.ErrInvalidSectionID
+		return errors.ErrBadRequest
 	}
 
 	_, err = s.rp.GetByID(id)
@@ -139,51 +139,51 @@ func (s *SectionDefault) Delete(id int) (err error) {
 
 func (s *SectionDefault) validateSection(section models.Section) error {
 	if section.SectionNumber <= 0 {
-		return errors.ErrInvalidSectionData
+		return errors.ErrBadRequest
 	}
 
 	if section.CurrentTemperature < -50 || section.CurrentTemperature > 50 {
-		return errors.ErrInvalidSectionData
+		return errors.ErrBadRequest
 	}
 
 	if section.MinimumTemperature < -50 || section.MinimumTemperature > 50 {
-		return errors.ErrInvalidSectionData
+		return errors.ErrBadRequest
 	}
 
 	if section.CurrentTemperature < section.MinimumTemperature {
-		return errors.ErrInvalidSectionData
+		return errors.ErrBadRequest
 	}
 
 	if section.CurrentCapacity < 0 {
-		return errors.ErrInvalidSectionData
+		return errors.ErrBadRequest
 	}
 
 	if section.MinimumCapacity < 0 {
-		return errors.ErrInvalidSectionData
+		return errors.ErrBadRequest
 	}
 
 	if section.MaximumCapacity <= 0 {
-		return errors.ErrInvalidSectionData
+		return errors.ErrBadRequest
 	}
 
 	if section.MinimumCapacity > section.MaximumCapacity {
-		return errors.ErrInvalidSectionData
+		return errors.ErrBadRequest
 	}
 
 	if section.CurrentCapacity > section.MaximumCapacity {
-		return errors.ErrInvalidSectionData
+		return errors.ErrBadRequest
 	}
 
 	if section.CurrentCapacity < section.MinimumCapacity {
-		return errors.ErrInvalidSectionData
+		return errors.ErrBadRequest
 	}
 
 	if section.WarehouseID <= 0 {
-		return errors.ErrInvalidSectionData
+		return errors.ErrBadRequest
 	}
 
 	if section.ProductTypeID <= 0 {
-		return errors.ErrInvalidSectionData
+		return errors.ErrBadRequest
 	}
 
 	return nil
