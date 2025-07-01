@@ -55,7 +55,7 @@ func (a *ServerChi) Run() (err error) {
 		panic(err)
 	}
 
-	sectionRepo := repository.NewVehicleMap(sections)
+	sectionRepo := repository.NewSectionMap(sections)
 	sectionService := service.NewSectionDefault(sectionRepo)
 	sectionHandler := handler.NewSectionDefault(sectionService)
 

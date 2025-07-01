@@ -5,7 +5,7 @@ import (
 	"ProyectoFinal/pkg/models"
 )
 
-func NewVehicleMap(db map[int]models.Section) *SectionMap {
+func NewSectionMap(db map[int]models.Section) *SectionMap {
 	defaultDb := make(map[int]models.Section)
 	if db != nil {
 		defaultDb = db
@@ -84,7 +84,7 @@ func (r *SectionMap) Update(id int, section models.Section) (models.Section, err
 	}
 
 	if section.ProductTypeID != 0 {
-		s.WarehouseID = section.WarehouseID
+		s.ProductTypeID = section.ProductTypeID
 	}
 
 	if section.ProductBatches != nil {
