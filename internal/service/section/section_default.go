@@ -1,7 +1,7 @@
 package service
 
 import (
-	"ProyectoFinal/internal/repository"
+	repository "ProyectoFinal/internal/repository/section"
 	"ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
 )

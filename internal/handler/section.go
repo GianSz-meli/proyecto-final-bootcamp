@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"ProyectoFinal/internal/service"
+	service "ProyectoFinal/internal/service/section"
 	"ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
 	"encoding/json"

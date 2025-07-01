@@ -26,8 +26,7 @@ var (
 	ErrSectionNumberExists  = errors.New("section number already exists")
 
 	mapErr = map[error]ApiError{
-		ErrGeneral: NewErrInternalServer(ErrGeneral.Error()),
-
+		ErrGeneral:              NewErrInternalServer(ErrGeneral.Error()),
 		ErrSectionNotFound:      NewErrNotFound(ErrSectionNotFound.Error()),
 		ErrSectionAlreadyExists: NewErrConflict(ErrSectionAlreadyExists.Error()),
 		ErrInvalidSectionID:     NewErrBadRequest(ErrInvalidSectionID.Error()),
