@@ -93,7 +93,15 @@ func (h *SectionDefault) Update() http.HandlerFunc {
 			return
 		}
 
-		section, err := h.sv.Update(idNum)
+		var section models.Section
+		if err := json.NewDecoder(r.Body).Decode(&section); err != nil {
+			response.JSON(w, http.StatusBadRequest, map[string]any{
+				"message": "invalid request body",
+			})
+			return
+		}
+
+		updatedSection, err := h.sv.Update(idNum, section)
 		if err != nil {
 			errors.HandleError(w, err)
 			return
@@ -101,7 +109,7 @@ func (h *SectionDefault) Update() http.HandlerFunc {
 
 		response.JSON(w, http.StatusOK, map[string]any{
 			"message": "section updated successfully",
-			"data":    section,
+			"data":    updatedSection,
 		})
 	}
 }

@@ -57,38 +57,38 @@ func (s *SectionDefault) Create(section models.Section) (createdSection models.S
 	return createdSection, nil
 }
 
-func (s *SectionDefault) Update(id int) (section models.Section, err error) {
+func (s *SectionDefault) Update(id int, section models.Section) (updatedSection models.Section, err error) {
 	if id <= 0 {
 		return models.Section{}, errors.ErrInvalidSectionID
 	}
 
-	existingSection, err := s.rp.GetByID(id)
+	_, err = s.rp.GetByID(id)
 	if err != nil {
 		return models.Section{}, err
 	}
 
-	if existingSection.SectionNumber != 0 {
+	if section.SectionNumber != 0 {
 		sections, err := s.rp.GetAll()
 		if err != nil {
 			return models.Section{}, err
 		}
 
 		for _, sec := range sections {
-			if sec.ID != id && sec.SectionNumber == existingSection.SectionNumber {
+			if sec.ID != id && sec.SectionNumber == section.SectionNumber {
 				return models.Section{}, errors.ErrSectionNumberExists
 			}
 		}
 	}
 
-	if err := s.validateSection(existingSection); err != nil {
+	if err := s.validateSection(section); err != nil {
 		return models.Section{}, errors.ErrInvalidSectionData
 	}
 
-	section, err = s.rp.Update(id, existingSection)
+	updatedSection, err = s.rp.Update(id, section)
 	if err != nil {
 		return models.Section{}, err
 	}
-	return section, nil
+	return updatedSection, nil
 }
 
 func (s *SectionDefault) Delete(id int) (err error) {
