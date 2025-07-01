@@ -41,6 +41,12 @@ func (a *ServerChi) Run() (err error) {
 
 	factory := loader.NewLoaderFactory(a.loaderFilePath)
 	_, err = factory.NewSellerLoader().Load()
+
+	if err != nil {
+		panic(err)
+	}
+
+	_, err = factory.NewEmployeeLoader().Load()
 	if err != nil {
 		panic(err)
 	}
