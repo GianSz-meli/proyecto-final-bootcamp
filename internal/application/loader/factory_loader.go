@@ -29,7 +29,9 @@ func (f *FactoryLoader) NewSectionLoader() Loader[models.Section] {
 	return &SectionJSONFile{path: f.paths[Section]}
 }
 
-// Nueva función para crear EmployeeLoader
 func (f *FactoryLoader) NewEmployeeLoader() Loader[employeemodel.Employee] {
 	return &EmployeeLoader{path: f.paths[Employee]}
+}
+func (f *FactoryLoader) NewWarehouseLoader() Loader[models.Warehouse] {
+	return &WarehouseLoader{path: f.paths[Warehouse]}
 }

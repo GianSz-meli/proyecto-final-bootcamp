@@ -1,13 +1,12 @@
 package application
 
 import (
+	"ProyectoFinal/internal/application/di"
 	"ProyectoFinal/internal/application/loader"
 	"ProyectoFinal/internal/application/router"
 	"ProyectoFinal/internal/handler"
 	"ProyectoFinal/internal/repository"
-	repositorySection "ProyectoFinal/internal/repository/section"
 	"ProyectoFinal/internal/service"
-	serviceSection "ProyectoFinal/internal/service/section"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -52,6 +51,12 @@ func (a *ServerChi) Run() (err error) {
 	if err != nil {
 		panic(err)
 	}
+	warehouseDB, err := factory.NewWarehouseLoader().Load()
+	if err != nil {
+		panic(err)
+	}
+
+	warehouseHandler := di.GetWarehouseHandler(warehouseDB)
 
 	// Load sections
 	sections, err := factory.NewSectionLoader().Load()
@@ -59,9 +64,7 @@ func (a *ServerChi) Run() (err error) {
 		panic(err)
 	}
 
-	sectionRepo := repositorySection.NewSectionMap(sections)
-	sectionService := serviceSection.NewSectionDefault(sectionRepo)
-	sectionHandler := handler.NewSectionDefault(sectionService)
+	sectionHandler := di.GetSectionHandler(sections)
 
 	repoSeller := repository.NewSellerRepository(sellerDB)
 	srvSeller := service.NewSellerService(repoSeller)
@@ -72,6 +75,7 @@ func (a *ServerChi) Run() (err error) {
 		r.Mount("/sections", router.SectionRoutes(sectionHandler))
 
 		r.Mount("/seller", router.SellerRoutes(ctrSeller))
+		r.Mount("/warehouses", router.GetWarehouseRouter(warehouseHandler))
 	})
 
 	err = http.ListenAndServe(a.serverAddress, rt)

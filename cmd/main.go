@@ -10,9 +10,10 @@ func main() {
 	cfg := &application.ConfigServerChi{
 		ServerAddress: ":8080",
 		LoaderFilePath: map[string]string{
-			loader.Seller:   "docs/db/sellers.json",
-			loader.Section:  "docs/db/sections_10.json",
-			loader.Employee: "docs/db/employees.json",
+			loader.Seller:    "docs/db/sellers.json",
+			loader.Section:   "docs/db/sections_10.json",
+			loader.Employee:  "docs/db/employees.json",
+			loader.Warehouse: "docs/db/warehouses.json",
 		},
 	}
 	app := application.NewServerChi(cfg)

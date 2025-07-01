@@ -1,5 +1,5 @@
 package models
 
-type SuccessResponse[T any] struct {
-	Data []T `json:"data"`
+type SuccessResponse struct {
+	Data any `json:"data"`
 }
