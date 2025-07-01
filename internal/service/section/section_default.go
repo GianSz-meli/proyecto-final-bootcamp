@@ -62,11 +62,12 @@ func (s *SectionDefault) Update(id int, section models.Section) (updatedSection 
 		return models.Section{}, errors.ErrInvalidSectionID
 	}
 
-	_, err = s.rp.GetByID(id)
+	existingSection, err := s.rp.GetByID(id)
 	if err != nil {
 		return models.Section{}, err
 	}
 
+	// Check for section_number uniqueness only if it's being updated
 	if section.SectionNumber != 0 {
 		sections, err := s.rp.GetAll()
 		if err != nil {
@@ -80,7 +81,38 @@ func (s *SectionDefault) Update(id int, section models.Section) (updatedSection 
 		}
 	}
 
-	if err := s.validateSection(section); err != nil {
+	// Create a merged section for validation
+	mergedSection := existingSection
+	if section.SectionNumber != 0 {
+		mergedSection.SectionNumber = section.SectionNumber
+	}
+	if section.CurrentTemperature != 0 {
+		mergedSection.CurrentTemperature = section.CurrentTemperature
+	}
+	if section.MinimumTemperature != 0 {
+		mergedSection.MinimumTemperature = section.MinimumTemperature
+	}
+	if section.CurrentCapacity != 0 {
+		mergedSection.CurrentCapacity = section.CurrentCapacity
+	}
+	if section.MinimumCapacity != 0 {
+		mergedSection.MinimumCapacity = section.MinimumCapacity
+	}
+	if section.MaximumCapacity != 0 {
+		mergedSection.MaximumCapacity = section.MaximumCapacity
+	}
+	if section.WarehouseID != 0 {
+		mergedSection.WarehouseID = section.WarehouseID
+	}
+	if section.ProductTypeID != 0 {
+		mergedSection.ProductTypeID = section.ProductTypeID
+	}
+	if section.ProductBatches != nil {
+		mergedSection.ProductBatches = section.ProductBatches
+	}
+
+	// Validate the merged section
+	if err := s.validateSection(mergedSection); err != nil {
 		return models.Section{}, errors.ErrInvalidSectionData
 	}
 
