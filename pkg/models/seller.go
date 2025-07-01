@@ -1,5 +1,5 @@
 package models
 
 type Seller struct {
-	Id int
+	Id int `json:"id"`
 }
