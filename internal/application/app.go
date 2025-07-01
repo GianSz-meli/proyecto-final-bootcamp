@@ -59,27 +59,18 @@ func (a *ServerChi) Run() (err error) {
 		panic(err)
 	}
 
-	// Initialize section components
 	sectionRepo := repositorySection.NewSectionMap(sections)
 	sectionService := serviceSection.NewSectionDefault(sectionRepo)
 	sectionHandler := handler.NewSectionDefault(sectionService)
 
-	// Initialize seller components
 	repoSeller := repository.NewSellerRepository(sellerDB)
 	srvSeller := service.NewSellerService(repoSeller)
 	ctrSeller := handler.NewSellerHandler(srvSeller)
 
-	// Setup routes
 	rt.Route("/api/v1", func(r chi.Router) {
-		r.Mount("/ping", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.WriteHeader(http.StatusOK)
-			w.Write([]byte("pong"))
-		})) // TODO: remove this
 
-		// Section routes
 		r.Mount("/sections", router.SectionRoutes(sectionHandler))
 
-		// Seller routes
 		r.Mount("/seller", router.SellerRoutes(ctrSeller))
 	})
 

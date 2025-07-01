@@ -31,10 +31,7 @@ func (s *SectionDefault) GetByID(id int) (section models.Section, err error) {
 }
 
 func (s *SectionDefault) Create(section models.Section) (createdSection models.Section, err error) {
-	exists, err := s.rp.ExistBySectionNumber(section.SectionNumber)
-	if err != nil {
-		return models.Section{}, err
-	}
+	exists := s.rp.ExistBySectionNumber(section.SectionNumber)
 	if exists {
 		return models.Section{}, errors.WrapErrAlreadyExist("Section", "section_number", section.SectionNumber)
 	}
@@ -53,10 +50,7 @@ func (s *SectionDefault) Update(id int, section models.Section) (updatedSection 
 	}
 
 	if section.SectionNumber != 0 && section.SectionNumber != existingSection.SectionNumber {
-		exists, err := s.rp.ExistBySectionNumber(section.SectionNumber)
-		if err != nil {
-			return models.Section{}, err
-		}
+		exists := s.rp.ExistBySectionNumber(section.SectionNumber)
 		if exists {
 			return models.Section{}, errors.WrapErrAlreadyExist("Section", "section_number", section.SectionNumber)
 		}
