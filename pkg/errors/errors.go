@@ -84,3 +84,7 @@ func WrapErrBadRequest(err error) error {
 func WrapErrValidation(err error) error {
 	return fmt.Errorf("%w : %s", ErrValidation, err.Error())
 }
+
+func WrapErrNotFound(domain, property string, value any) error {
+	return fmt.Errorf("%w : %s with %s %d not found", ErrNotFound, domain, property, value)
+}

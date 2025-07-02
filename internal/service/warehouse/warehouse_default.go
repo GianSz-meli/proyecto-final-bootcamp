@@ -4,7 +4,6 @@ import (
 	"ProyectoFinal/internal/repository/warehouse"
 	"ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
-	"fmt"
 )
 
 type WarehouseServiceImpl struct {
@@ -25,14 +24,14 @@ func (s *WarehouseServiceImpl) GetAllWarehouses() []models.Warehouse {
 func (s *WarehouseServiceImpl) GetWarehouseById(id int) (*models.Warehouse, error) {
 	warehouse := s.warehouseRepo.GetById(id)
 	if warehouse == nil {
-		return nil, fmt.Errorf("%w: The warehouse with id '%d' does not exist", errors.ErrNotFound, id)
+		return nil, errors.WrapErrNotFound("warehouse", "id", id)
 	}
 	return warehouse, nil
 }
 
 func (s *WarehouseServiceImpl) CreateWarehouse(warehouse models.Warehouse) (*models.Warehouse, error) {
 	if s.warehouseRepo.ExistsByCode(*warehouse.WarehouseCode) {
-		return nil, fmt.Errorf("%w: warehouse with code '%s' already exists", errors.ErrAlreadyExists, *warehouse.WarehouseCode)
+		return nil, errors.WrapErrAlreadyExist("warehouse", "code", *warehouse.WarehouseCode)
 	}
 
 	createdWarehouse := s.warehouseRepo.Create(warehouse)
@@ -42,12 +41,12 @@ func (s *WarehouseServiceImpl) CreateWarehouse(warehouse models.Warehouse) (*mod
 func (s *WarehouseServiceImpl) UpdateWarehouse(id int, warehouse models.Warehouse) (*models.Warehouse, error) {
 	existingWarehouse := s.warehouseRepo.GetById(id)
 	if existingWarehouse == nil {
-		return nil, fmt.Errorf("%w: The warehouse with id '%d' does not exist", errors.ErrNotFound, id)
+		return nil, errors.WrapErrNotFound("warehouse", "id", id)
 	}
 
 	if warehouse.WarehouseCode != nil && *warehouse.WarehouseCode != *existingWarehouse.WarehouseCode {
 		if s.warehouseRepo.ExistsByCode(*warehouse.WarehouseCode) {
-			return nil, fmt.Errorf("%w: warehouse with code '%s' already exists", errors.ErrAlreadyExists, *warehouse.WarehouseCode)
+			return nil, errors.WrapErrAlreadyExist("warehouse", "code", *warehouse.WarehouseCode)
 		}
 	}
 	if warehouse.WarehouseCode == nil {
