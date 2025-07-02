@@ -8,4 +8,5 @@ type WarehouseRepository interface {
 	Create(warehouse models.Warehouse) *models.Warehouse
 	Update(id int, warehouse models.Warehouse) *models.Warehouse
 	ExistsByCode(code string) bool
+	Delete(id int)
 }

@@ -69,3 +69,7 @@ func (s *WarehouseServiceImpl) UpdateWarehouse(id int, warehouse models.Warehous
 	updatedWarehouse := s.warehouseRepo.Update(id, warehouse)
 	return updatedWarehouse, nil
 }
+
+func (s *WarehouseServiceImpl) DeleteWarehouse(id int) error {
+	panic("unimplemented")
+}

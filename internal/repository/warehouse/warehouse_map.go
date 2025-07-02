@@ -62,3 +62,7 @@ func GetLastId(db map[int]models.Warehouse) int {
 	}
 	return lastId
 }
+
+func (r *MemoryWarehouseRepository) Delete(id int) {
+	panic("unimplemented")
+}
