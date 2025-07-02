@@ -11,7 +11,7 @@ type Warehouse struct {
 }
 
 func (w Warehouse) ModelToDoc() WarehouseDocument {
-	return WarehouseDocument {
+	return WarehouseDocument{
 		ID:                 w.ID,
 		WarehouseCode:      *w.WarehouseCode,
 		Address:            *w.Address,
@@ -22,11 +22,11 @@ func (w Warehouse) ModelToDoc() WarehouseDocument {
 }
 
 type WarehouseDocument struct {
-	ID                 int    `json:"id"`
-	WarehouseCode      string `json:"warehouse_code"`
-	Address            string `json:"address"`
-	Telephone          string `json:"telephone"`
-	MinimumCapacity    int    `json:"minimum_capacity"`
+	ID                 int     `json:"id"`
+	WarehouseCode      string  `json:"warehouse_code"`
+	Address            string  `json:"address"`
+	Telephone          string  `json:"telephone"`
+	MinimumCapacity    int     `json:"minimum_capacity"`
 	MinimumTemperature float64 `json:"minimum_temperature"`
 }
 
@@ -56,5 +56,23 @@ func (c CreateWarehouseRequest) DocToModel() Warehouse {
 		Telephone:          &c.Telephone,
 		MinimumCapacity:    &c.MinimumCapacity,
 		MinimumTemperature: &c.MinimumTemperature,
+	}
+}
+
+type UpdateWarehouseRequest struct {
+	WarehouseCode      *string  `json:"warehouse_code"`
+	Address            *string  `json:"address"`
+	Telephone          *string  `json:"telephone"`
+	MinimumCapacity    *int     `json:"minimum_capacity" validate:"omitempty,min=1"`
+	MinimumTemperature *float64 `json:"minimum_temperature"`
+}
+
+func (u UpdateWarehouseRequest) DocToModel() Warehouse {
+	return Warehouse{
+		WarehouseCode:      u.WarehouseCode,
+		Address:            u.Address,
+		Telephone:          u.Telephone,
+		MinimumCapacity:    u.MinimumCapacity,
+		MinimumTemperature: u.MinimumTemperature,
 	}
 }

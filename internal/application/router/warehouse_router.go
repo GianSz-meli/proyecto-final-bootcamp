@@ -12,6 +12,7 @@ func GetWarehouseRouter(handler *handler.WarehouseHandler) chi.Router {
 	rt.Get("/", handler.GetAllWarehouses)
 	rt.Get("/{id}", handler.GetWarehouseById)
 	rt.Post("/", handler.CreateWarehouse)
+	rt.Patch("/{id}", handler.UpdateWarehouse)
 
 	return rt
 }

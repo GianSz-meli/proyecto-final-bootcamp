@@ -76,3 +76,35 @@ func (h *WarehouseHandler) CreateWarehouse(w http.ResponseWriter, r *http.Reques
 	}
 	response.JSON(w, http.StatusCreated, responseBody)
 }
+
+func (h *WarehouseHandler) UpdateWarehouse(w http.ResponseWriter, r *http.Request) {
+	id, err := utils.GetParamInt(r, "id")
+	if err != nil {
+		errors.HandleError(w, err)
+		return
+	}
+
+	var updateRequest models.UpdateWarehouseRequest
+	if err := json.NewDecoder(r.Body).Decode(&updateRequest); err != nil {
+		errors.HandleError(w, errors.WrapErrBadRequest(err))
+		return
+	}
+
+	validate := validator.New()
+	if err := validate.Struct(updateRequest); err != nil {
+		errors.HandleError(w, errors.WrapErrValidation(err))
+		return
+	}
+
+	warehouse := updateRequest.DocToModel()
+	updatedWarehouse, err := h.warehouseService.UpdateWarehouse(id, warehouse)
+	if err != nil {
+		errors.HandleError(w, err)
+		return
+	}
+
+	responseBody := models.SuccessResponse{
+		Data: updatedWarehouse.ModelToDoc(),
+	}
+	response.JSON(w, http.StatusOK, responseBody)
+}

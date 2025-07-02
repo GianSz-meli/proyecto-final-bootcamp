@@ -52,3 +52,8 @@ func (r *MemoryWarehouseRepository) Create(warehouse models.Warehouse) *models.W
 	r.db[newID] = warehouse
 	return &warehouse
 }
+
+func (r *MemoryWarehouseRepository) Update(id int, warehouse models.Warehouse) *models.Warehouse {
+	r.db[id] = warehouse
+	return &warehouse
+}
