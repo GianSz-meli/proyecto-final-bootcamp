@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
 )
 
@@ -41,26 +40,22 @@ func (r *SectionMap) GetAll() (s []models.Section, err error) {
 }
 
 func (r *SectionMap) GetByID(id int) (models.Section, error) {
-	var s, exist = r.db[id]
-	if !exist {
-		return models.Section{}, errors.ErrNotFound
+	section, exists := r.db[id]
+	if !exists {
+		return models.Section{}, nil
 	}
-	return s, nil
+	return section, nil
 }
 
 func (r *SectionMap) Create(section models.Section) (s models.Section, err error) {
 	r.idCounter++
 	section.ID = r.idCounter
 	r.db[section.ID] = section
-	return
+	return section, nil
 }
 
 func (r *SectionMap) Update(id int, section models.Section) (models.Section, error) {
-	_, exist := r.db[id]
-	if !exist {
-		return models.Section{}, errors.ErrNotFound
-	}
-
+	section.ID = id
 	r.db[id] = section
 	return section, nil
 }

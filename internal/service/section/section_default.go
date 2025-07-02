@@ -25,8 +25,13 @@ func (s *SectionDefault) GetAll() (sections []models.Section, err error) {
 func (s *SectionDefault) GetByID(id int) (section models.Section, err error) {
 	section, err = s.rp.GetByID(id)
 	if err != nil {
+		return models.Section{}, err
+	}
+
+	if section.ID == 0 {
 		return models.Section{}, errors.WrapErrNotFound("Section", "id", id)
 	}
+
 	return section, nil
 }
 
@@ -46,6 +51,10 @@ func (s *SectionDefault) Create(section models.Section) (createdSection models.S
 func (s *SectionDefault) Update(id int, section models.Section) (updatedSection models.Section, err error) {
 	existingSection, err := s.rp.GetByID(id)
 	if err != nil {
+		return models.Section{}, err
+	}
+
+	if existingSection.ID == 0 {
 		return models.Section{}, errors.WrapErrNotFound("Section", "id", id)
 	}
 
@@ -93,8 +102,12 @@ func (s *SectionDefault) Update(id int, section models.Section) (updatedSection 
 }
 
 func (s *SectionDefault) Delete(id int) (err error) {
-	_, err = s.rp.GetByID(id)
+	existingSection, err := s.rp.GetByID(id)
 	if err != nil {
+		return err
+	}
+
+	if existingSection.ID == 0 {
 		return errors.WrapErrNotFound("Section", "id", id)
 	}
 

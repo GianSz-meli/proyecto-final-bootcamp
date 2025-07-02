@@ -7,10 +7,10 @@ type Section struct {
 
 type SectionAttributes struct {
 	SectionNumber      int            `json:"section_number" validate:"required,gt=0"`
-	CurrentTemperature float64        `json:"current_temperature" validate:"gte=-50,lte=50"`
+	CurrentTemperature float64        `json:"current_temperature" validate:"gte=-50,lte=50,gtefield=MinimumTemperature"`
 	MinimumTemperature float64        `json:"minimum_temperature" validate:"gte=-50,lte=50"`
-	CurrentCapacity    int            `json:"current_capacity" validate:"gte=0"`
-	MinimumCapacity    int            `json:"minimum_capacity" validate:"gte=0"`
+	CurrentCapacity    int            `json:"current_capacity" validate:"gte=0,gtefield=MinimumCapacity,ltefield=MaximumCapacity"`
+	MinimumCapacity    int            `json:"minimum_capacity" validate:"gte=0,ltefield=MaximumCapacity"`
 	MaximumCapacity    int            `json:"maximum_capacity" validate:"required,gt=0"`
 	WarehouseID        int            `json:"warehouse_id" validate:"required,gt=0"`
 	ProductTypeID      int            `json:"product_type_id" validate:"required,gt=0"`
