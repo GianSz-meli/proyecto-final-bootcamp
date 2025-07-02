@@ -18,3 +18,11 @@ type ProductDefault struct {
 func (s *ProductDefault) CreateProduct(newProd models.Product) (models.Product, error){
 	return s.rp.CreateProduct(newProd)
 }
+
+func (s *ProductDefault) FindAllProducts()(p map[int]models.Product, err error){
+	return s.rp.FindAllProducts()
+}
+
+func (s *ProductDefault) FindProductsById(id int) (models.Product, error) {
+	return s.rp.FindProductsById(id)
+}

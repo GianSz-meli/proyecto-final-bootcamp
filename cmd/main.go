@@ -13,6 +13,7 @@ func main() {
 			loader.Seller:   "docs/db/sellers.json",
 			loader.Employee: "docs/db/employees.json",
 			loader.Warehouse: "docs/db/warehouses.json",
+			loader.Product: "docs/db/products.json",
 		},
 	}
 	app := application.NewServerChi(cfg)

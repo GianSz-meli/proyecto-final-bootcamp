@@ -28,3 +28,20 @@ func (r *ProductMap) CreateProduct(newProd models.Product) (models.Product, erro
 }
 
 
+func (r *ProductMap) FindAllProducts()(p map[int]models.Product, err error) {
+	p = make(map[int]models.Product)
+	for key, value := range r.db {
+		p[key] = value
+	}
+	return
+}
+func (r *ProductMap) FindProductsById(id int) (models.Product, error) {
+
+	for _, product := range r.db {
+		if product.ID == id {
+			return product, nil
+		}
+	}
+	//maanejar error 
+	return models.Product{}, errors.New("no vehicle was found with this id")
+}

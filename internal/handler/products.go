@@ -4,9 +4,11 @@ import (
 	service "ProyectoFinal/internal/service/products"
 	"ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
+	"strconv"
 
 	"github.com/bootcamp-go/web/request"
 	"github.com/bootcamp-go/web/response"
+	"github.com/go-chi/chi/v5"
 
 	//"github.com/go-playground/validator/v10"
 	"net/http"
@@ -49,4 +51,42 @@ func (h *ProductHandler) CreateProduct(w http.ResponseWriter, r *http.Request) {
 	}
 	response.JSON(w, http.StatusCreated, body)
 
+}
+
+func (h *ProductHandler) FindAllProducts(w http.ResponseWriter, r *http.Request) {
+	products, err := h.service.FindAllProducts()
+	if err != nil {
+		response.JSON(w, http.StatusInternalServerError, nil)
+		return
+	}
+	data := make(map[int]models.ProductDoc)
+	for key, value := range products {
+		data[key] = value.ModelToDoc()
+	}
+
+	response.JSON(w, http.StatusOK, map[string]any{
+		"message": "success",
+		"data":    data,
+	})
+}
+
+func (h *ProductHandler) FindProductsById(w http.ResponseWriter, r *http.Request) {
+	idStr := chi.URLParam(r, "id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		response.Error(w, http.StatusBadRequest, "id inválido")
+		return
+	}
+	product, err := h.service.FindProductsById(id)
+	if err != nil {
+		response.Error(w, http.StatusNotFound, "producto no encontrado")
+		return
+	}
+// manejar los errores 
+	data := product.ModelToDoc()
+
+	response.JSON(w, http.StatusOK, map[string]any{
+		"message": "success",
+		"data":    data,
+	})
 }

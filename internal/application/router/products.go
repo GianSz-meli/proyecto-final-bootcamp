@@ -8,6 +8,7 @@ import (
 
 func ProductRoutes(hd *handler.ProductHandler) chi.Router {
 	r := chi.NewRouter()
-	r.Post("/api/v1/products/", hd.CreateProduct)
+	r.Post("/", hd.CreateProduct)
+	r.Get("/", hd.FindAllProducts)
 	return r
 }
