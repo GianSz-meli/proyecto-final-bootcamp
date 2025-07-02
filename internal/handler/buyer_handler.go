@@ -52,12 +52,12 @@ func (h *BuyerHandler) Save() http.HandlerFunc {
 
 		var dto models.BuyerCreateDTO
 		if err := json.Unmarshal(body, &dto); err != nil {
-			errors.HandleError(w, err)
+			errors.HandleError(w, errors.ErrBadRequest)
 			return
 		}
 
 		if err := h.validator.Struct(dto); err != nil {
-			errors.HandleError(w, errors.ErrUnprocessableEntity)
+			errors.HandleError(w, errors.WrapErrUnprocessableEntity(err))
 			return
 		}
 
@@ -140,7 +140,7 @@ func (h *BuyerHandler) Update() http.HandlerFunc {
 			return
 		}
 
-		resp, err := h.service.GetById(intId)
+		resp, err := h.service.Update(intId, dto)
 		if err != nil {
 			errors.HandleError(w, err)
 			return

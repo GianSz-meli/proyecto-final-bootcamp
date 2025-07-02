@@ -78,3 +78,6 @@ func WrapErrAlreadyExist(domain, property string, value int) error {
 func WrapErrBadRequest(err error) error {
 	return fmt.Errorf("%w : %s", ErrBadRequest, err.Error())
 }
+func WrapErrUnprocessableEntity(err error) error {
+	return fmt.Errorf("%w : %s", ErrUnprocessableEntity, err.Error())
+}
