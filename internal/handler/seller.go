@@ -7,8 +7,10 @@ import (
 	"fmt"
 	"github.com/bootcamp-go/web/request"
 	"github.com/bootcamp-go/web/response"
+	"github.com/go-chi/chi/v5"
 	"github.com/go-playground/validator/v10"
 	"net/http"
+	"strconv"
 )
 
 type SellerHandler struct {
@@ -65,8 +67,36 @@ func (h *SellerHandler) GetAll() http.HandlerFunc {
 		for _, seller := range sellers {
 			sellersDoc = append(sellersDoc, seller.ModelToDoc())
 		}
-		response.JSON(w, http.StatusOK, map[string][]models.SellerDoc{
+
+		body := map[string][]models.SellerDoc{
 			"data": sellersDoc,
-		})
+		}
+		response.JSON(w, http.StatusOK, body)
+	}
+}
+
+func (h *SellerHandler) GetById() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		reqId := chi.URLParam(r, "id")
+
+		id, err := strconv.Atoi(reqId)
+
+		if err != nil {
+			errors.HandleError(w, errors.ErrBadRequest)
+			return
+		}
+
+		seller, err := h.service.GetById(id)
+
+		if err != nil {
+			errors.HandleError(w, err)
+			return
+		}
+
+		body := map[string][]models.SellerDoc{
+			"data": {seller.ModelToDoc()},
+		}
+
+		response.JSON(w, http.StatusOK, body)
 	}
 }

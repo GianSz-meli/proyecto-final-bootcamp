@@ -9,5 +9,6 @@ func GetSellerRouter(handler *handler.SellerHandler) chi.Router {
 	r := chi.NewRouter()
 	r.Post("/", handler.Create())
 	r.Get("/", handler.GetAll())
+	r.Get("/{id}", handler.GetById())
 	return r
 }

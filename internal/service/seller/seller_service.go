@@ -5,4 +5,5 @@ import "ProyectoFinal/pkg/models"
 type SellerService interface {
 	Create(seller models.Seller) (models.Seller, error)
 	GetAll() []models.Seller
+	GetById(id int) (models.Seller, error)
 }
