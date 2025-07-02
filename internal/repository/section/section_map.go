@@ -66,11 +66,6 @@ func (r *SectionMap) Update(id int, section models.Section) (models.Section, err
 }
 
 func (r *SectionMap) Delete(id int) error {
-	_, exist := r.db[id]
-	if !exist {
-		return errors.ErrNotFound
-	}
-
 	delete(r.db, id)
 	return nil
 }

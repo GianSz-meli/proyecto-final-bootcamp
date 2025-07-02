@@ -93,9 +93,14 @@ func (s *SectionDefault) Update(id int, section models.Section) (updatedSection 
 }
 
 func (s *SectionDefault) Delete(id int) (err error) {
-	err = s.rp.Delete(id)
+	_, err = s.rp.GetByID(id)
 	if err != nil {
 		return errors.WrapErrNotFound("Section", "id", id)
+	}
+
+	err = s.rp.Delete(id)
+	if err != nil {
+		return err
 	}
 	return nil
 }
