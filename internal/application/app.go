@@ -4,12 +4,8 @@ import (
 	"ProyectoFinal/internal/application/di"
 	"ProyectoFinal/internal/application/loader"
 	"ProyectoFinal/internal/application/router"
-	"ProyectoFinal/internal/handler"
-	"ProyectoFinal/internal/repository"
-	"ProyectoFinal/internal/service"
-	"net/http"
-
 	"github.com/go-chi/chi/v5"
+	"net/http"
 )
 
 type ConfigServerChi struct {
@@ -55,14 +51,11 @@ func (a *ServerChi) Run() (err error) {
 		panic(err)
 	}
 
+	sellerHandler := di.GetSellerHandler(sellerDB)
 	warehouseHandler := di.GetWarehouseHandler(warehouseDB)
 
-	repoSeller := repository.NewSellerRepository(sellerDB)
-	srvSeller := service.NewSellerService(repoSeller)
-	ctrSeller := handler.NewSellerHandler(srvSeller)
-
 	rt.Route("/api/v1", func(r chi.Router) {
-		r.Mount("/seller", router.SellerRoutes(ctrSeller))
+		r.Mount("/sellers", router.GetSellerRouter(sellerHandler))
 		r.Mount("/warehouses", router.GetWarehouseRouter(warehouseHandler))
 	})
 

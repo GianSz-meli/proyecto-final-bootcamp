@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"ProyectoFinal/internal/service"
+	"ProyectoFinal/internal/service/seller"
 	"ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
 	"github.com/bootcamp-go/web/request"
@@ -11,10 +11,10 @@ import (
 )
 
 type SellerHandler struct {
-	service service.Service
+	service seller.SellerService
 }
 
-func NewSellerHandler(service service.Service) *SellerHandler {
+func NewSellerHandler(service seller.SellerService) *SellerHandler {
 	return &SellerHandler{service: service}
 }
 
