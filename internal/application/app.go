@@ -46,20 +46,28 @@ func (a *ServerChi) Run() (err error) {
 
 	factory := loader.NewLoaderFactory(a.loaderFilePath)
 
-	// Load seller data and build dependencies manually (no DI yet)
+	// Load sellers
 	sellerDB, err := factory.NewSellerLoader().Load()
 	if err != nil {
 		panic(err)
 	}
-	repoSeller := repository.NewSellerRepository(sellerDB)
-	srvSeller := service.NewSellerService(repoSeller)
-	ctrSeller := handler.NewSellerHandler(srvSeller)
 
 	warehouseDB, err := factory.NewWarehouseLoader().Load()
 	if err != nil {
 		panic(err)
 	}
 	warehouseHandler := di.GetWarehouseHandler(warehouseDB)
+
+	// Load sections
+	sections, err := factory.NewSectionLoader().Load()
+	if err != nil {
+		panic(err)
+	}
+	sectionHandler := di.GetSectionHandler(sections)
+
+	repoSeller := repository.NewSellerRepository(sellerDB)
+	srvSeller := service.NewSellerService(repoSeller)
+	ctrSeller := handler.NewSellerHandler(srvSeller)
 
 	// Load employee data and use DI
 	employeeDB, err := factory.NewEmployeeLoader().Load()
@@ -69,6 +77,7 @@ func (a *ServerChi) Run() (err error) {
 	employeeHandler := di.GetEmployeeHandler(employeeDB)
 
 	rt.Route("/api/v1", func(r chi.Router) {
+		r.Mount("/sections", router.SectionRoutes(sectionHandler))
 		r.Mount("/seller", router.SellerRoutes(ctrSeller))
 		r.Mount("/employees", router.EmployeeRoutes(employeeHandler))
 		r.Mount("/warehouses", router.GetWarehouseRouter(warehouseHandler))
