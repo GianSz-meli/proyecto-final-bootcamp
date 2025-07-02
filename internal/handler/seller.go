@@ -4,6 +4,7 @@ import (
 	"ProyectoFinal/internal/service/seller"
 	"ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
+	"fmt"
 	"github.com/bootcamp-go/web/request"
 	"github.com/bootcamp-go/web/response"
 	"github.com/go-playground/validator/v10"
@@ -31,7 +32,7 @@ func (h *SellerHandler) Create() http.HandlerFunc {
 		}
 
 		if err := validate.Struct(reqBody); err != nil {
-			newError := errors.WrapErrBadRequest(err)
+			newError := fmt.Errorf("%w : %s", errors.ErrUnprocessableEntity, err.Error())
 			errors.HandleError(w, newError)
 			return
 		}
@@ -45,8 +46,8 @@ func (h *SellerHandler) Create() http.HandlerFunc {
 			return
 		}
 
-		body := map[string]models.SellerDoc{
-			"data": seller.ModelToDoc(),
+		body := map[string][]models.SellerDoc{
+			"data": {seller.ModelToDoc()},
 		}
 		response.JSON(w, http.StatusCreated, body)
 

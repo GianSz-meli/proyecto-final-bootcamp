@@ -12,15 +12,17 @@ type ApiError struct {
 }
 
 var (
-	ErrGeneral       = errors.New("internal server error")
-	ErrNotFound      = errors.New("not found")
-	ErrAlreadyExists = errors.New("resource already exists")
-	ErrBadRequest    = errors.New("bad request")
-	mapErr           = map[error]ApiError{
-		ErrGeneral:       NewErrInternalServer(),
-		ErrNotFound:      NewErrNotFound(),
-		ErrAlreadyExists: NewErrAlreadyExists(),
-		ErrBadRequest:    NewErrBadRequest(),
+	ErrGeneral             = errors.New("internal server error")
+	ErrNotFound            = errors.New("not found")
+	ErrAlreadyExists       = errors.New("resource already exists")
+	ErrBadRequest          = errors.New("bad request")
+	ErrUnprocessableEntity = errors.New("validation failed")
+	mapErr                 = map[error]ApiError{
+		ErrGeneral:             NewErrInternalServer(),
+		ErrNotFound:            NewErrNotFound(),
+		ErrAlreadyExists:       NewErrAlreadyExists(),
+		ErrBadRequest:          NewErrBadRequest(),
+		ErrUnprocessableEntity: NewErrUnprocessableEntity(),
 	}
 )
 
@@ -45,6 +47,12 @@ func NewErrAlreadyExists() ApiError {
 func NewErrBadRequest() ApiError {
 	return ApiError{
 		StatusCode: http.StatusBadRequest,
+	}
+}
+
+func NewErrUnprocessableEntity() ApiError {
+	return ApiError{
+		StatusCode: http.StatusUnprocessableEntity,
 	}
 }
 
