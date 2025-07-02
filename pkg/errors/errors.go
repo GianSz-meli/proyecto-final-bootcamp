@@ -13,15 +13,18 @@ type ApiError struct {
 }
 
 var (
-	ErrGeneral       = errors.New("internal server error")
-	ErrNotFound      = errors.New("not found")
-	ErrAlreadyExists = errors.New("resource already exists")
-	ErrBadRequest    = errors.New("bad request")
-	mapErr           = map[error]ApiError{
-		ErrGeneral:       NewErrInternalServer(),
-		ErrNotFound:      NewErrNotFound(),
-		ErrAlreadyExists: NewErrAlreadyExists(),
-		ErrBadRequest:    NewErrBadRequest(),
+	ErrGeneral             = errors.New("internal server error")
+	ErrNotFound            = errors.New("not found")
+	ErrAlreadyExists       = errors.New("resource already exists")
+	ErrBadRequest          = errors.New("bad request")
+	ErrUnprocessableEntity = errors.New("unprocessable entity")
+
+	mapErr = map[error]ApiError{
+		ErrGeneral:             NewErrInternalServer(),
+		ErrNotFound:            NewErrNotFound(),
+		ErrAlreadyExists:       NewErrAlreadyExists(),
+		ErrBadRequest:          NewErrBadRequest(),
+		ErrUnprocessableEntity: NewErrUnprocessableEntity(),
 	}
 )
 
@@ -49,6 +52,12 @@ func NewErrBadRequest() ApiError {
 	}
 }
 
+func NewErrUnprocessableEntity() ApiError {
+	return ApiError{
+		StatusCode: http.StatusUnprocessableEntity,
+	}
+}
+
 func getMappedError(err error) *ApiError {
 	for baseError, mappedError := range mapErr {
 		if errors.Is(err, baseError) {
@@ -65,14 +74,18 @@ func HandleError(w http.ResponseWriter, err error) {
 	response.Error(w, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 }
 
-func WrapErrAlreadyExist(domain, property string, value int) error {
-	return fmt.Errorf("%w : %s with %s %d already exists", ErrAlreadyExists, domain, property, value)
+func WrapErrAlreadyExist(domain, property string, value any) error {
+	return fmt.Errorf("%w : %s with %s %v already exists", ErrAlreadyExists, domain, property, value)
 }
 
 func WrapErrBadRequest(err error) error {
 	return fmt.Errorf("%w : %s", ErrBadRequest, err.Error())
 }
 
-func WrapErrNotFound(domain, property string, value int) error {
-	return fmt.Errorf("%w : %s not found with %s %d", ErrNotFound, domain, property, value)
+func WrapErrUnprocessableEntity(err error) error {
+	return fmt.Errorf("%w : %s", ErrUnprocessableEntity, err.Error())
+}
+
+func WrapErrNotFound(domain, property string, value any) error {
+	return fmt.Errorf("%w : %s with %s %v not found", ErrNotFound, domain, property, value)
 }
