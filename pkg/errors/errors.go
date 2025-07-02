@@ -3,8 +3,8 @@ package errors
 import (
 	"errors"
 	"fmt"
-	"github.com/bootcamp-go/web/response"
 	"net/http"
+	"github.com/bootcamp-go/web/response"
 )
 
 type ApiError struct {
@@ -17,7 +17,8 @@ var (
 	ErrAlreadyExists       = errors.New("resource already exists")
 	ErrBadRequest          = errors.New("bad request")
 	ErrUnprocessableEntity = errors.New("unprocessable entity")
-	mapErr                 = map[error]ApiError{
+
+	mapErr = map[error]ApiError{
 		ErrGeneral:             NewErrInternalServer(),
 		ErrNotFound:            NewErrNotFound(),
 		ErrAlreadyExists:       NewErrAlreadyExists(),
@@ -72,15 +73,18 @@ func HandleError(w http.ResponseWriter, err error) {
 	response.Error(w, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 }
 
-func WrapErrAlreadyExist(domain, property string, value int) error {
-	return fmt.Errorf("%w : %s with %s %d already exists", ErrAlreadyExists, domain, property, value)
+func WrapErrAlreadyExist(domain, property string, value any) error {
+	return fmt.Errorf("%w : %s with %s %v already exists", ErrAlreadyExists, domain, property, value)
 }
+
 func WrapErrBadRequest(err error) error {
 	return fmt.Errorf("%w : %s", ErrBadRequest, err.Error())
 }
+
 func WrapErrUnprocessableEntity(err error) error {
 	return fmt.Errorf("%w : %s", ErrUnprocessableEntity, err.Error())
 }
-func WrapErrAlreadyExistString(domain, property string, value string) error {
-	return fmt.Errorf("%w : %s with %s %d already exists", ErrAlreadyExists, domain, property, value)
+
+func WrapErrNotFound(domain, property string, value any) error {
+	return fmt.Errorf("%w : %s with %s %v not found", ErrNotFound, domain, property, value)
 }

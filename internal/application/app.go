@@ -46,6 +46,7 @@ func (a *ServerChi) Run() (err error) {
 
 	factory := loader.NewLoaderFactory(a.loaderFilePath)
 
+	// Load sellers
 	sellerDB, err := factory.NewSellerLoader().Load()
 	if err != nil {
 		panic(err)
@@ -62,11 +63,22 @@ func (a *ServerChi) Run() (err error) {
 	warehouseHandler := di.GetWarehouseHandler(warehouseDB)
 	buyerHandler := di.GetBuyerHandler(buyerDB)
 
+	// Load sections
+	sections, err := factory.NewSectionLoader().Load()
+	if err != nil {
+		panic(err)
+	}
+
+	sectionHandler := di.GetSectionHandler(sections)
+
 	repoSeller := repository.NewSellerRepository(sellerDB)
 	srvSeller := service.NewSellerService(repoSeller)
 	ctrSeller := handler.NewSellerHandler(srvSeller)
 
 	rt.Route("/api/v1", func(r chi.Router) {
+
+		r.Mount("/sections", router.SectionRoutes(sectionHandler))
+
 		r.Mount("/seller", router.SellerRoutes(ctrSeller))
 		r.Mount("/warehouses", router.GetWarehouseRouter(warehouseHandler))
 		r.Mount("/buyers", router.GetBuyerRouter(buyerHandler))
