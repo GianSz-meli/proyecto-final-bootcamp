@@ -10,6 +10,10 @@ type Warehouse struct {
 	MinimumTemperature float64
 }
 
+func (w Warehouse) ModelToDoc() WarehouseDocument {
+	return WarehouseDocument(w)
+}
+
 type WarehouseDocument struct {
 	ID                 int    `json:"id"`
 	WarehouseCode      string `json:"warehouse_code"`
@@ -19,6 +23,9 @@ type WarehouseDocument struct {
 	MinimumTemperature float64 `json:"minimum_temperature"`
 }
 
+func (w WarehouseDocument) DocToModel() Warehouse {
+	return Warehouse(w)
+}
 
 type CreateWarehouseRequest struct {
 	WarehouseCode      string  `json:"warehouse_code" validate:"required"`
@@ -26,4 +33,14 @@ type CreateWarehouseRequest struct {
 	Telephone          string  `json:"telephone" validate:"required"`
 	MinimumCapacity    int     `json:"minimum_capacity" validate:"required,min=1"`
 	MinimumTemperature float64 `json:"minimum_temperature" validate:"required"`
+}
+
+func (c CreateWarehouseRequest) DocToModel() Warehouse {
+	return Warehouse{
+		WarehouseCode:      c.WarehouseCode,
+		Address:            c.Address,
+		Telephone:          c.Telephone,
+		MinimumCapacity:    c.MinimumCapacity,
+		MinimumTemperature: c.MinimumTemperature,
+	}
 }

@@ -63,13 +63,7 @@ func (h *WarehouseHandler) CreateWarehouse(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	warehouse := models.Warehouse{
-		WarehouseCode:      createRequest.WarehouseCode,
-		Address:            createRequest.Address,
-		Telephone:          createRequest.Telephone,
-		MinimumCapacity:    createRequest.MinimumCapacity,
-		MinimumTemperature: createRequest.MinimumTemperature,
-	}
+	warehouse := createRequest.DocToModel()
 
 	createdWarehouse, err := h.warehouseService.CreateWarehouse(warehouse)
 	if err != nil {
@@ -78,7 +72,7 @@ func (h *WarehouseHandler) CreateWarehouse(w http.ResponseWriter, r *http.Reques
 	}
 
 	responseBody := models.SuccessResponse{
-		Data: createdWarehouse,
+		Data: createdWarehouse.ModelToDoc(),
 	}
 	response.JSON(w, http.StatusCreated, responseBody)
 }
