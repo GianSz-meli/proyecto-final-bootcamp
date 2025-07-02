@@ -77,6 +77,7 @@ func HandleError(w http.ResponseWriter, err error) {
 func WrapErrAlreadyExist(domain, property string, value any) error {
 	return fmt.Errorf("%w : %s with %s %v already exists", ErrAlreadyExists, domain, property, value)
 }
+
 func WrapErrBadRequest(err error) error {
 	return fmt.Errorf("%w : %s", ErrBadRequest, err.Error())
 }
