@@ -1,14 +1,12 @@
 package handler
 
 import (
-	"errors"
-	"fmt"
 	"net/http"
 	"strconv"
 
 	employeeService "ProyectoFinal/internal/service/employee"
 	pkgErrors "ProyectoFinal/pkg/errors"
-	employeemodel "ProyectoFinal/pkg/models/employee"
+	"ProyectoFinal/pkg/models"
 
 	"github.com/bootcamp-go/web/request"
 	"github.com/bootcamp-go/web/response"
@@ -37,8 +35,13 @@ func (h *EmployeeHandler) GetAll() http.HandlerFunc {
 			return
 		}
 
-		body := map[string][]employeemodel.Employee{
-			"data": employees,
+		employeeDocs := make([]models.EmployeeDoc, len(employees))
+		for i, emp := range employees {
+			employeeDocs[i] = emp.ModelToDoc()
+		}
+
+		body := map[string][]models.EmployeeDoc{
+			"data": employeeDocs,
 		}
 
 		response.JSON(w, http.StatusOK, body)
@@ -57,17 +60,12 @@ func (h *EmployeeHandler) GetById() http.HandlerFunc {
 
 		employee, err := h.service.GetById(id)
 		if err != nil {
-			if errors.Is(err, pkgErrors.ErrNotFound) {
-				newErr := fmt.Errorf("%w : employee with id %d not found", pkgErrors.ErrNotFound, id)
-				pkgErrors.HandleError(w, newErr)
-			} else {
-				pkgErrors.HandleError(w, err)
-			}
+			pkgErrors.HandleError(w, err)
 			return
 		}
 
-		body := map[string]employeemodel.Employee{
-			"data": employee,
+		body := map[string]models.EmployeeDoc{
+			"data": employee.ModelToDoc(),
 		}
 
 		response.JSON(w, http.StatusOK, body)
@@ -76,7 +74,7 @@ func (h *EmployeeHandler) GetById() http.HandlerFunc {
 
 func (h *EmployeeHandler) Create() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var reqBody employeemodel.EmployeeRequest
+		var reqBody models.EmployeeRequest
 
 		if err := request.JSON(r, &reqBody); err != nil {
 			newErr := pkgErrors.WrapErrBadRequest(err)
@@ -90,7 +88,7 @@ func (h *EmployeeHandler) Create() http.HandlerFunc {
 			return
 		}
 
-		employee := employeemodel.Employee{
+		employee := models.Employee{
 			CardNumberID: reqBody.CardNumberID,
 			FirstName:    reqBody.FirstName,
 			LastName:     reqBody.LastName,
@@ -104,8 +102,8 @@ func (h *EmployeeHandler) Create() http.HandlerFunc {
 			return
 		}
 
-		body := map[string]employeemodel.Employee{
-			"data": createdEmployee,
+		body := map[string]models.EmployeeDoc{
+			"data": createdEmployee.ModelToDoc(),
 		}
 		response.JSON(w, http.StatusCreated, body)
 	}
@@ -123,16 +121,11 @@ func (h *EmployeeHandler) Update() http.HandlerFunc {
 
 		currentEmployee, err := h.service.GetById(id)
 		if err != nil {
-			if errors.Is(err, pkgErrors.ErrNotFound) {
-				newErr := fmt.Errorf("%w : employee with id %d not found", pkgErrors.ErrNotFound, id)
-				pkgErrors.HandleError(w, newErr)
-			} else {
-				pkgErrors.HandleError(w, err)
-			}
+			pkgErrors.HandleError(w, err)
 			return
 		}
 
-		var reqBody employeemodel.EmployeeUpdateRequest
+		var reqBody models.EmployeeUpdateRequest
 		if err := request.JSON(r, &reqBody); err != nil {
 			newErr := pkgErrors.WrapErrBadRequest(err)
 			pkgErrors.HandleError(w, newErr)
@@ -140,17 +133,17 @@ func (h *EmployeeHandler) Update() http.HandlerFunc {
 		}
 
 		updatedEmployee := currentEmployee
-		if reqBody.CardNumberID != "" {
-			updatedEmployee.CardNumberID = reqBody.CardNumberID
+		if reqBody.CardNumberID != nil {
+			updatedEmployee.CardNumberID = *reqBody.CardNumberID
 		}
-		if reqBody.FirstName != "" {
-			updatedEmployee.FirstName = reqBody.FirstName
+		if reqBody.FirstName != nil {
+			updatedEmployee.FirstName = *reqBody.FirstName
 		}
-		if reqBody.LastName != "" {
-			updatedEmployee.LastName = reqBody.LastName
+		if reqBody.LastName != nil {
+			updatedEmployee.LastName = *reqBody.LastName
 		}
-		if reqBody.WarehouseID != 0 {
-			updatedEmployee.WarehouseID = reqBody.WarehouseID
+		if reqBody.WarehouseID != nil {
+			updatedEmployee.WarehouseID = *reqBody.WarehouseID
 		}
 
 		finalEmployee, err := h.service.Update(id, updatedEmployee)
@@ -159,8 +152,8 @@ func (h *EmployeeHandler) Update() http.HandlerFunc {
 			return
 		}
 
-		body := map[string]employeemodel.Employee{
-			"data": finalEmployee,
+		body := map[string]models.EmployeeDoc{
+			"data": finalEmployee.ModelToDoc(),
 		}
 		response.JSON(w, http.StatusOK, body)
 	}
@@ -178,11 +171,7 @@ func (h *EmployeeHandler) Delete() http.HandlerFunc {
 
 		err = h.service.Delete(id)
 		if err != nil {
-			if errors.Is(err, pkgErrors.ErrNotFound) {
-				pkgErrors.HandleError(w, err)
-			} else {
-				pkgErrors.HandleError(w, err)
-			}
+			pkgErrors.HandleError(w, err)
 			return
 		}
 

@@ -4,10 +4,10 @@ import (
 	"ProyectoFinal/internal/handler"
 	employeeRepository "ProyectoFinal/internal/repository/employee"
 	employeeService "ProyectoFinal/internal/service/employee"
-	employeemodel "ProyectoFinal/pkg/models/employee"
+	"ProyectoFinal/pkg/models"
 )
 
-func GetEmployeeHandler(db map[int]employeemodel.Employee) *handler.EmployeeHandler {
+func GetEmployeeHandler(db map[int]models.Employee) *handler.EmployeeHandler {
 	employeeRepo := employeeRepository.NewRepository(db)
 	employeeSrv := employeeService.NewService(employeeRepo)
 	employeeHdl := handler.NewEmployeeHandler(employeeSrv)

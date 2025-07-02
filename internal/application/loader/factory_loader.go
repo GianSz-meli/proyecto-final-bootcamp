@@ -2,7 +2,6 @@ package loader
 
 import (
 	"ProyectoFinal/pkg/models"
-	employeemodel "ProyectoFinal/pkg/models/employee"
 )
 
 const (
@@ -24,7 +23,7 @@ func (f *FactoryLoader) NewSellerLoader() Loader[models.Seller] {
 	return &SellerLoader{path: f.paths[Seller]}
 }
 
-func (f *FactoryLoader) NewEmployeeLoader() Loader[employeemodel.Employee] {
+func (f *FactoryLoader) NewEmployeeLoader() Loader[models.Employee] {
 	return &EmployeeLoader{path: f.paths[Employee]}
 }
 func (f *FactoryLoader) NewWarehouseLoader() Loader[models.Warehouse] {
