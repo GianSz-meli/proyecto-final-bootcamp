@@ -3,9 +3,9 @@ package buyer
 import "ProyectoFinal/pkg/models"
 
 type Service interface {
-	Save(buyerDto models.BuyerCreateDto) error
+	Save(buyerDTO models.BuyerCreateDTO) (models.Buyer, error)
 	GetById(id int) (models.Buyer, error)
-	GetAll() []models.Buyer
-	Update(buyerUpdateDto models.BuyerUpdateDto) error
+	GetAll() ([]models.Buyer, error)
+	Update(id int, buyerDTO models.BuyerUpdateDTO) (models.Buyer, error)
 	Delete(id int) error
 }

@@ -32,11 +32,18 @@ func checkCounter(data map[int]models.Buyer) int {
 	return idCounter
 }
 
-func (r *jsonRepository) Save(buyer models.Buyer) error {
+func (r *jsonRepository) Save(buyer models.Buyer) (models.Buyer, error) {
 	r.idCounter++
 	buyer.Id = r.idCounter
 	r.db[buyer.Id] = buyer
-	return r.flush()
+
+	if err := r.flush(); err != nil {
+		delete(r.db, buyer.Id)
+		r.idCounter--
+		return models.Buyer{}, err
+	}
+
+	return buyer, nil
 }
 
 func (r *jsonRepository) GetById(id int) (models.Buyer, error) {
@@ -47,7 +54,7 @@ func (r *jsonRepository) GetById(id int) (models.Buyer, error) {
 	return buyer, nil
 }
 
-func (r *jsonRepository) GetAll() []models.Buyer {
+func (r *jsonRepository) GetAll() ([]models.Buyer, error) {
 	var data []models.Buyer
 
 	for _, buyer := range r.db {
@@ -58,26 +65,45 @@ func (r *jsonRepository) GetAll() []models.Buyer {
 		return data[i].Id < data[j].Id
 	})
 
-	return data
+	return data, nil
 }
 
-func (r *jsonRepository) Update(buyer models.Buyer) error {
-	if _, ok := r.db[buyer.Id]; !ok {
-		return fmt.Errorf("buyer with id %v not found", buyer.Id)
+func (r *jsonRepository) Update(buyer models.Buyer) (models.Buyer, error) {
+	prev, _ := r.db[buyer.Id]
+	r.db[buyer.Id] = buyer
+
+	if err := r.flush(); err != nil {
+		r.db[buyer.Id] = prev
+		return models.Buyer{}, err
 	}
 
-	r.db[buyer.Id] = buyer
-	return r.flush()
+	return buyer, nil
 }
 
 func (r *jsonRepository) Delete(id int) error {
-	_, ok := r.db[id]
+	prev, ok := r.db[id]
+
 	if !ok {
 		return fmt.Errorf("buyer with id %v not found", id)
 	}
 
 	delete(r.db, id)
-	return r.flush()
+
+	if err := r.flush(); err != nil {
+		r.db[id] = prev
+		return err
+	}
+
+	return nil
+}
+
+func (r *jsonRepository) ExistsByCardNumberId(id string) bool {
+	for _, buyer := range r.db {
+		if buyer.CardNumberId == id {
+			return true
+		}
+	}
+	return false
 }
 
 func (r *jsonRepository) flush() error {
