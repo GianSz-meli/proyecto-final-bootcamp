@@ -54,8 +54,13 @@ func (a *ServerChi) Run() (err error) {
 	if err != nil {
 		panic(err)
 	}
+	buyerDB, err := factory.NewBuyerLoader().Load()
+	if err != nil {
+		panic(err)
+	}
 
 	warehouseHandler := di.GetWarehouseHandler(warehouseDB)
+	buyerHandler := di.GetBuyerHandler(buyerDB)
 
 	repoSeller := repository.NewSellerRepository(sellerDB)
 	srvSeller := service.NewSellerService(repoSeller)
@@ -64,6 +69,7 @@ func (a *ServerChi) Run() (err error) {
 	rt.Route("/api/v1", func(r chi.Router) {
 		r.Mount("/seller", router.SellerRoutes(ctrSeller))
 		r.Mount("/warehouses", router.GetWarehouseRouter(warehouseHandler))
+		r.Mount("/buyers", router.GetBuyerRouter(buyerHandler))
 	})
 
 	err = http.ListenAndServe(a.serverAddress, rt)

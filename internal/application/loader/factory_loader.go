@@ -10,7 +10,7 @@ const (
 	Product   string = "products"
 	Warehouse string = "warehouse"
 	Employee  string = "employee"
-	Buyer     string = "buyer"
+	Buyer     string = "buyers"
 )
 
 type FactoryLoader struct {
