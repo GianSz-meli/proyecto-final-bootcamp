@@ -6,11 +6,13 @@ import (
 
 type MemoryWarehouseRepository struct {
 	db map[int]models.Warehouse
+	lastId int
 }
 
 func NewMemoryWarehouseRepository(db map[int]models.Warehouse) *MemoryWarehouseRepository {
 	return &MemoryWarehouseRepository{
 		db: db,
+		lastId: GetLastId(db),
 	}
 }
 
@@ -40,20 +42,23 @@ func (r *MemoryWarehouseRepository) ExistsByCode(code string) bool {
 }
 
 func (r *MemoryWarehouseRepository) Create(warehouse models.Warehouse) *models.Warehouse {
-	// Generate a new ID (simple implementation - in production you'd want a more robust solution)
-	newID := 1
-	for id := range r.db {
-		if id >= newID {
-			newID = id + 1
-		}
-	}
-
-	warehouse.ID = newID
-	r.db[newID] = warehouse
+	r.lastId++
+	warehouse.ID = r.lastId
+	r.db[r.lastId] = warehouse
 	return &warehouse
 }
 
 func (r *MemoryWarehouseRepository) Update(id int, warehouse models.Warehouse) *models.Warehouse {
 	r.db[id] = warehouse
 	return &warehouse
+}
+
+func GetLastId(db map[int]models.Warehouse) int {
+	lastId := 0
+	for id := range db {
+		if id > lastId {
+			lastId = id
+		}
+	}
+	return lastId
 }

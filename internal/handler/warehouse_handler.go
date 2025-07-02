@@ -10,7 +10,6 @@ import (
 	"ProyectoFinal/pkg/models"
 
 	"github.com/bootcamp-go/web/response"
-	"github.com/go-playground/validator/v10"
 )
 
 type WarehouseHandler struct {
@@ -61,9 +60,8 @@ func (h *WarehouseHandler) CreateWarehouse(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	validate := validator.New()
-	if err := validate.Struct(createRequest); err != nil {
-		errors.HandleError(w, errors.WrapErrUnprocessableEntity(err))
+	if err := utils.ValidateRequestData(createRequest); err != nil {
+		errors.HandleError(w, err)
 		return
 	}
 
@@ -94,9 +92,8 @@ func (h *WarehouseHandler) UpdateWarehouse(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	validate := validator.New()
-	if err := validate.Struct(updateRequest); err != nil {
-		errors.HandleError(w, errors.WrapErrUnprocessableEntity(err))
+	if err := utils.ValidateRequestData(updateRequest); err != nil {
+		errors.HandleError(w, err)
 		return
 	}
 
