@@ -29,3 +29,26 @@ func (r *MemoryWarehouseRepository) GetById(id int) *models.Warehouse {
 	}
 	return &warehouse
 }
+
+func (r *MemoryWarehouseRepository) ExistsByCode(code string) bool {
+	for _, warehouse := range r.db {
+		if warehouse.WarehouseCode == code {
+			return true
+		}
+	}
+	return false
+}
+
+func (r *MemoryWarehouseRepository) Create(warehouse models.Warehouse) *models.Warehouse {
+	// Generate a new ID (simple implementation - in production you'd want a more robust solution)
+	newID := 1
+	for id := range r.db {
+		if id >= newID {
+			newID = id + 1
+		}
+	}
+
+	warehouse.ID = newID
+	r.db[newID] = warehouse
+	return &warehouse
+}

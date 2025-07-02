@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"ProyectoFinal/internal/handler/utils"
@@ -9,6 +10,7 @@ import (
 	"ProyectoFinal/pkg/models"
 
 	"github.com/bootcamp-go/web/response"
+	"github.com/go-playground/validator/v10"
 )
 
 type WarehouseHandler struct {
@@ -46,4 +48,37 @@ func (h *WarehouseHandler) GetWarehouseById(w http.ResponseWriter, r *http.Reque
 		Data: warehouse,
 	}
 	response.JSON(w, http.StatusOK, responseBody)
+}
+
+func (h *WarehouseHandler) CreateWarehouse(w http.ResponseWriter, r *http.Request) {
+	var createRequest models.CreateWarehouseRequest
+	if err := json.NewDecoder(r.Body).Decode(&createRequest); err != nil {
+		errors.HandleError(w, errors.WrapErrBadRequest(err))
+		return
+	}
+
+	validate := validator.New()
+	if err := validate.Struct(createRequest); err != nil {
+		errors.HandleError(w, errors.WrapErrValidation(err))
+		return
+	}
+
+	warehouse := models.Warehouse{
+		WarehouseCode:      createRequest.WarehouseCode,
+		Address:            createRequest.Address,
+		Telephone:          createRequest.Telephone,
+		MinimumCapacity:    createRequest.MinimumCapacity,
+		MinimumTemperature: createRequest.MinimumTemperature,
+	}
+
+	createdWarehouse, err := h.warehouseService.CreateWarehouse(warehouse)
+	if err != nil {
+		errors.HandleError(w, err)
+		return
+	}
+
+	responseBody := models.SuccessResponse{
+		Data: createdWarehouse,
+	}
+	response.JSON(w, http.StatusCreated, responseBody)
 }

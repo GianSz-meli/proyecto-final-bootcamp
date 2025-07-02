@@ -3,8 +3,9 @@ package errors
 import (
 	"errors"
 	"fmt"
-	"github.com/bootcamp-go/web/response"
 	"net/http"
+
+	"github.com/bootcamp-go/web/response"
 )
 
 type ApiError struct {
@@ -16,11 +17,14 @@ var (
 	ErrNotFound      = errors.New("not found")
 	ErrAlreadyExists = errors.New("resource already exists")
 	ErrBadRequest    = errors.New("bad request")
+	ErrValidation    = errors.New("validation error")
+	
 	mapErr           = map[error]ApiError{
 		ErrGeneral:       NewErrInternalServer(),
 		ErrNotFound:      NewErrNotFound(),
 		ErrAlreadyExists: NewErrAlreadyExists(),
 		ErrBadRequest:    NewErrBadRequest(),
+		ErrValidation:    NewErrUnprocessableEntity(),
 	}
 )
 
@@ -48,6 +52,12 @@ func NewErrBadRequest() ApiError {
 	}
 }
 
+func NewErrUnprocessableEntity() ApiError {
+	return ApiError{
+		StatusCode: http.StatusUnprocessableEntity,
+	}
+}
+
 func getMappedError(err error) *ApiError {
 	for baseError, mappedError := range mapErr {
 		if errors.Is(err, baseError) {
@@ -64,9 +74,13 @@ func HandleError(w http.ResponseWriter, err error) {
 	response.Error(w, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 }
 
-func WrapErrAlreadyExist(domain, property string, value int) error {
+func WrapErrAlreadyExist(domain, property string, value any) error {
 	return fmt.Errorf("%w : %s with %s %d already exists", ErrAlreadyExists, domain, property, value)
 }
 func WrapErrBadRequest(err error) error {
 	return fmt.Errorf("%w : %s", ErrBadRequest, err.Error())
+}
+
+func WrapErrValidation(err error) error {
+	return fmt.Errorf("%w : %s", ErrValidation, err.Error())
 }
