@@ -1,24 +1,19 @@
 package buyer
 
 import (
-	"ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
-	"encoding/json"
-	"os"
 	"sort"
 )
 
 type jsonRepository struct {
 	db        map[int]models.Buyer
 	idCounter int
-	filePath  string
 }
 
-func NewBuyerJsonRepository(data map[int]models.Buyer, path string) Repository {
+func NewBuyerJsonRepository(data map[int]models.Buyer) Repository {
 	return &jsonRepository{
 		db:        data,
 		idCounter: checkCounter(data),
-		filePath:  path,
 	}
 }
 
@@ -32,29 +27,20 @@ func checkCounter(data map[int]models.Buyer) int {
 	return idCounter
 }
 
-func (r *jsonRepository) Save(buyer models.Buyer) (models.Buyer, error) {
+func (r *jsonRepository) Save(buyer models.Buyer) models.Buyer {
 	r.idCounter++
 	buyer.Id = r.idCounter
 	r.db[buyer.Id] = buyer
 
-	if err := r.flush(); err != nil {
-		delete(r.db, buyer.Id)
-		r.idCounter--
-		return models.Buyer{}, errors.ErrGeneral
-	}
-
-	return buyer, nil
+	return buyer
 }
 
-func (r *jsonRepository) GetById(id int) (models.Buyer, error) {
+func (r *jsonRepository) GetById(id int) (models.Buyer, bool) {
 	buyer, ok := r.db[id]
-	if !ok {
-		return models.Buyer{}, errors.ErrNotFound
-	}
-	return buyer, nil
+	return buyer, ok
 }
 
-func (r *jsonRepository) GetAll() ([]models.Buyer, error) {
+func (r *jsonRepository) GetAll() []models.Buyer {
 	var data []models.Buyer
 
 	for _, buyer := range r.db {
@@ -65,39 +51,16 @@ func (r *jsonRepository) GetAll() ([]models.Buyer, error) {
 		return data[i].Id < data[j].Id
 	})
 
-	return data, nil
+	return data
 }
 
-func (r *jsonRepository) Update(buyer models.Buyer) (models.Buyer, error) {
-	prev, ok := r.db[buyer.Id]
-	if !ok {
-		return models.Buyer{}, errors.ErrNotFound
-	}
+func (r *jsonRepository) Update(buyer models.Buyer) models.Buyer {
 	r.db[buyer.Id] = buyer
-
-	if err := r.flush(); err != nil {
-		r.db[buyer.Id] = prev
-		return models.Buyer{}, errors.ErrGeneral
-	}
-
-	return buyer, nil
+	return buyer
 }
 
-func (r *jsonRepository) Delete(id int) error {
-	prev, ok := r.db[id]
-
-	if !ok {
-		return errors.ErrNotFound
-	}
-
+func (r *jsonRepository) Delete(id int) {
 	delete(r.db, id)
-
-	if err := r.flush(); err != nil {
-		r.db[id] = prev
-		return errors.ErrGeneral
-	}
-
-	return nil
 }
 
 func (r *jsonRepository) ExistsByCardNumberId(id string) bool {
@@ -107,27 +70,4 @@ func (r *jsonRepository) ExistsByCardNumberId(id string) bool {
 		}
 	}
 	return false
-}
-
-func (r *jsonRepository) flush() error {
-	var data []models.Buyer
-
-	for _, buyer := range r.db {
-		data = append(data, buyer)
-	}
-
-	sort.Slice(data, func(i, j int) bool {
-		return data[i].Id < data[j].Id
-	})
-
-	newJson, err := json.MarshalIndent(data, "", " ")
-	if err != nil {
-		return errors.ErrGeneral
-	}
-
-	if err := os.WriteFile(r.filePath, newJson, 0644); err != nil {
-		return errors.ErrGeneral
-	}
-
-	return nil
 }

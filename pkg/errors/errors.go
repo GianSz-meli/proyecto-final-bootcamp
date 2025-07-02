@@ -81,3 +81,6 @@ func WrapErrBadRequest(err error) error {
 func WrapErrUnprocessableEntity(err error) error {
 	return fmt.Errorf("%w : %s", ErrUnprocessableEntity, err.Error())
 }
+func WrapErrAlreadyExistString(domain, property string, value string) error {
+	return fmt.Errorf("%w : %s with %s %d already exists", ErrAlreadyExists, domain, property, value)
+}

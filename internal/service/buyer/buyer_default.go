@@ -4,8 +4,8 @@ import (
 	"ProyectoFinal/internal/repository/buyer"
 	"ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
+	"fmt"
 	"github.com/go-playground/validator/v10"
-	"strconv"
 )
 
 type buyerService struct {
@@ -21,23 +21,22 @@ func NewBuyerService(newRepository buyer.Repository) Service {
 }
 
 func (s *buyerService) Save(buyerDTO models.BuyerCreateDTO) (models.Buyer, error) {
-	intId, err := strconv.Atoi(buyerDTO.CardNumberId)
-	if err != nil {
-		return models.Buyer{}, errors.ErrBadRequest
-	}
-
 	if s.repository.ExistsByCardNumberId(buyerDTO.CardNumberId) {
-		return models.Buyer{}, errors.WrapErrAlreadyExist("buyer", "card_number_id", intId)
+		return models.Buyer{}, errors.WrapErrAlreadyExistString("buyer", "card_number_id", buyerDTO.CardNumberId)
 	}
 
-	return s.repository.Save(models.DTOToBuyer(buyerDTO))
+	return s.repository.Save(models.DTOToBuyer(buyerDTO)), nil
 }
 
 func (s *buyerService) GetById(id int) (models.Buyer, error) {
-	return s.repository.GetById(id)
+	existingBuyer, ok := s.repository.GetById(id)
+	if !ok {
+		return models.Buyer{}, fmt.Errorf("buyer with id %d not found", id)
+	}
+	return existingBuyer, nil
 }
 
-func (s *buyerService) GetAll() ([]models.Buyer, error) {
+func (s *buyerService) GetAll() []models.Buyer {
 	return s.repository.GetAll()
 }
 
@@ -46,19 +45,15 @@ func (s *buyerService) Update(id int, buyerDTO models.BuyerUpdateDTO) (models.Bu
 		return models.Buyer{}, errors.WrapErrBadRequest(err)
 	}
 
-	existingBuyer, err := s.repository.GetById(id)
-	if err != nil {
-		return models.Buyer{}, err
+	existingBuyer, ok := s.repository.GetById(id)
+	if !ok {
+		return models.Buyer{}, fmt.Errorf("buyer with id %d not found", id)
 	}
 
 	if buyerDTO.CardNumberId != nil {
-		intId, err := strconv.Atoi(*buyerDTO.CardNumberId)
-		if err != nil {
-			return models.Buyer{}, errors.ErrBadRequest
-		}
 		if *buyerDTO.CardNumberId != existingBuyer.CardNumberId &&
 			s.repository.ExistsByCardNumberId(*buyerDTO.CardNumberId) {
-			return models.Buyer{}, errors.WrapErrAlreadyExist("buyer", "card_number_id", intId)
+			return models.Buyer{}, errors.WrapErrAlreadyExistString("buyer", "card_number_id", *buyerDTO.CardNumberId)
 		}
 		existingBuyer.CardNumberId = *buyerDTO.CardNumberId
 	}
@@ -71,14 +66,15 @@ func (s *buyerService) Update(id int, buyerDTO models.BuyerUpdateDTO) (models.Bu
 		existingBuyer.LastName = *buyerDTO.LastName
 	}
 
-	updatedBuyer, err := s.repository.Update(existingBuyer)
-	if err != nil {
-		return models.Buyer{}, err
-	}
-
-	return updatedBuyer, nil
+	return s.repository.Update(existingBuyer), nil
 }
 
 func (s *buyerService) Delete(id int) error {
-	return s.repository.Delete(id)
+	_, ok := s.repository.GetById(id)
+	if !ok {
+		return fmt.Errorf("buyer with id %d not found", id)
+	}
+
+	s.repository.Delete(id)
+	return nil
 }
