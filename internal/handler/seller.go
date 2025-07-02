@@ -100,3 +100,25 @@ func (h *SellerHandler) GetById() http.HandlerFunc {
 		response.JSON(w, http.StatusOK, body)
 	}
 }
+
+func (h *SellerHandler) Delete() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		reqId := chi.URLParam(r, "id")
+
+		id, err := strconv.Atoi(reqId)
+
+		if err != nil {
+			errors.HandleError(w, errors.ErrBadRequest)
+			return
+		}
+
+		err = h.service.Delete(id)
+
+		if err != nil {
+			errors.HandleError(w, err)
+			return
+		}
+
+		w.WriteHeader(http.StatusNoContent)
+	}
+}

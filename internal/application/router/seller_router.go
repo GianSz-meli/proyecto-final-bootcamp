@@ -10,5 +10,6 @@ func GetSellerRouter(handler *handler.SellerHandler) chi.Router {
 	r.Post("/", handler.Create())
 	r.Get("/", handler.GetAll())
 	r.Get("/{id}", handler.GetById())
+	r.Delete("/{id}", handler.Delete())
 	return r
 }

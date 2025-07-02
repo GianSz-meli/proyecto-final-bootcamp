@@ -41,3 +41,7 @@ func (r *SellerMap) GetAll() []models.Seller {
 	}
 	return sellers
 }
+
+func (r *SellerMap) Delete(id int) {
+	delete(r.db, id)
+}

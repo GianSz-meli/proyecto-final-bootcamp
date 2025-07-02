@@ -7,4 +7,5 @@ type SellerRepository interface {
 	GetById(id int) (models.Seller, bool)
 	ExistsByCid(cid int) bool
 	GetAll() []models.Seller
+	Delete(id int)
 }

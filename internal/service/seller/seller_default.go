@@ -47,3 +47,18 @@ func (s *SellerDefault) GetById(id int) (models.Seller, error) {
 
 	return seller, nil
 }
+
+func (s *SellerDefault) Delete(id int) error {
+	if id <= 0 {
+		newError := fmt.Errorf("seller id must be positive, got %d", id)
+		return errors.WrapErrBadRequest(newError)
+	}
+	if _, ok := s.repository.GetById(id); !ok {
+		newError := fmt.Errorf("%w : seller with id %d not found", errors.ErrNotFound, id)
+		return newError
+	}
+
+	s.repository.Delete(id)
+
+	return nil
+}
