@@ -32,7 +32,7 @@ func (r *MemoryWarehouseRepository) GetById(id int) *models.Warehouse {
 
 func (r *MemoryWarehouseRepository) ExistsByCode(code string) bool {
 	for _, warehouse := range r.db {
-		if warehouse.WarehouseCode == code {
+		if *warehouse.WarehouseCode == code {
 			return true
 		}
 	}

@@ -31,8 +31,8 @@ func (s *WarehouseServiceImpl) GetWarehouseById(id int) (*models.Warehouse, erro
 }
 
 func (s *WarehouseServiceImpl) CreateWarehouse(warehouse models.Warehouse) (*models.Warehouse, error) {
-	if s.warehouseRepo.ExistsByCode(warehouse.WarehouseCode) {
-		return nil, fmt.Errorf("%w: warehouse with code '%s' already exists", errors.ErrAlreadyExists, warehouse.WarehouseCode)
+	if s.warehouseRepo.ExistsByCode(*warehouse.WarehouseCode) {
+		return nil, fmt.Errorf("%w: warehouse with code '%s' already exists", errors.ErrAlreadyExists, *warehouse.WarehouseCode)
 	}
 
 	createdWarehouse := s.warehouseRepo.Create(warehouse)

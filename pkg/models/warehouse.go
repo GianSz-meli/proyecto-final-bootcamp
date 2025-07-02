@@ -3,15 +3,22 @@ package models
 // Warehouse represents a warehouse/fulfillment center
 type Warehouse struct {
 	ID                 int
-	WarehouseCode      string
-	Address            string
-	Telephone          string
-	MinimumCapacity    int
-	MinimumTemperature float64
+	WarehouseCode      *string
+	Address            *string
+	Telephone          *string
+	MinimumCapacity    *int
+	MinimumTemperature *float64
 }
 
 func (w Warehouse) ModelToDoc() WarehouseDocument {
-	return WarehouseDocument(w)
+	return WarehouseDocument {
+		ID:                 w.ID,
+		WarehouseCode:      *w.WarehouseCode,
+		Address:            *w.Address,
+		Telephone:          *w.Telephone,
+		MinimumCapacity:    *w.MinimumCapacity,
+		MinimumTemperature: *w.MinimumTemperature,
+	}
 }
 
 type WarehouseDocument struct {
@@ -24,7 +31,14 @@ type WarehouseDocument struct {
 }
 
 func (w WarehouseDocument) DocToModel() Warehouse {
-	return Warehouse(w)
+	return Warehouse{
+		ID:                 w.ID,
+		WarehouseCode:      &w.WarehouseCode,
+		Address:            &w.Address,
+		Telephone:          &w.Telephone,
+		MinimumCapacity:    &w.MinimumCapacity,
+		MinimumTemperature: &w.MinimumTemperature,
+	}
 }
 
 type CreateWarehouseRequest struct {
@@ -37,10 +51,10 @@ type CreateWarehouseRequest struct {
 
 func (c CreateWarehouseRequest) DocToModel() Warehouse {
 	return Warehouse{
-		WarehouseCode:      c.WarehouseCode,
-		Address:            c.Address,
-		Telephone:          c.Telephone,
-		MinimumCapacity:    c.MinimumCapacity,
-		MinimumTemperature: c.MinimumTemperature,
+		WarehouseCode:      &c.WarehouseCode,
+		Address:            &c.Address,
+		Telephone:          &c.Telephone,
+		MinimumCapacity:    &c.MinimumCapacity,
+		MinimumTemperature: &c.MinimumTemperature,
 	}
 }
