@@ -28,3 +28,9 @@ func (f *FactoryLoader) NewSellerLoader() Loader[models.Seller] {
 func (f *FactoryLoader) NewEmployeeLoader() Loader[employeemodel.Employee] {
 	return &EmployeeLoader{path: f.paths[Employee]}
 }
+
+func (f *FactoryLoader) NewProductLoader() Loader[models.Product] {
+	return &ProductLoader{path: f.paths[Product]}
+}
+
+
