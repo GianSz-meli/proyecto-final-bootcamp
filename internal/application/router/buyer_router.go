@@ -13,6 +13,5 @@ func GetBuyerRouter(h *handler.BuyerHandler) chi.Router {
 	rt.Post("/", h.Save())
 	rt.Patch("/{id}", h.Update())
 	rt.Delete("/{id}", h.Delete())
-
 	return rt
 }

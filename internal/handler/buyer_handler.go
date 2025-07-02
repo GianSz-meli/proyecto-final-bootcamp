@@ -1,43 +1,38 @@
 package handler
 
 import (
+	"ProyectoFinal/internal/handler/utils"
 	"ProyectoFinal/internal/service/buyer"
 	"ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
 	"encoding/json"
+	"fmt"
+	"github.com/bootcamp-go/web/response"
 	"github.com/go-chi/chi/v5"
-	"github.com/go-playground/validator/v10"
 	"io"
 	"net/http"
 	"strconv"
 )
 
 type BuyerHandler struct {
-	service   buyer.Service
-	validator *validator.Validate
+	service buyer.Service
 }
 
 func NewBuyerHandler(newService buyer.Service) *BuyerHandler {
 	return &BuyerHandler{
-		service:   newService,
-		validator: validator.New(),
+		service: newService,
 	}
 }
 
 func (h *BuyerHandler) GetAll() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		resp, err := h.service.GetAll()
-
-		if err != nil {
-			errors.HandleError(w, err)
-			return
-		}
+		resp := h.service.GetAll()
 
 		newResp := models.SuccessResponse{
 			Data: resp,
 		}
 
-		writeJSON(w, http.StatusOK, newResp)
+		response.JSON(w, http.StatusOK, newResp)
 	}
 }
 
@@ -56,7 +51,7 @@ func (h *BuyerHandler) Save() http.HandlerFunc {
 			return
 		}
 
-		if err := h.validator.Struct(dto); err != nil {
+		if err := utils.ValidateRequestData(dto); err != nil {
 			errors.HandleError(w, errors.WrapErrUnprocessableEntity(err))
 			return
 		}
@@ -71,7 +66,7 @@ func (h *BuyerHandler) Save() http.HandlerFunc {
 			Data: resp,
 		}
 
-		writeJSON(w, http.StatusCreated, newResp)
+		response.JSON(w, http.StatusCreated, newResp)
 	}
 }
 
@@ -85,6 +80,11 @@ func (h *BuyerHandler) GetById() http.HandlerFunc {
 			return
 		}
 
+		if intId <= 0 {
+			errors.HandleError(w, errors.WrapErrBadRequest(fmt.Errorf("id must be greather than 0")))
+			return
+		}
+
 		resp, err := h.service.GetById(intId)
 		if err != nil {
 			errors.HandleError(w, err)
@@ -95,7 +95,7 @@ func (h *BuyerHandler) GetById() http.HandlerFunc {
 			Data: resp,
 		}
 
-		writeJSON(w, http.StatusOK, newResp)
+		response.JSON(w, http.StatusOK, newResp)
 	}
 }
 
@@ -106,6 +106,11 @@ func (h *BuyerHandler) Delete() http.HandlerFunc {
 		intId, err := strconv.Atoi(id)
 		if err != nil {
 			errors.HandleError(w, err)
+			return
+		}
+
+		if intId <= 0 {
+			errors.HandleError(w, errors.WrapErrBadRequest(fmt.Errorf("id must be greather than 0")))
 			return
 		}
 
@@ -125,6 +130,11 @@ func (h *BuyerHandler) Update() http.HandlerFunc {
 		intId, err := strconv.Atoi(id)
 		if err != nil {
 			errors.HandleError(w, err)
+			return
+		}
+
+		if intId <= 0 {
+			errors.HandleError(w, errors.WrapErrBadRequest(fmt.Errorf("id must be greather than 0")))
 			return
 		}
 
@@ -149,20 +159,6 @@ func (h *BuyerHandler) Update() http.HandlerFunc {
 		newResp := models.SuccessResponse{
 			Data: resp,
 		}
-
-		writeJSON(w, http.StatusOK, newResp)
-
+		response.JSON(w, http.StatusOK, newResp)
 	}
-}
-
-func writeJSON(w http.ResponseWriter, status int, data any) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-
-	jsonResp, err := json.MarshalIndent(data, "", "  ")
-	if err != nil {
-		errors.HandleError(w, err)
-		return
-	}
-	w.Write(jsonResp)
 }

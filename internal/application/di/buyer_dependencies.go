@@ -8,7 +8,7 @@ import (
 )
 
 func GetBuyerHandler(db map[int]models.Buyer) *handler.BuyerHandler {
-	repository := buyerepo.NewBuyerJsonRepository(db, "docs/db/buyers.json")
+	repository := buyerepo.NewBuyerRepository(db)
 	service := buyersvc.NewBuyerService(repository)
 	return handler.NewBuyerHandler(service)
 }
