@@ -1,0 +1,15 @@
+package router
+
+import (
+	"ProyectoFinal/internal/handler"
+
+	"github.com/go-chi/chi/v5"
+)
+
+func GetWarehouseRouter(handler *handler.WarehouseHandler) chi.Router {
+	rt := chi.NewRouter()
+
+	rt.Get("/", handler.GetAllWarehouses)
+
+	return rt
+}
