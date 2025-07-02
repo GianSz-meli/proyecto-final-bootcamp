@@ -18,7 +18,7 @@ type ProductMap struct {
 func (r *ProductMap) CreateProduct(newProd models.Product) (models.Product, error) {
 	for _, product := range r.db {
 		if product.ProductCode == newProd.ProductCode {
-			newerror := fmt.Errorf("%w: the product code already exists", pkgErrors.ErrNotFound)
+			newerror := fmt.Errorf("%w: the product code already exists", pkgErrors.ErrUnprocessableEntity)
 			return models.Product{}, newerror
 		}
 	}
