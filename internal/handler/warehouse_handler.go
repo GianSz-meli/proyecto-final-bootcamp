@@ -25,8 +25,12 @@ func NewWarehouseHandler(warehouseService warehouse.WarehouseService) *Warehouse
 
 func (h *WarehouseHandler) GetAllWarehouses(w http.ResponseWriter, r *http.Request) {
 	warehouses := h.warehouseService.GetAllWarehouses()
+	warehousesDoc := make([]models.WarehouseDocument, 0, len(warehouses))
+	for _, warehouse := range warehouses {
+		warehousesDoc = append(warehousesDoc, warehouse.ModelToDoc())
+	}
 	responseBody := models.SuccessResponse{
-		Data: warehouses,
+		Data: warehousesDoc,
 	}
 	response.JSON(w, http.StatusOK, responseBody)
 }
@@ -45,7 +49,7 @@ func (h *WarehouseHandler) GetWarehouseById(w http.ResponseWriter, r *http.Reque
 	}
 
 	responseBody := models.SuccessResponse{
-		Data: warehouse,
+		Data: warehouse.ModelToDoc(),
 	}
 	response.JSON(w, http.StatusOK, responseBody)
 }
@@ -59,7 +63,7 @@ func (h *WarehouseHandler) CreateWarehouse(w http.ResponseWriter, r *http.Reques
 
 	validate := validator.New()
 	if err := validate.Struct(createRequest); err != nil {
-		errors.HandleError(w, errors.WrapErrValidation(err))
+		errors.HandleError(w, errors.WrapErrUnprocessableEntity(err))
 		return
 	}
 
@@ -92,7 +96,7 @@ func (h *WarehouseHandler) UpdateWarehouse(w http.ResponseWriter, r *http.Reques
 
 	validate := validator.New()
 	if err := validate.Struct(updateRequest); err != nil {
-		errors.HandleError(w, errors.WrapErrValidation(err))
+		errors.HandleError(w, errors.WrapErrUnprocessableEntity(err))
 		return
 	}
 

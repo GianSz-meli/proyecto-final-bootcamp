@@ -45,8 +45,8 @@ type CreateWarehouseRequest struct {
 	WarehouseCode      string  `json:"warehouse_code" validate:"required"`
 	Address            string  `json:"address" validate:"required"`
 	Telephone          string  `json:"telephone" validate:"required"`
-	MinimumCapacity    int     `json:"minimum_capacity" validate:"required,min=1"`
-	MinimumTemperature float64 `json:"minimum_temperature" validate:"required"`
+	MinimumCapacity    *int     `json:"minimum_capacity" validate:"required,min=1"`
+	MinimumTemperature *float64 `json:"minimum_temperature" validate:"required"`
 }
 
 func (c CreateWarehouseRequest) DocToModel() Warehouse {
@@ -54,8 +54,8 @@ func (c CreateWarehouseRequest) DocToModel() Warehouse {
 		WarehouseCode:      &c.WarehouseCode,
 		Address:            &c.Address,
 		Telephone:          &c.Telephone,
-		MinimumCapacity:    &c.MinimumCapacity,
-		MinimumTemperature: &c.MinimumTemperature,
+		MinimumCapacity:    c.MinimumCapacity,
+		MinimumTemperature: c.MinimumTemperature,
 	}
 }
 
