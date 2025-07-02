@@ -24,9 +24,9 @@ func NewBuyerJsonRepository(data map[int]models.Buyer, path string) Repository {
 
 func checkCounter(data map[int]models.Buyer) int {
 	idCounter := 0
-	for _, car := range data {
-		if car.Id > idCounter {
-			idCounter = car.Id
+	for _, buyer := range data {
+		if buyer.Id > idCounter {
+			idCounter = buyer.Id
 		}
 	}
 	return idCounter
