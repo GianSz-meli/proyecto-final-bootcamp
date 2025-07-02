@@ -65,8 +65,7 @@ func (r *ProductMap) UpdateProduct(id int, prod models.Product) (models.Product,
 
 func (r *ProductMap) DeleteProduct(id int) error {
 	if _, exists := r.db[id]; !exists {
-		newerror := fmt.Errorf("%w: no product was found with this id", pkgErrors.ErrNotFound)
-		return newerror
+		return pkgErrors.ErrNotFound
 	}
 	delete(r.db, id)
 	return nil

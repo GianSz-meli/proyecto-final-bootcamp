@@ -191,8 +191,5 @@ func (h *ProductHandler) DeleteProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response.JSON(w, http.StatusOK, map[string]any{
-		"message": "success",
-		"data":    id,
-	})
+	response.JSON(w, http.StatusNoContent, nil)
 }
