@@ -24,13 +24,12 @@ func ValidateRequestData(s any) error {
 func GetParamInt(r *http.Request, paramName string) (int, error) {
 	value := chi.URLParam(r, paramName)
 	result, err := strconv.Atoi(value)
+	if err != nil {
+		return 0, customErrors.WrapErrBadRequest(errors.New("id must be a number"))
+	}
 
 	if result <= 0 {
 		return 0, customErrors.WrapErrBadRequest(errors.New("id must be greater than 0"))
-	}
-
-	if err != nil {
-		return 0, customErrors.WrapErrBadRequest(err)
 	}
 	return result, nil
 }
