@@ -83,7 +83,7 @@ func (h *EmployeeHandler) Create() http.HandlerFunc {
 		}
 
 		if err := validateEmployee.Struct(reqBody); err != nil {
-			newError := pkgErrors.WrapErrBadRequest(err)
+			newError := pkgErrors.WrapErrUnprocessableEntity(err)
 			pkgErrors.HandleError(w, newError)
 			return
 		}

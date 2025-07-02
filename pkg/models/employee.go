@@ -12,7 +12,7 @@ type EmployeeRequest struct {
 	CardNumberID string `json:"card_number_id" validate:"required"`
 	FirstName    string `json:"first_name" validate:"required"`
 	LastName     string `json:"last_name" validate:"required"`
-	WarehouseID  int    `json:"warehouse_id" validate:"required"`
+	WarehouseID  int    `json:"warehouse_id" validate:"required,gt=0"`
 }
 
 type EmployeeUpdateRequest struct {
