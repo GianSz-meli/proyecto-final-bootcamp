@@ -25,7 +25,7 @@ func (l *WarehouseLoader) Load() (map[int]models.Warehouse, error) {
 	warehouseMap := map[int]models.Warehouse{}
 
 	for _, warehouseDocument := range warehouseDocuments {
-		warehouseMap[warehouseDocument.ID] = models.Warehouse(warehouseDocument)
+		warehouseMap[warehouseDocument.ID] = warehouseDocument.DocToModel()
 	}
 
 	return warehouseMap, nil
