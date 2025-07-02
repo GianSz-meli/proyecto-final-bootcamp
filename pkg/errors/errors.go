@@ -3,8 +3,9 @@ package errors
 import (
 	"errors"
 	"fmt"
-	"github.com/bootcamp-go/web/response"
 	"net/http"
+
+	"github.com/bootcamp-go/web/response"
 )
 
 type ApiError struct {
@@ -67,6 +68,11 @@ func HandleError(w http.ResponseWriter, err error) {
 func WrapErrAlreadyExist(domain, property string, value int) error {
 	return fmt.Errorf("%w : %s with %s %d already exists", ErrAlreadyExists, domain, property, value)
 }
+
 func WrapErrBadRequest(err error) error {
 	return fmt.Errorf("%w : %s", ErrBadRequest, err.Error())
+}
+
+func WrapErrNotFound(domain, property string, value int) error {
+	return fmt.Errorf("%w : %s not found with %s %d", ErrNotFound, domain, property, value)
 }
