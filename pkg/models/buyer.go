@@ -1,16 +1,16 @@
 package models
 
 type Buyer struct {
-	Id           int
-	CardNumberId string
-	FirstName    string
-	LastName     string
+	Id           int    `json:"id"`
+	CardNumberId string `json:"card_number_id"`
+	FirstName    string `json:"first_name"`
+	LastName     string `json:"last_name"`
 }
 
 type BuyerCreateDTO struct {
-	CardNumberId string
-	FirstName    string
-	LastName     string
+	CardNumberId string `json:"card_number_id" validate:"required"`
+	FirstName    string `json:"first_name" validate:"required"`
+	LastName     string `json:"last_name" validate:"required"`
 }
 
 type BuyerUpdateDTO struct {

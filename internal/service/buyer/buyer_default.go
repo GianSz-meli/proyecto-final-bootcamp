@@ -2,9 +2,10 @@ package buyer
 
 import (
 	"ProyectoFinal/internal/repository/buyer"
+	"ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
-	"fmt"
 	"github.com/go-playground/validator/v10"
+	"strconv"
 )
 
 type buyerService struct {
@@ -20,8 +21,13 @@ func NewBuyerService(newRepository buyer.Repository) Service {
 }
 
 func (s *buyerService) Save(buyerDTO models.BuyerCreateDTO) (models.Buyer, error) {
+	intId, err := strconv.Atoi(buyerDTO.CardNumberId)
+	if err != nil {
+		return models.Buyer{}, errors.ErrBadRequest
+	}
+
 	if s.repository.ExistsByCardNumberId(buyerDTO.CardNumberId) {
-		return models.Buyer{}, fmt.Errorf("buyer with card number id %v already exists", buyerDTO.CardNumberId)
+		return models.Buyer{}, errors.WrapErrAlreadyExist("buyer", "card_number_id", intId)
 	}
 
 	return s.repository.Save(models.DTOToBuyer(buyerDTO))
@@ -37,7 +43,7 @@ func (s *buyerService) GetAll() ([]models.Buyer, error) {
 
 func (s *buyerService) Update(id int, buyerDTO models.BuyerUpdateDTO) (models.Buyer, error) {
 	if err := s.validator.Struct(buyerDTO); err != nil {
-		return models.Buyer{}, fmt.Errorf("invalid input: %w", err)
+		return models.Buyer{}, errors.WrapErrBadRequest(err)
 	}
 
 	existingBuyer, err := s.repository.GetById(id)
@@ -46,9 +52,13 @@ func (s *buyerService) Update(id int, buyerDTO models.BuyerUpdateDTO) (models.Bu
 	}
 
 	if buyerDTO.CardNumberId != nil {
+		intId, err := strconv.Atoi(*buyerDTO.CardNumberId)
+		if err != nil {
+			return models.Buyer{}, errors.ErrBadRequest
+		}
 		if *buyerDTO.CardNumberId != existingBuyer.CardNumberId &&
 			s.repository.ExistsByCardNumberId(*buyerDTO.CardNumberId) {
-			return models.Buyer{}, fmt.Errorf("buyer with card number id %v already exists", *buyerDTO.CardNumberId)
+			return models.Buyer{}, errors.WrapErrAlreadyExist("buyer", "card_number_id", intId)
 		}
 		existingBuyer.CardNumberId = *buyerDTO.CardNumberId
 	}

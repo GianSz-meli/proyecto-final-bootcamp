@@ -1,9 +1,9 @@
 package buyer
 
 import (
+	"ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
 	"encoding/json"
-	"fmt"
 	"os"
 	"sort"
 )
@@ -40,7 +40,7 @@ func (r *jsonRepository) Save(buyer models.Buyer) (models.Buyer, error) {
 	if err := r.flush(); err != nil {
 		delete(r.db, buyer.Id)
 		r.idCounter--
-		return models.Buyer{}, err
+		return models.Buyer{}, errors.ErrGeneral
 	}
 
 	return buyer, nil
@@ -49,7 +49,7 @@ func (r *jsonRepository) Save(buyer models.Buyer) (models.Buyer, error) {
 func (r *jsonRepository) GetById(id int) (models.Buyer, error) {
 	buyer, ok := r.db[id]
 	if !ok {
-		return models.Buyer{}, fmt.Errorf("buyer with id %v not found", id)
+		return models.Buyer{}, errors.ErrNotFound
 	}
 	return buyer, nil
 }
@@ -69,12 +69,15 @@ func (r *jsonRepository) GetAll() ([]models.Buyer, error) {
 }
 
 func (r *jsonRepository) Update(buyer models.Buyer) (models.Buyer, error) {
-	prev, _ := r.db[buyer.Id]
+	prev, ok := r.db[buyer.Id]
+	if !ok {
+		return models.Buyer{}, errors.ErrNotFound
+	}
 	r.db[buyer.Id] = buyer
 
 	if err := r.flush(); err != nil {
 		r.db[buyer.Id] = prev
-		return models.Buyer{}, err
+		return models.Buyer{}, errors.ErrGeneral
 	}
 
 	return buyer, nil
@@ -84,14 +87,14 @@ func (r *jsonRepository) Delete(id int) error {
 	prev, ok := r.db[id]
 
 	if !ok {
-		return fmt.Errorf("buyer with id %v not found", id)
+		return errors.ErrNotFound
 	}
 
 	delete(r.db, id)
 
 	if err := r.flush(); err != nil {
 		r.db[id] = prev
-		return err
+		return errors.ErrGeneral
 	}
 
 	return nil
@@ -119,8 +122,12 @@ func (r *jsonRepository) flush() error {
 
 	newJson, err := json.MarshalIndent(data, "", " ")
 	if err != nil {
-		return fmt.Errorf("failed to marshal json : %w", err)
+		return errors.ErrGeneral
 	}
 
-	return os.WriteFile(r.filePath, newJson, 0644)
+	if err := os.WriteFile(r.filePath, newJson, 0644); err != nil {
+		return errors.ErrGeneral
+	}
+
+	return nil
 }
