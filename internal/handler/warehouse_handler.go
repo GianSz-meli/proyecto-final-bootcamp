@@ -109,3 +109,19 @@ func (h *WarehouseHandler) UpdateWarehouse(w http.ResponseWriter, r *http.Reques
 	}
 	response.JSON(w, http.StatusOK, responseBody)
 }
+
+func (h *WarehouseHandler) DeleteWarehouse(w http.ResponseWriter, r *http.Request) {
+	id, err := utils.GetParamInt(r, "id")
+	if err != nil {
+		errors.HandleError(w, err)
+		return
+	}
+
+	err = h.warehouseService.DeleteWarehouse(id)
+	if err != nil {
+		errors.HandleError(w, err)
+		return
+	}
+
+	response.JSON(w, http.StatusNoContent, nil)
+}

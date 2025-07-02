@@ -71,5 +71,11 @@ func (s *WarehouseServiceImpl) UpdateWarehouse(id int, warehouse models.Warehous
 }
 
 func (s *WarehouseServiceImpl) DeleteWarehouse(id int) error {
-	panic("unimplemented")
+	existingWarehouse := s.warehouseRepo.GetById(id)
+	if existingWarehouse == nil {
+		return errors.WrapErrNotFound("warehouse", "id", id)
+	}
+
+	s.warehouseRepo.Delete(id)
+	return nil
 }

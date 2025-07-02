@@ -13,6 +13,7 @@ func GetWarehouseRouter(handler *handler.WarehouseHandler) chi.Router {
 	rt.Get("/{id}", handler.GetWarehouseById)
 	rt.Post("/", handler.CreateWarehouse)
 	rt.Patch("/{id}", handler.UpdateWarehouse)
+	rt.Delete("/{id}", handler.DeleteWarehouse)
 
 	return rt
 }
