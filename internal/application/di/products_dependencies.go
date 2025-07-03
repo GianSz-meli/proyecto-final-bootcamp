@@ -1,11 +1,10 @@
 package di
 
 import (
-	"ProyectoFinal/pkg/models"
+	handler "ProyectoFinal/internal/handler"
 	repository "ProyectoFinal/internal/repository/products"
 	service "ProyectoFinal/internal/service/products"
-	handler "ProyectoFinal/internal/handler"
-
+	"ProyectoFinal/pkg/models"
 )
 
 func GetProductsHandler(db map[int]models.Product) *handler.ProductHandler {

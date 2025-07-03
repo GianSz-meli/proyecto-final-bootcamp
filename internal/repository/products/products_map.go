@@ -18,13 +18,14 @@ type ProductMap struct {
 func (r *ProductMap) CreateProduct(newProd models.Product) (models.Product, error) {
 	for _, product := range r.db {
 		if product.ProductCode == newProd.ProductCode {
-			newerror := fmt.Errorf("%w: the product code already exists", pkgErrors.ErrUnprocessableEntity)
+			newerror := fmt.Errorf("%w: the product code already exists", pkgErrors.ErrAlreadyExists)
 			return models.Product{}, newerror
 		}
 	}
 	newProd.ID = r.lastID + 1
 	r.db[newProd.ID] = newProd
 	return newProd, nil
+	
 }
 
 func (r *ProductMap) FindAllProducts() (p map[int]models.Product, err error) {
@@ -61,7 +62,9 @@ func (r *ProductMap) UpdateProduct(id int, prod models.Product) (models.Product,
 	prod.ID = id
 	r.db[id] = prod
 	return prod, nil
+	
 }
+
 
 func (r *ProductMap) DeleteProduct(id int) error {
 	if _, exists := r.db[id]; !exists {

@@ -3,6 +3,8 @@ package service
 import (
 	repository "ProyectoFinal/internal/repository/products"
 	"ProyectoFinal/pkg/models"
+	// pkgErrors "ProyectoFinal/pkg/errors"
+	// "fmt"
 )
 
 func NewProductDefault(rp repository.ProductRepository) *ProductDefault {
@@ -29,6 +31,15 @@ func (s *ProductDefault) FindProductsById(id int) (models.Product, error) {
 func (s *ProductDefault) UpdateProduct(id int, prod models.Product) (models.Product, error) {
 	return s.rp.UpdateProduct(id, prod)
 }
+
+// func (s *ProductDefault) UpdateProduct(id int, prod models.Product) (models.Product, error){
+// 	_, ok := s.rp.FindProductsById(id)
+// 	if ! ok {
+// 		newError := fmt.Errorf("%w : product with id %d not found", pkgErrors.ErrNotFound, id)
+// 		return models.Product{}, newError
+// 	}
+// 	return s.rp.UpdateProduct(&prod)
+// }
 
 func (s *ProductDefault) DeleteProduct(id int) error {
 	return s.rp.DeleteProduct(id)

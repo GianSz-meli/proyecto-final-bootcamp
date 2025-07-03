@@ -35,7 +35,7 @@ func (h *ProductHandler) CreateProduct(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := validate.Struct(reqBody); err != nil {
-		newError := pkgErrors.WrapErrBadRequest(err)
+		newError := pkgErrors.WrapErrUnprocessableEntity(err)
 		pkgErrors.HandleError(w, newError)
 		return
 	}
