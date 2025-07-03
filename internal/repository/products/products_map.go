@@ -1,12 +1,12 @@
 package repository
 
 import (
+	"ProyectoFinal/internal/repository/utils"
 	"ProyectoFinal/pkg/models"
-	
 )
 
 func NewProductMap(db map[int]models.Product) *ProductMap {
-	return &ProductMap{db: db, lastID: GetLastId(db)}
+	return &ProductMap{db: db, lastID: utils.GetLastId[models.Product](db)}
 }
 
 type ProductMap struct {
@@ -40,7 +40,7 @@ func (r *ProductMap) FindAllProducts() (p map[int]models.Product, err error) {
 
 func (r *ProductMap) FindProductsById(id int) (models.Product, bool) {
 	product, ok := r.db[id]
-	return product, ok 
+	return product, ok
 }
 
 func (r *ProductMap) UpdateProduct(id int, prod models.Product) (models.Product, error) {
@@ -50,15 +50,5 @@ func (r *ProductMap) UpdateProduct(id int, prod models.Product) (models.Product,
 }
 
 func (r *ProductMap) DeleteProduct(id int) {
-	delete(r.db,id)
-}
-
-func GetLastId(db map[int]models.Product) int {
-	lastId := 0
-	for id := range db {
-		if id > lastId {
-			lastId = id
-		}
-	}
-	return lastId
+	delete(r.db, id)
 }
