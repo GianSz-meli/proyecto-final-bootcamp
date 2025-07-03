@@ -31,23 +31,6 @@ type EmployeeUpdateRequest struct {
 	WarehouseID  *int    `json:"warehouse_id,omitempty"`
 }
 
-func (r EmployeeUpdateRequest) UpdateFields(current Employee) Employee {
-	updated := current
-	if r.CardNumberID != nil {
-		updated.CardNumberID = *r.CardNumberID
-	}
-	if r.FirstName != nil {
-		updated.FirstName = *r.FirstName
-	}
-	if r.LastName != nil {
-		updated.LastName = *r.LastName
-	}
-	if r.WarehouseID != nil {
-		updated.WarehouseID = *r.WarehouseID
-	}
-	return updated
-}
-
 type EmployeeDoc struct {
 	ID           int    `json:"id"`
 	CardNumberID string `json:"card_number_id"`

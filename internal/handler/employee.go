@@ -1,10 +1,12 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 
 	"ProyectoFinal/internal/handler/utils"
 	employeeService "ProyectoFinal/internal/service/employee"
+	utilsService "ProyectoFinal/internal/service/utils"
 	pkgErrors "ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
 
@@ -105,7 +107,7 @@ func (h *EmployeeHandler) Update() http.HandlerFunc {
 			return
 		}
 
-		currentEmployee, err := h.service.GetById(id)
+		employeeToUpdate, err := h.service.GetById(id)
 		if err != nil {
 			pkgErrors.HandleError(w, err)
 			return
@@ -118,16 +120,20 @@ func (h *EmployeeHandler) Update() http.HandlerFunc {
 			return
 		}
 
-		updatedEmployee := reqBody.UpdateFields(currentEmployee)
+		if updated := utilsService.UpdateFields(&employeeToUpdate, &reqBody); !updated {
+			newError := fmt.Errorf("%w : no fields provided for update", pkgErrors.ErrUnprocessableEntity)
+			pkgErrors.HandleError(w, newError)
+			return
+		}
 
-		finalEmployee, err := h.service.Update(id, updatedEmployee)
+		employeeUpdated, err := h.service.Update(id, employeeToUpdate)
 		if err != nil {
 			pkgErrors.HandleError(w, err)
 			return
 		}
 
 		responseBody := models.SuccessResponse{
-			Data: finalEmployee.ModelToDoc(),
+			Data: employeeUpdated.ModelToDoc(),
 		}
 		response.JSON(w, http.StatusOK, responseBody)
 	}
