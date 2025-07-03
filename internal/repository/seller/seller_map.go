@@ -18,7 +18,8 @@ func NewSellerRepository(db map[int]models.Seller) SellerRepository {
 }
 
 func (r *SellerMap) Create(seller *models.Seller) {
-	id := r.lastId + 1
+	r.lastId++
+	id := r.lastId
 	seller.Id = id
 	r.db[id] = *seller
 }
