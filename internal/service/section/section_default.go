@@ -4,7 +4,6 @@ import (
 	repository "ProyectoFinal/internal/repository/section"
 	"ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
-	"fmt"
 )
 
 func NewSectionDefault(rp repository.SectionRepository) *SectionDefault {
@@ -49,10 +48,6 @@ func (s *SectionDefault) Update(id int, section models.Section) (updatedSection 
 	if err != nil {
 		return models.Section{}, err
 	}
-	if existingSection.ID == 0 {
-		newError := fmt.Errorf("%w : section with id %d not found", errors.ErrNotFound, id)
-		return models.Section{}, newError
-	}
 
 	if section.SectionNumber != 0 && section.SectionNumber != existingSection.SectionNumber {
 		exists := s.rp.ExistBySectionNumber(section.SectionNumber)
@@ -70,13 +65,9 @@ func (s *SectionDefault) Update(id int, section models.Section) (updatedSection 
 }
 
 func (s *SectionDefault) Delete(id int) (err error) {
-	existingSection, err := s.rp.GetById(id)
+	_, err = s.rp.GetById(id)
 	if err != nil {
 		return err
-	}
-	if existingSection.ID == 0 {
-		newError := fmt.Errorf("%w : section with id %d not found", errors.ErrNotFound, id)
-		return newError
 	}
 
 	err = s.rp.Delete(id)
