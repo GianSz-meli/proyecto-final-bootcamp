@@ -37,9 +37,10 @@ func (h *SectionDefault) GetAll() http.HandlerFunc {
 			sectionsDoc = append(sectionsDoc, section.ToSectionDoc())
 		}
 
-		response.JSON(w, http.StatusOK, map[string]any{
-			"data": sectionsDoc,
-		})
+		body := models.SuccessResponse{
+			Data: sectionsDoc,
+		}
+		response.JSON(w, http.StatusOK, body)
 	}
 }
 
@@ -63,8 +64,8 @@ func (h *SectionDefault) GetByID() http.HandlerFunc {
 			return
 		}
 
-		response.JSON(w, http.StatusOK, map[string]any{
-			"data": section.ToSectionDoc(),
+		response.JSON(w, http.StatusOK, models.SuccessResponse{
+			Data: section.ToSectionDoc(),
 		})
 	}
 }
@@ -88,8 +89,8 @@ func (h *SectionDefault) Create() http.HandlerFunc {
 			return
 		}
 
-		response.JSON(w, http.StatusCreated, map[string]any{
-			"data": createdSection.ToSectionDoc(),
+		response.JSON(w, http.StatusCreated, models.SuccessResponse{
+			Data: createdSection.ToSectionDoc(),
 		})
 	}
 }
@@ -125,8 +126,8 @@ func (h *SectionDefault) Update() http.HandlerFunc {
 			return
 		}
 
-		response.JSON(w, http.StatusOK, map[string]any{
-			"data": updatedSection.ToSectionDoc(),
+		response.JSON(w, http.StatusOK, models.SuccessResponse{
+			Data: updatedSection.ToSectionDoc(),
 		})
 	}
 }
