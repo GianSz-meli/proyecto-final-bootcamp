@@ -2,7 +2,6 @@ package loader
 
 import (
 	"ProyectoFinal/pkg/models"
-	employeemodel "ProyectoFinal/pkg/models/employee"
 )
 
 const (
@@ -30,9 +29,10 @@ func (f *FactoryLoader) NewSectionLoader() Loader[models.Section] {
 	return &SectionJSONFile{path: f.paths[Section]}
 }
 
-func (f *FactoryLoader) NewEmployeeLoader() Loader[employeemodel.Employee] {
+func (f *FactoryLoader) NewEmployeeLoader() Loader[models.Employee] {
 	return &EmployeeLoader{path: f.paths[Employee]}
 }
+
 func (f *FactoryLoader) NewWarehouseLoader() Loader[models.Warehouse] {
 	return &WarehouseLoader{path: f.paths[Warehouse]}
 }
