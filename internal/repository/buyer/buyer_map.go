@@ -1,6 +1,7 @@
 package buyer
 
 import (
+	"ProyectoFinal/internal/repository/utils"
 	"ProyectoFinal/pkg/models"
 	"sort"
 )
@@ -13,18 +14,8 @@ type buyerMap struct {
 func NewBuyerRepository(data map[int]models.Buyer) Repository {
 	return &buyerMap{
 		db:        data,
-		idCounter: checkCounter(data),
+		idCounter: utils.GetLastId(data),
 	}
-}
-
-func checkCounter(data map[int]models.Buyer) int {
-	idCounter := 0
-	for _, buyer := range data {
-		if buyer.Id > idCounter {
-			idCounter = buyer.Id
-		}
-	}
-	return idCounter
 }
 
 func (r *buyerMap) Create(buyer models.Buyer) models.Buyer {
