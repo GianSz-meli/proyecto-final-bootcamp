@@ -105,7 +105,7 @@ func (h *WarehouseHandler) UpdateWarehouse(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	if updated := utils.UpdateFields(currentWarehouse, &updateRequest); !updated {
+	if updated := utils.UpdateFields(&currentWarehouse, &updateRequest); !updated {
 		newError := errors.WrapErrUnprocessableEntity(fmt.Errorf("no fields provided for update"))
 		errors.HandleError(w, newError)
 		return
