@@ -17,7 +17,7 @@ type SectionAttributes struct {
 	ProductBatches     []ProductBatch `json:"product_batches,omitempty"`
 }
 
-func (s Section) ToSectionDoc() SectionDoc {
+func (s Section) ToModelDoc() SectionDoc {
 	return SectionDoc{
 		ID:                 s.ID,
 		SectionNumber:      s.SectionNumber,

@@ -33,7 +33,7 @@ func (h *SectionDefault) GetAll() http.HandlerFunc {
 
 		sectionsDoc := make([]models.SectionDoc, 0, len(sections))
 		for _, section := range sections {
-			sectionsDoc = append(sectionsDoc, section.ToSectionDoc())
+			sectionsDoc = append(sectionsDoc, section.ToModelDoc())
 		}
 
 		body := models.SuccessResponse{
@@ -58,7 +58,7 @@ func (h *SectionDefault) GetByID() http.HandlerFunc {
 		}
 
 		response.JSON(w, http.StatusOK, models.SuccessResponse{
-			Data: section.ToSectionDoc(),
+			Data: section.ToModelDoc(),
 		})
 	}
 }
@@ -83,7 +83,7 @@ func (h *SectionDefault) Create() http.HandlerFunc {
 		}
 
 		response.JSON(w, http.StatusCreated, models.SuccessResponse{
-			Data: createdSection.ToSectionDoc(),
+			Data: createdSection.ToModelDoc(),
 		})
 	}
 }
@@ -114,7 +114,7 @@ func (h *SectionDefault) Update() http.HandlerFunc {
 		}
 
 		response.JSON(w, http.StatusOK, models.SuccessResponse{
-			Data: updatedSection.ToSectionDoc(),
+			Data: updatedSection.ToModelDoc(),
 		})
 	}
 }
