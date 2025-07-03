@@ -19,8 +19,24 @@ type BuyerUpdateDTO struct {
 	LastName     *string `json:"last_name,omitempty" validate:"omitempty,min=1"`
 }
 
+type BuyerDoc struct {
+	Id           int    `json:"id"`
+	CardNumberId string `json:"card_number_id"`
+	FirstName    string `json:"first_name"`
+	LastName     string `json:"last_name"`
+}
+
 func (b BuyerCreateDTO) DocToModel() Buyer {
 	return Buyer{
+		CardNumberId: b.CardNumberId,
+		FirstName:    b.FirstName,
+		LastName:     b.LastName,
+	}
+}
+
+func (b Buyer) ModelToDoc() BuyerDoc {
+	return BuyerDoc{
+		Id:           b.Id,
 		CardNumberId: b.CardNumberId,
 		FirstName:    b.FirstName,
 		LastName:     b.LastName,

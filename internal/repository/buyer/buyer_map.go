@@ -41,7 +41,6 @@ func (r *buyerMap) GetById(id int) (models.Buyer, bool) {
 
 func (r *buyerMap) GetAll() []models.Buyer {
 	var data []models.Buyer
-
 	for _, buyer := range r.db {
 		data = append(data, buyer)
 	}

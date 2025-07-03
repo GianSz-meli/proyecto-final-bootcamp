@@ -3,14 +3,13 @@ package handler
 import (
 	"ProyectoFinal/internal/handler/utils"
 	"ProyectoFinal/internal/service/buyer"
+	utilsService "ProyectoFinal/internal/service/utils"
 	"ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
 	"encoding/json"
 	"fmt"
 	"github.com/bootcamp-go/web/response"
-	"github.com/go-chi/chi/v5"
 	"net/http"
-	"strconv"
 )
 
 type BuyerHandler struct {
@@ -27,21 +26,19 @@ func (h *BuyerHandler) GetAll() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		resp := h.service.GetAll()
 
-		newResp := models.SuccessResponse{
-			Data: resp,
+		docs := make([]models.BuyerDoc, 0, len(resp))
+		for _, b := range resp {
+			docs = append(docs, b.ModelToDoc())
 		}
-
-		response.JSON(w, http.StatusOK, newResp)
+		response.JSON(w, http.StatusOK, models.SuccessResponse{Data: docs})
 	}
 }
 
 func (h *BuyerHandler) Save() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var dto models.BuyerCreateDTO
-
 		if err := json.NewDecoder(r.Body).Decode(&dto); err != nil {
-			newErr := errors.WrapErrBadRequest(err)
-			errors.HandleError(w, newErr)
+			errors.HandleError(w, errors.WrapErrBadRequest(err))
 			return
 		}
 
@@ -51,53 +48,41 @@ func (h *BuyerHandler) Save() http.HandlerFunc {
 		}
 
 		resp, err := h.service.Save(dto.DocToModel())
-
 		if err != nil {
 			errors.HandleError(w, err)
 			return
 		}
 
-		newResp := models.SuccessResponse{
-			Data: resp,
-		}
-
-		response.JSON(w, http.StatusCreated, newResp)
+		doc := resp.ModelToDoc()
+		response.JSON(w, http.StatusCreated, models.SuccessResponse{Data: doc})
 	}
 }
 
 func (h *BuyerHandler) GetById() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id, err := utils.GetParamInt(r, "id")
-
 		if err != nil {
 			errors.HandleError(w, err)
 			return
-
 		}
 
 		resp, err := h.service.GetById(id)
-
 		if err != nil {
 			errors.HandleError(w, err)
 			return
 		}
 
-		newResp := models.SuccessResponse{
-			Data: resp,
-		}
-
-		response.JSON(w, http.StatusOK, newResp)
+		doc := resp.ModelToDoc()
+		response.JSON(w, http.StatusOK, models.SuccessResponse{Data: doc})
 	}
 }
 
 func (h *BuyerHandler) Delete() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id, err := utils.GetParamInt(r, "id")
-
 		if err != nil {
 			errors.HandleError(w, err)
 			return
-
 		}
 
 		if err := h.service.Delete(id); err != nil {
@@ -111,36 +96,42 @@ func (h *BuyerHandler) Delete() http.HandlerFunc {
 
 func (h *BuyerHandler) Update() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		id := chi.URLParam(r, "id")
-
-		intId, err := strconv.Atoi(id)
+		id, err := utils.GetParamInt(r, "id")
 		if err != nil {
 			errors.HandleError(w, err)
-			return
-		}
-
-		if intId <= 0 {
-			errors.HandleError(w, errors.WrapErrBadRequest(fmt.Errorf("id must be greater than 0")))
 			return
 		}
 
 		var dto models.BuyerUpdateDTO
-
 		if err := json.NewDecoder(r.Body).Decode(&dto); err != nil {
-			newErr := errors.WrapErrBadRequest(err)
-			errors.HandleError(w, newErr)
+			errors.HandleError(w, errors.WrapErrBadRequest(err))
 			return
 		}
 
-		resp, err := h.service.Update(intId, dto)
+		if err := validate.Struct(dto); err != nil {
+			errors.HandleError(w, errors.WrapErrUnprocessableEntity(err))
+			return
+		}
+
+		existingBuyer, err := h.service.GetById(id)
 		if err != nil {
 			errors.HandleError(w, err)
 			return
 		}
 
-		newResp := models.SuccessResponse{
-			Data: resp,
+		if updated := utilsService.UpdateFields(&existingBuyer, &dto); !updated {
+			newError := fmt.Errorf("%w : no fields provided for update", errors.ErrUnprocessableEntity)
+			errors.HandleError(w, newError)
+			return
 		}
-		response.JSON(w, http.StatusOK, newResp)
+
+		resp, err := h.service.Update(id, existingBuyer)
+		if err != nil {
+			errors.HandleError(w, err)
+			return
+		}
+
+		doc := resp.ModelToDoc()
+		response.JSON(w, http.StatusOK, models.SuccessResponse{Data: doc})
 	}
 }

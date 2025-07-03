@@ -29,6 +29,7 @@ func (s *buyerService) GetById(id int) (models.Buyer, error) {
 	if !ok {
 		return models.Buyer{}, errors.WrapErrNotFound("buyer", "id", id)
 	}
+
 	return existingBuyer, nil
 }
 
@@ -36,30 +37,17 @@ func (s *buyerService) GetAll() []models.Buyer {
 	return s.repository.GetAll()
 }
 
-func (s *buyerService) Update(id int, buyerDTO models.BuyerUpdateDTO) (models.Buyer, error) {
+func (s *buyerService) Update(id int, buyer models.Buyer) (models.Buyer, error) {
 	existingBuyer, ok := s.repository.GetById(id)
-
 	if !ok {
 		return models.Buyer{}, errors.WrapErrNotFound("buyer", "id", id)
 	}
 
-	if buyerDTO.CardNumberId != nil {
-		if *buyerDTO.CardNumberId != existingBuyer.CardNumberId &&
-			s.repository.ExistsByCardNumberId(*buyerDTO.CardNumberId) {
-			return models.Buyer{}, errors.WrapErrAlreadyExist("buyer", "card number id", *buyerDTO.CardNumberId)
-		}
-		existingBuyer.CardNumberId = *buyerDTO.CardNumberId
+	if buyer.CardNumberId != existingBuyer.CardNumberId && s.repository.ExistsByCardNumberId(buyer.CardNumberId) {
+		return models.Buyer{}, errors.WrapErrAlreadyExist("buyer", "card number id", buyer.CardNumberId)
 	}
 
-	if buyerDTO.FirstName != nil {
-		existingBuyer.FirstName = *buyerDTO.FirstName
-	}
-
-	if buyerDTO.LastName != nil {
-		existingBuyer.LastName = *buyerDTO.LastName
-	}
-
-	return s.repository.Update(existingBuyer), nil
+	return s.repository.Update(buyer), nil
 }
 
 func (s *buyerService) Delete(id int) error {
@@ -67,6 +55,7 @@ func (s *buyerService) Delete(id int) error {
 	if !ok {
 		return errors.WrapErrNotFound("buyer", "id", id)
 	}
+
 	s.repository.Delete(id)
 	return nil
 }
