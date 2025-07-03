@@ -2,9 +2,11 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"ProyectoFinal/internal/handler/utils"
+
 	"ProyectoFinal/internal/service/warehouse"
 	"ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
@@ -25,8 +27,8 @@ func NewWarehouseHandler(warehouseService warehouse.WarehouseService) *Warehouse
 func (h *WarehouseHandler) GetAllWarehouses(w http.ResponseWriter, r *http.Request) {
 	warehouses := h.warehouseService.GetAllWarehouses()
 	warehousesDoc := make([]models.WarehouseDocument, 0, len(warehouses))
-	for _, warehouse := range warehouses {
-		warehousesDoc = append(warehousesDoc, warehouse.ModelToDoc())
+	for _, wh := range warehouses {
+		warehousesDoc = append(warehousesDoc, wh.ModelToDoc())
 	}
 	responseBody := models.SuccessResponse{
 		Data: warehousesDoc,
@@ -41,14 +43,14 @@ func (h *WarehouseHandler) GetWarehouseById(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	warehouse, err := h.warehouseService.GetWarehouseById(id)
+	wh, err := h.warehouseService.GetWarehouseById(id)
 	if err != nil {
 		errors.HandleError(w, err)
 		return
 	}
 
 	responseBody := models.SuccessResponse{
-		Data: warehouse.ModelToDoc(),
+		Data: wh.ModelToDoc(),
 	}
 	response.JSON(w, http.StatusOK, responseBody)
 }
@@ -65,9 +67,9 @@ func (h *WarehouseHandler) CreateWarehouse(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	warehouse := createRequest.DocToModel()
+	wh := createRequest.DocToModel()
 
-	createdWarehouse, err := h.warehouseService.CreateWarehouse(warehouse)
+	createdWarehouse, err := h.warehouseService.CreateWarehouse(wh)
 	if err != nil {
 		errors.HandleError(w, err)
 		return
@@ -97,8 +99,19 @@ func (h *WarehouseHandler) UpdateWarehouse(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	warehouse := updateRequest.DocToModel()
-	updatedWarehouse, err := h.warehouseService.UpdateWarehouse(id, warehouse)
+	currentWarehouse, err := h.warehouseService.GetWarehouseById(id)
+	if err != nil {
+		errors.HandleError(w, err)
+		return
+	}
+
+	if updated := utils.UpdateFields(&currentWarehouse, &updateRequest); !updated {
+		newError := errors.WrapErrUnprocessableEntity(fmt.Errorf("no fields provided for update"))
+		errors.HandleError(w, newError)
+		return
+	}
+
+	updatedWarehouse, err := h.warehouseService.UpdateWarehouse(id, currentWarehouse)
 	if err != nil {
 		errors.HandleError(w, err)
 		return

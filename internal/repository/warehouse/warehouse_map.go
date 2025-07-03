@@ -35,23 +35,23 @@ func (r *MemoryWarehouseRepository) GetById(id int) *models.Warehouse {
 
 func (r *MemoryWarehouseRepository) ExistsByCode(code string) bool {
 	for _, warehouse := range r.db {
-		if *warehouse.WarehouseCode == code {
+		if warehouse.WarehouseCode == code {
 			return true
 		}
 	}
 	return false
 }
 
-func (r *MemoryWarehouseRepository) Create(warehouse models.Warehouse) *models.Warehouse {
+func (r *MemoryWarehouseRepository) Create(warehouse models.Warehouse) models.Warehouse {
 	r.lastId++
 	warehouse.ID = r.lastId
 	r.db[r.lastId] = warehouse
-	return &warehouse
+	return warehouse
 }
 
-func (r *MemoryWarehouseRepository) Update(id int, warehouse models.Warehouse) *models.Warehouse {
+func (r *MemoryWarehouseRepository) Update(id int, warehouse models.Warehouse) models.Warehouse {
 	r.db[id] = warehouse
-	return &warehouse
+	return warehouse
 }
 
 func (r *MemoryWarehouseRepository) Delete(id int) {
