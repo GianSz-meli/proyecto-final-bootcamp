@@ -1,13 +1,12 @@
 package repository
 
 import (
-	pkgErrors "ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
-	"fmt"
+	
 )
 
 func NewProductMap(db map[int]models.Product) *ProductMap {
-	return &ProductMap{db: db, lastID: len(db)}
+	return &ProductMap{db: db, lastID: GetLastId(db)}
 }
 
 type ProductMap struct {
@@ -15,62 +14,51 @@ type ProductMap struct {
 	lastID int
 }
 
-func (r *ProductMap) CreateProduct(newProd models.Product) (models.Product, error) {
+func (r *ProductMap) ExistsProdCode(prodCode string) bool {
 	for _, product := range r.db {
-		if product.ProductCode == newProd.ProductCode {
-			newerror := fmt.Errorf("%w: the product code already exists", pkgErrors.ErrAlreadyExists)
-			return models.Product{}, newerror
+		if product.ProductCode == prodCode {
+			return true
 		}
 	}
-	newProd.ID = r.lastID + 1
+	return false
+}
+
+func (r *ProductMap) CreateProduct(newProd models.Product) (models.Product, error) {
+	r.lastID++
+	newProd.ID = r.lastID
 	r.db[newProd.ID] = newProd
 	return newProd, nil
-	
 }
 
 func (r *ProductMap) FindAllProducts() (p map[int]models.Product, err error) {
 	v := make(map[int]models.Product)
-
 	for key, value := range r.db {
 		v[key] = value
-	}
-
-	if len(v) == 0 {
-		newerror := fmt.Errorf("%w: not exits products", pkgErrors.ErrNotFound)
-		return nil, newerror
 	}
 	return v, nil
 }
 
-func (r *ProductMap) FindProductsById(id int) (models.Product, error) {
-
-	for _, product := range r.db {
-		if product.ID == id {
-			return product, nil
-		}
-	}
-	newerror := fmt.Errorf("%w: no product was found with this id", pkgErrors.ErrNotFound)
-	return models.Product{}, newerror
+func (r *ProductMap) FindProductsById(id int) (models.Product, bool) {
+	product, ok := r.db[id]
+	return product, ok 
 }
 
 func (r *ProductMap) UpdateProduct(id int, prod models.Product) (models.Product, error) {
-	// prod, ok := r.db[id]
-	// if !ok {
-	// 	newerror := fmt.Errorf("%w: no product was found with this id", pkgErrors.ErrNotFound)
-	// 	return models.Product{}, newerror
-	// }
 	prod.ID = id
 	r.db[id] = prod
 	return prod, nil
-	
 }
 
+func (r *ProductMap) DeleteProduct(id int) {
+	delete(r.db,id)
+}
 
-
-func (r *ProductMap) DeleteProduct(id int) error {
-	if _, exists := r.db[id]; !exists {
-		return pkgErrors.ErrNotFound
+func GetLastId(db map[int]models.Product) int {
+	lastId := 0
+	for id := range db {
+		if id > lastId {
+			lastId = id
+		}
 	}
-	delete(r.db, id)
-	return nil
+	return lastId
 }

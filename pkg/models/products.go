@@ -23,7 +23,20 @@ type ProductTypeDoc struct {
 }
 type ProductDoc struct {
 	ID             int          `json:"id"`
-	ProductCode    *string      `json:"product_code"`
+	ProductCode    *string      `json:"product_code" validate:"required,min=1"`
+	Description    *string      `json:"description"`
+	Width          *float64     `json:"width"`
+	Height         *float64     `json:"height"`
+	Length         *float64     `json:"length"`
+	NetWeight      *float64     `json:"net_weight"`
+	ExpirationRate *int         `json:"expiration_rate"`
+	Temperature    *float32     `json:"recommended_freezing_temperature"`
+	FreezingRate   *float64     `json:"freezing_rate"`
+	ProductType    *ProductType `json:"product_type_id"`
+}
+
+type ProductDocUpdate struct {
+	ProductCode    *string      `json:"product_code" validate:"required,min=1"`
 	Description    *string      `json:"description"`
 	Width          *float64     `json:"width"`
 	Height         *float64     `json:"height"`
