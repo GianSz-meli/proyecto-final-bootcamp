@@ -3,9 +3,8 @@ package errors
 import (
 	"errors"
 	"fmt"
-	"net/http"
-
 	"github.com/bootcamp-go/web/response"
+	"net/http"
 )
 
 type ApiError struct {
