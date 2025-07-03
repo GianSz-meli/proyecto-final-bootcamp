@@ -25,10 +25,10 @@ func (r EmployeeRequest) DocToModel() Employee {
 }
 
 type EmployeeUpdateRequest struct {
-	CardNumberID *string `json:"card_number_id,omitempty"`
-	FirstName    *string `json:"first_name,omitempty"`
-	LastName     *string `json:"last_name,omitempty"`
-	WarehouseID  *int    `json:"warehouse_id,omitempty"`
+	CardNumberID *string `json:"card_number_id,omitempty" validate:"omitempty,min=1"`
+	FirstName    *string `json:"first_name,omitempty" validate:"omitempty,min=1"`
+	LastName     *string `json:"last_name,omitempty" validate:"omitempty,min=1"`
+	WarehouseID  *int    `json:"warehouse_id,omitempty" validate:"omitempty,gt=0"`
 }
 
 type EmployeeDoc struct {

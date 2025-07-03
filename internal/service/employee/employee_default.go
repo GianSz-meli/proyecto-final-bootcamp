@@ -38,7 +38,7 @@ func (s *service) GetById(id int) (models.Employee, error) {
 
 func (s *service) Create(employee models.Employee) (models.Employee, error) {
 	if s.repository.ExistsByCardNumberId(employee.CardNumberID) {
-		newError := fmt.Errorf("%w : employee with card_number_id %s already exists", errors.ErrAlreadyExists, employee.CardNumberID)
+		newError := errors.WrapErrAlreadyExist("employee", "card_number_id", employee.CardNumberID)
 		return models.Employee{}, newError
 	}
 
@@ -51,15 +51,17 @@ func (s *service) Create(employee models.Employee) (models.Employee, error) {
 }
 
 func (s *service) Update(id int, employee models.Employee) (models.Employee, error) {
-	_, ok := s.repository.GetById(id)
+	current, ok := s.repository.GetById(id)
 	if !ok {
 		newError := fmt.Errorf("%w : employee with id %d not found", errors.ErrNotFound, id)
 		return models.Employee{}, newError
 	}
 
-	if s.repository.ExistsByCardNumberIdExcludingID(employee.CardNumberID, id) {
-		newError := fmt.Errorf("%w : employee with card_number_id %s already exists", errors.ErrAlreadyExists, employee.CardNumberID)
-		return models.Employee{}, newError
+	if current.CardNumberID != employee.CardNumberID {
+		if s.repository.ExistsByCardNumberId(employee.CardNumberID) {
+			newError := errors.WrapErrAlreadyExist("employee", "card_number_id", employee.CardNumberID)
+			return models.Employee{}, newError
+		}
 	}
 
 	if err := s.repository.Update(id, employee); err != nil {

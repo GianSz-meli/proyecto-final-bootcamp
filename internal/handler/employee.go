@@ -107,16 +107,21 @@ func (h *EmployeeHandler) Update() http.HandlerFunc {
 			return
 		}
 
-		employeeToUpdate, err := h.service.GetById(id)
-		if err != nil {
-			pkgErrors.HandleError(w, err)
-			return
-		}
-
 		var reqBody models.EmployeeUpdateRequest
 		if err := request.JSON(r, &reqBody); err != nil {
 			newErr := pkgErrors.WrapErrBadRequest(err)
 			pkgErrors.HandleError(w, newErr)
+			return
+		}
+
+		if err := utils.ValidateRequestData(reqBody); err != nil {
+			pkgErrors.HandleError(w, err)
+			return
+		}
+
+		employeeToUpdate, err := h.service.GetById(id)
+		if err != nil {
+			pkgErrors.HandleError(w, err)
 			return
 		}
 

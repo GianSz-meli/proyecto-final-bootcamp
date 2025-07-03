@@ -58,15 +58,6 @@ func (r *repository) ExistsByCardNumberId(cardNumberId string) bool {
 	return false
 }
 
-func (r *repository) ExistsByCardNumberIdExcludingID(cardNumberId string, excludeID int) bool {
-	for _, employee := range r.employees {
-		if employee.CardNumberID == cardNumberId && employee.ID != excludeID {
-			return true
-		}
-	}
-	return false
-}
-
 func (r *repository) Update(id int, employee models.Employee) error {
 	employee.ID = id
 	r.employees[id] = employee
