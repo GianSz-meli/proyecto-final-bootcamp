@@ -1,34 +1,54 @@
 package seller
 
-import "ProyectoFinal/pkg/models"
+import (
+	"ProyectoFinal/internal/repository/utils"
+	"ProyectoFinal/pkg/models"
+)
 
 type SellerMap struct {
-	db map[int]models.Seller
+	db     map[int]models.Seller
+	lastId int
 }
 
 func NewSellerRepository(db map[int]models.Seller) SellerRepository {
-	return &SellerMap{db: db}
+	return &SellerMap{
+		db:     db,
+		lastId: utils.GetLastId[models.Seller](db),
+	}
 }
 
 func (r *SellerMap) Create(seller *models.Seller) {
-	id := len(r.db) + 1
+	r.lastId++
+	id := r.lastId
 	seller.Id = id
 	r.db[id] = *seller
 }
 
 func (r *SellerMap) GetById(id int) (models.Seller, bool) {
-	seller, ok := r.db[id]
-	return seller, ok
+	s, ok := r.db[id]
+	return s, ok
 }
 
 func (r *SellerMap) ExistsByCid(cid int) bool {
 	sellers := r.db
-	for _, seller := range sellers {
-		if seller.Cid == cid {
+	for _, s := range sellers {
+		if s.Cid == cid {
 			return true
 		}
 	}
 	return false
+}
+
+func (r *SellerMap) GetAll() []models.Seller {
+	var sellers []models.Seller
+	for _, s := range r.db {
+		sellers = append(sellers, s)
+	}
+	return sellers
+}
+
+func (r *SellerMap) Delete(id int) {
+	delete(r.db, id)
 }
 
 func (r *SellerMap) Update(seller *models.Seller) {

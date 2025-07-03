@@ -15,6 +15,7 @@ func main() {
 			loader.Employee:  "docs/db/employees.json",
 			loader.Warehouse: "docs/db/warehouses.json",
 			loader.Product: "docs/db/products.json",
+			loader.Buyer:     "docs/db/buyers.json",
 		},
 	}
 	app := application.NewServerChi(cfg)

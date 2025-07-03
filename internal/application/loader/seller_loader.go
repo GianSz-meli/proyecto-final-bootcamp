@@ -20,7 +20,7 @@ func (s *SellerLoader) Load() (map[int]models.Seller, error) {
 	}
 	defer file.Close()
 
-	var sellersJSON []models.Seller
+	var sellersJSON []models.SellerDoc
 
 	if err = json.NewDecoder(file).Decode(&sellersJSON); err != nil {
 		return nil, err
@@ -29,7 +29,7 @@ func (s *SellerLoader) Load() (map[int]models.Seller, error) {
 	sellerMap := map[int]models.Seller{}
 
 	for _, seller := range sellersJSON {
-		sellerMap[seller.Id] = seller
+		sellerMap[seller.Id] = seller.DocToModel()
 	}
 
 	return sellerMap, nil

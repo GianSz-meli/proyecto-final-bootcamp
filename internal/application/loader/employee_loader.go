@@ -1,7 +1,7 @@
 package loader
 
 import (
-	employeemodel "ProyectoFinal/pkg/models/employee"
+	"ProyectoFinal/pkg/models"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -11,7 +11,7 @@ type EmployeeLoader struct {
 	path string
 }
 
-func (e *EmployeeLoader) Load() (map[int]employeemodel.Employee, error) {
+func (e *EmployeeLoader) Load() (map[int]models.Employee, error) {
 	file, err := os.Open(e.path)
 
 	if err != nil {
@@ -20,15 +20,16 @@ func (e *EmployeeLoader) Load() (map[int]employeemodel.Employee, error) {
 	}
 	defer file.Close()
 
-	var employeesJSON []employeemodel.Employee
+	var employeesJSON []models.EmployeeDoc
 
 	if err = json.NewDecoder(file).Decode(&employeesJSON); err != nil {
 		return nil, err
 	}
 
-	employeeMap := map[int]employeemodel.Employee{}
+	employeeMap := map[int]models.Employee{}
 
-	for _, employee := range employeesJSON {
+	for _, employeeDoc := range employeesJSON {
+		employee := employeeDoc.DocToModel()
 		employeeMap[employee.ID] = employee
 	}
 
