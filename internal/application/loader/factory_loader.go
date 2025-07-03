@@ -11,6 +11,7 @@ const (
 	Warehouse string = "warehouse"
 	Section   string = "sections"
 	Employee  string = "employee"
+	Buyer     string = "buyers"
 )
 
 type FactoryLoader struct {
@@ -34,4 +35,8 @@ func (f *FactoryLoader) NewEmployeeLoader() Loader[employeemodel.Employee] {
 }
 func (f *FactoryLoader) NewWarehouseLoader() Loader[models.Warehouse] {
 	return &WarehouseLoader{path: f.paths[Warehouse]}
+}
+
+func (f *FactoryLoader) NewBuyerLoader() Loader[models.Buyer] {
+	return &BuyerLoader{path: f.paths[Buyer]}
 }

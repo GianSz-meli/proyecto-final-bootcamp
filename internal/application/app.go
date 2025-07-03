@@ -56,6 +56,12 @@ func (a *ServerChi) Run() (err error) {
 		panic(err)
 	}
 
+	//Load buyer
+	buyerDB, err := factory.NewBuyerLoader().Load()
+	if err != nil {
+		panic(err)
+	}
+
 	// Load sections
 	sections, err := factory.NewSectionLoader().Load()
 	if err != nil {
@@ -66,6 +72,7 @@ func (a *ServerChi) Run() (err error) {
 	sellerHandler := di.GetSellerHandler(sellerDB)
 	warehouseHandler := di.GetWarehouseHandler(warehouseDB)
 	sectionHandler := di.GetSectionHandler(sections)
+	buyerHandler := di.GetBuyerHandler(buyerDB)
 
 	//Middlewares
 
@@ -74,6 +81,7 @@ func (a *ServerChi) Run() (err error) {
 		r.Mount("/sections", router.SectionRoutes(sectionHandler))
 		r.Mount("/sellers", router.GetSellerRouter(sellerHandler))
 		r.Mount("/warehouses", router.GetWarehouseRouter(warehouseHandler))
+		r.Mount("/buyers", router.GetBuyerRouter(buyerHandler))
 	})
 
 	err = http.ListenAndServe(a.serverAddress, rt)
