@@ -1,18 +1,19 @@
 package warehouse
 
 import (
+	"ProyectoFinal/internal/repository/utils"
 	"ProyectoFinal/pkg/models"
 )
 
 type MemoryWarehouseRepository struct {
-	db map[int]models.Warehouse
+	db     map[int]models.Warehouse
 	lastId int
 }
 
 func NewMemoryWarehouseRepository(db map[int]models.Warehouse) *MemoryWarehouseRepository {
 	return &MemoryWarehouseRepository{
-		db: db,
-		lastId: GetLastId(db),
+		db:     db,
+		lastId: utils.GetLastId[models.Warehouse](db),
 	}
 }
 
@@ -51,16 +52,6 @@ func (r *MemoryWarehouseRepository) Create(warehouse models.Warehouse) *models.W
 func (r *MemoryWarehouseRepository) Update(id int, warehouse models.Warehouse) *models.Warehouse {
 	r.db[id] = warehouse
 	return &warehouse
-}
-
-func GetLastId(db map[int]models.Warehouse) int {
-	lastId := 0
-	for id := range db {
-		if id > lastId {
-			lastId = id
-		}
-	}
-	return lastId
 }
 
 func (r *MemoryWarehouseRepository) Delete(id int) {

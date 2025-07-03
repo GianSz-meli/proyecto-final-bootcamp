@@ -1,15 +1,20 @@
 package seller
 
 import (
+	"ProyectoFinal/internal/repository/utils"
 	"ProyectoFinal/pkg/models"
 )
 
 type SellerMap struct {
-	db map[int]models.Seller
+	db     map[int]models.Seller
+	lastId int
 }
 
 func NewSellerRepository(db map[int]models.Seller) SellerRepository {
-	return &SellerMap{db: db}
+	return &SellerMap{
+		db:     db,
+		lastId: utils.GetLastId[models.Seller](db),
+	}
 }
 
 func (r *SellerMap) Create(seller *models.Seller) {

@@ -48,13 +48,12 @@ func (a *ServerChi) Run() (err error) {
 	if err != nil {
 		panic(err)
 	}
+
+	//Load warehouse
 	warehouseDB, err := factory.NewWarehouseLoader().Load()
 	if err != nil {
 		panic(err)
 	}
-
-	sellerHandler := di.GetSellerHandler(sellerDB)
-	warehouseHandler := di.GetWarehouseHandler(warehouseDB)
 
 	// Load sections
 	sections, err := factory.NewSectionLoader().Load()
@@ -62,6 +61,9 @@ func (a *ServerChi) Run() (err error) {
 		panic(err)
 	}
 
+	// Dependency injection
+	sellerHandler := di.GetSellerHandler(sellerDB)
+	warehouseHandler := di.GetWarehouseHandler(warehouseDB)
 	sectionHandler := di.GetSectionHandler(sections)
 
 	rt.Route("/api/v1", func(r chi.Router) {

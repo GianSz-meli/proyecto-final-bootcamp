@@ -36,6 +36,22 @@ func (s *SellerDoc) DocToModel() Seller {
 	}
 }
 
+type CreateSellerRequest struct {
+	Cid         int    `json:"cid" validate:"required"`
+	CompanyName string `json:"company_name" validate:"required"`
+	Address     string `json:"address" validate:"required"`
+	Telephone   string `json:"telephone" validate:"required"`
+}
+
+func (s *CreateSellerRequest) DocToModel() Seller {
+	return Seller{
+		Cid:         s.Cid,
+		CompanyName: s.CompanyName,
+		Address:     s.Address,
+		Telephone:   s.Telephone,
+	}
+}
+
 type UpdateSellerRequest struct {
 	Cid         *int    `json:"cid" validate:"omitempty,gt=0"`
 	CompanyName *string `json:"company_name" validate:"omitempty,min=1"`

@@ -7,13 +7,9 @@ import (
 	"ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
 	"fmt"
-	"net/http"
-	"strconv"
-
 	"github.com/bootcamp-go/web/request"
 	"github.com/bootcamp-go/web/response"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-playground/validator/v10"
+	"net/http"
 )
 
 type SellerHandler struct {
@@ -24,11 +20,9 @@ func NewSellerHandler(service seller.SellerService) *SellerHandler {
 	return &SellerHandler{service: service}
 }
 
-var validate = validator.New()
-
 func (h *SellerHandler) Create() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var reqBody models.SellerDoc
+		var reqBody models.CreateSellerRequest
 
 		if err := request.JSON(r, &reqBody); err != nil {
 			newErr := errors.WrapErrBadRequest(err)
@@ -36,9 +30,8 @@ func (h *SellerHandler) Create() http.HandlerFunc {
 			return
 		}
 
-		if err := validate.Struct(reqBody); err != nil {
-			newError := fmt.Errorf("%w : %s", errors.ErrUnprocessableEntity, err.Error())
-			errors.HandleError(w, newError)
+		if err := utilsHandler.ValidateRequestData(reqBody); err != nil {
+			errors.HandleError(w, err)
 			return
 		}
 
@@ -75,9 +68,8 @@ func (h *SellerHandler) Update() http.HandlerFunc {
 			return
 		}
 
-		if err := validate.Struct(reqBody); err != nil {
-			newError := errors.WrapErrUnprocessableEntity(err)
-			errors.HandleError(w, newError)
+		if err := utilsHandler.ValidateRequestData(reqBody); err != nil {
+			errors.HandleError(w, err)
 			return
 		}
 
@@ -122,8 +114,8 @@ func (h *SellerHandler) GetAll() http.HandlerFunc {
 			sellersDoc = append(sellersDoc, seller.ModelToDoc())
 		}
 
-		body := map[string][]models.SellerDoc{
-			"data": sellersDoc,
+		body := models.SuccessResponse{
+			Data: sellersDoc,
 		}
 		response.JSON(w, http.StatusOK, body)
 	}
@@ -131,12 +123,9 @@ func (h *SellerHandler) GetAll() http.HandlerFunc {
 
 func (h *SellerHandler) GetById() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		reqId := chi.URLParam(r, "id")
-
-		id, err := strconv.Atoi(reqId)
-
+		id, err := utilsHandler.GetParamInt(r, "id")
 		if err != nil {
-			errors.HandleError(w, errors.ErrBadRequest)
+			errors.HandleError(w, err)
 			return
 		}
 
@@ -147,22 +136,18 @@ func (h *SellerHandler) GetById() http.HandlerFunc {
 			return
 		}
 
-		body := map[string][]models.SellerDoc{
-			"data": {seller.ModelToDoc()},
+		body := models.SuccessResponse{
+			Data: seller.ModelToDoc(),
 		}
-
 		response.JSON(w, http.StatusOK, body)
 	}
 }
 
 func (h *SellerHandler) Delete() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		reqId := chi.URLParam(r, "id")
-
-		id, err := strconv.Atoi(reqId)
-
+		id, err := utilsHandler.GetParamInt(r, "id")
 		if err != nil {
-			errors.HandleError(w, errors.ErrBadRequest)
+			errors.HandleError(w, err)
 			return
 		}
 
