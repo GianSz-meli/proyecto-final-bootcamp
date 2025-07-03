@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"ProyectoFinal/internal/handler/utils"
 	service "ProyectoFinal/internal/service/products"
 	pkgErrors "ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
@@ -94,12 +95,19 @@ func (h *ProductHandler) FindProductsById(w http.ResponseWriter, r *http.Request
 	})
 }
 func (h *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
-	idStr := chi.URLParam(r, "id")
-	id, err := strconv.Atoi(idStr)
+	// idStr := chi.URLParam(r, "id")
+	// id, err := strconv.Atoi(idStr)
+	// if err != nil {
+	// 	pkgErrors.HandleError(w, err)
+	// 	return
+	// }
+	id, err := utils.GetParamInt(r, "id")
 	if err != nil {
 		pkgErrors.HandleError(w, err)
 		return
 	}
+
+	
 	currentProd, err := h.service.FindProductsById(id)
 	if err != nil {
 		if errors.Is(err, pkgErrors.ErrNotFound) {
@@ -177,6 +185,7 @@ func (h *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	})
 
 }
+
 
 func (h *ProductHandler) DeleteProduct(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")

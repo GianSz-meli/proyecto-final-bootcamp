@@ -54,16 +54,17 @@ func (r *ProductMap) FindProductsById(id int) (models.Product, error) {
 }
 
 func (r *ProductMap) UpdateProduct(id int, prod models.Product) (models.Product, error) {
-	prod, ok := r.db[id]
-	if !ok {
-		newerror := fmt.Errorf("%w: no product was found with this id", pkgErrors.ErrNotFound)
-		return models.Product{}, newerror
-	}
+	// prod, ok := r.db[id]
+	// if !ok {
+	// 	newerror := fmt.Errorf("%w: no product was found with this id", pkgErrors.ErrNotFound)
+	// 	return models.Product{}, newerror
+	// }
 	prod.ID = id
 	r.db[id] = prod
 	return prod, nil
 	
 }
+
 
 
 func (r *ProductMap) DeleteProduct(id int) error {
