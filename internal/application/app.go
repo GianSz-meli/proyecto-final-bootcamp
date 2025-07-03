@@ -4,9 +4,6 @@ import (
 	"ProyectoFinal/internal/application/di"
 	"ProyectoFinal/internal/application/loader"
 	"ProyectoFinal/internal/application/router"
-	"ProyectoFinal/internal/handler"
-	"ProyectoFinal/internal/repository"
-	"ProyectoFinal/internal/service"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -70,15 +67,11 @@ func (a *ServerChi) Run() (err error) {
 
 	sectionHandler := di.GetSectionHandler(sections)
 
-	repoSeller := repository.NewSellerRepository(sellerDB)
-	srvSeller := service.NewSellerService(repoSeller)
-	ctrSeller := handler.NewSellerHandler(srvSeller)
+	sellerHandler := di.GetSellerHandler(sellerDB)
 
 	rt.Route("/api/v1", func(r chi.Router) {
-
 		r.Mount("/sections", router.SectionRoutes(sectionHandler))
-
-		r.Mount("/seller", router.SellerRoutes(ctrSeller))
+		r.Mount("/sellers", router.GetSellerRouter(sellerHandler))
 		r.Mount("/warehouses", router.GetWarehouseRouter(warehouseHandler))
 		r.Mount("/products", router.ProductRoutes(productHandler))
 	})
