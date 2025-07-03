@@ -43,7 +43,7 @@ func (h *SellerHandler) Create() http.HandlerFunc {
 			errors.HandleError(w, err)
 			return
 		}
-		body := models.SuccessResponse{Data: seller.ModelToDoc()}
+		body := models.SuccessResponse{Data: []models.SellerDoc{seller.ModelToDoc()}}
 		response.JSON(w, http.StatusCreated, body)
 
 	}
@@ -95,7 +95,7 @@ func (h *SellerHandler) Update() http.HandlerFunc {
 		}
 
 		body := models.SuccessResponse{
-			Data: sellerUpdated.ModelToDoc(),
+			Data: []models.SellerDoc{sellerUpdated.ModelToDoc()},
 		}
 
 		response.JSON(w, http.StatusOK, body)
@@ -137,7 +137,7 @@ func (h *SellerHandler) GetById() http.HandlerFunc {
 		}
 
 		body := models.SuccessResponse{
-			Data: seller.ModelToDoc(),
+			Data: []models.SellerDoc{seller.ModelToDoc()},
 		}
 		response.JSON(w, http.StatusOK, body)
 	}
