@@ -27,7 +27,9 @@ func (s *SectionDefault) GetByID(id int) (section models.Section, err error) {
 	if err != nil {
 		return models.Section{}, err
 	}
-
+	if section.ID == 0 {
+		return models.Section{}, errors.WrapErrNotFound("Section", "id", id)
+	}
 	return section, nil
 }
 
