@@ -16,12 +16,12 @@ func NewBuyerService(newRepository buyer.Repository) Service {
 	}
 }
 
-func (s *buyerService) Save(buyerDTO models.BuyerCreateDTO) (models.Buyer, error) {
-	if s.repository.ExistsByCardNumberId(buyerDTO.CardNumberId) {
-		return models.Buyer{}, errors.WrapErrAlreadyExist("buyer", "card number id", buyerDTO.CardNumberId)
+func (s *buyerService) Save(buyer models.Buyer) (models.Buyer, error) {
+	if s.repository.ExistsByCardNumberId(buyer.CardNumberId) {
+		return models.Buyer{}, errors.WrapErrAlreadyExist("buyer", "card number id", buyer.CardNumberId)
 	}
 
-	return s.repository.Save(models.DTOToBuyer(buyerDTO)), nil
+	return s.repository.Save(buyer), nil
 }
 
 func (s *buyerService) GetById(id int) (models.Buyer, error) {
@@ -46,7 +46,7 @@ func (s *buyerService) Update(id int, buyerDTO models.BuyerUpdateDTO) (models.Bu
 	if buyerDTO.CardNumberId != nil {
 		if *buyerDTO.CardNumberId != existingBuyer.CardNumberId &&
 			s.repository.ExistsByCardNumberId(*buyerDTO.CardNumberId) {
-			return models.Buyer{}, errors.WrapErrAlreadyExist("buyer", "card_number_id", *buyerDTO.CardNumberId)
+			return models.Buyer{}, errors.WrapErrAlreadyExist("buyer", "card number id", *buyerDTO.CardNumberId)
 		}
 		existingBuyer.CardNumberId = *buyerDTO.CardNumberId
 	}

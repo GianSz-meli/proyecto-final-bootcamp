@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"github.com/bootcamp-go/web/response"
 	"github.com/go-chi/chi/v5"
-	"io"
 	"net/http"
 	"strconv"
 )
@@ -38,25 +37,21 @@ func (h *BuyerHandler) GetAll() http.HandlerFunc {
 
 func (h *BuyerHandler) Save() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		defer r.Body.Close()
-		body, err := io.ReadAll(r.Body)
-		if err != nil {
-			errors.HandleError(w, err)
-			return
-		}
-
 		var dto models.BuyerCreateDTO
-		if err := json.Unmarshal(body, &dto); err != nil {
-			errors.HandleError(w, errors.ErrBadRequest)
+
+		if err := json.NewDecoder(r.Body).Decode(&dto); err != nil {
+			newErr := errors.WrapErrBadRequest(err)
+			errors.HandleError(w, newErr)
 			return
 		}
 
 		if err := utils.ValidateRequestData(dto); err != nil {
-			errors.HandleError(w, errors.WrapErrUnprocessableEntity(err))
+			errors.HandleError(w, err)
 			return
 		}
 
-		resp, err := h.service.Save(dto)
+		resp, err := h.service.Save(dto.DocToModel())
+
 		if err != nil {
 			errors.HandleError(w, err)
 			return
@@ -72,20 +67,16 @@ func (h *BuyerHandler) Save() http.HandlerFunc {
 
 func (h *BuyerHandler) GetById() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		id := chi.URLParam(r, "id")
+		id, err := utils.GetParamInt(r, "id")
 
-		intId, err := strconv.Atoi(id)
 		if err != nil {
 			errors.HandleError(w, err)
 			return
+
 		}
 
-		if intId <= 0 {
-			errors.HandleError(w, errors.WrapErrBadRequest(fmt.Errorf("id must be greather than 0")))
-			return
-		}
+		resp, err := h.service.GetById(id)
 
-		resp, err := h.service.GetById(intId)
 		if err != nil {
 			errors.HandleError(w, err)
 			return
@@ -101,20 +92,15 @@ func (h *BuyerHandler) GetById() http.HandlerFunc {
 
 func (h *BuyerHandler) Delete() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		id := chi.URLParam(r, "id")
+		id, err := utils.GetParamInt(r, "id")
 
-		intId, err := strconv.Atoi(id)
 		if err != nil {
 			errors.HandleError(w, err)
 			return
+
 		}
 
-		if intId <= 0 {
-			errors.HandleError(w, errors.WrapErrBadRequest(fmt.Errorf("id must be greather than 0")))
-			return
-		}
-
-		if err := h.service.Delete(intId); err != nil {
+		if err := h.service.Delete(id); err != nil {
 			errors.HandleError(w, err)
 			return
 		}
@@ -134,19 +120,15 @@ func (h *BuyerHandler) Update() http.HandlerFunc {
 		}
 
 		if intId <= 0 {
-			errors.HandleError(w, errors.WrapErrBadRequest(fmt.Errorf("id must be greather than 0")))
-			return
-		}
-
-		body, err := io.ReadAll(r.Body)
-		if err != nil {
-			errors.HandleError(w, err)
+			errors.HandleError(w, errors.WrapErrBadRequest(fmt.Errorf("id must be greater than 0")))
 			return
 		}
 
 		var dto models.BuyerUpdateDTO
-		if err := json.Unmarshal(body, &dto); err != nil {
-			errors.HandleError(w, errors.ErrBadRequest)
+
+		if err := json.NewDecoder(r.Body).Decode(&dto); err != nil {
+			newErr := errors.WrapErrBadRequest(err)
+			errors.HandleError(w, newErr)
 			return
 		}
 

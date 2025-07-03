@@ -19,10 +19,10 @@ type BuyerUpdateDTO struct {
 	LastName     *string `json:"last_name,omitempty" validate:"omitempty,min=1"`
 }
 
-func DTOToBuyer(dto BuyerCreateDTO) Buyer {
+func (b BuyerCreateDTO) DocToModel() Buyer {
 	return Buyer{
-		CardNumberId: dto.CardNumberId,
-		FirstName:    dto.FirstName,
-		LastName:     dto.LastName,
+		CardNumberId: b.CardNumberId,
+		FirstName:    b.FirstName,
+		LastName:     b.LastName,
 	}
 }
