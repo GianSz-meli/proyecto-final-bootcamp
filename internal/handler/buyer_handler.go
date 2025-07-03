@@ -47,7 +47,7 @@ func (h *BuyerHandler) Create() http.HandlerFunc {
 			return
 		}
 
-		resp, err := h.service.Create(dto.DocToModel())
+		resp, err := h.service.Create(dto.CreateDtoToModel())
 		if err != nil {
 			errors.HandleError(w, err)
 			return

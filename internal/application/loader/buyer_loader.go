@@ -25,12 +25,7 @@ func (l *BuyerLoader) Load() (map[int]models.Buyer, error) {
 	newMap := make(map[int]models.Buyer)
 
 	for _, buyerDoc := range data {
-		buyer := models.Buyer{
-			Id:           buyerDoc.Id,
-			CardNumberId: buyerDoc.CardNumberId,
-			FirstName:    buyerDoc.FirstName,
-			LastName:     buyerDoc.LastName,
-		}
+		buyer := buyerDoc.DocToModel()
 		newMap[buyer.Id] = buyer
 	}
 
