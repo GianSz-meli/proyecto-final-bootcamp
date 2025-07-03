@@ -5,12 +5,11 @@ import (
 	"ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
 	"encoding/json"
-	"fmt"
 	"net/http"
-	"strconv"
+
+	"ProyectoFinal/internal/handler/utils"
 
 	"github.com/bootcamp-go/web/response"
-	"github.com/go-chi/chi/v5"
 	"github.com/go-playground/validator/v10"
 )
 
@@ -46,15 +45,9 @@ func (h *SectionDefault) GetAll() http.HandlerFunc {
 
 func (h *SectionDefault) GetByID() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		id := chi.URLParam(r, "id")
-		idNum, err := strconv.Atoi(id)
+		idNum, err := utils.GetParamInt(r, "id")
 		if err != nil {
-			errors.HandleError(w, errors.WrapErrBadRequest(err))
-			return
-		}
-
-		if idNum <= 0 {
-			errors.HandleError(w, errors.WrapErrBadRequest(fmt.Errorf("invalid id: %d", idNum)))
+			errors.HandleError(w, err)
 			return
 		}
 
@@ -97,15 +90,9 @@ func (h *SectionDefault) Create() http.HandlerFunc {
 
 func (h *SectionDefault) Update() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		id := chi.URLParam(r, "id")
-		idNum, err := strconv.Atoi(id)
+		idNum, err := utils.GetParamInt(r, "id")
 		if err != nil {
-			errors.HandleError(w, errors.WrapErrBadRequest(err))
-			return
-		}
-
-		if idNum <= 0 {
-			errors.HandleError(w, errors.WrapErrBadRequest(fmt.Errorf("invalid id: %d", idNum)))
+			errors.HandleError(w, err)
 			return
 		}
 
@@ -134,15 +121,9 @@ func (h *SectionDefault) Update() http.HandlerFunc {
 
 func (h *SectionDefault) Delete() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		id := chi.URLParam(r, "id")
-		idNum, err := strconv.Atoi(id)
+		idNum, err := utils.GetParamInt(r, "id")
 		if err != nil {
-			errors.HandleError(w, errors.WrapErrBadRequest(err))
-			return
-		}
-
-		if idNum <= 0 {
-			errors.HandleError(w, errors.WrapErrBadRequest(fmt.Errorf("invalid id: %d", idNum)))
+			errors.HandleError(w, err)
 			return
 		}
 
