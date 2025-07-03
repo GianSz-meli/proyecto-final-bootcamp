@@ -34,7 +34,7 @@ func (h *BuyerHandler) GetAll() http.HandlerFunc {
 	}
 }
 
-func (h *BuyerHandler) Save() http.HandlerFunc {
+func (h *BuyerHandler) Create() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var dto models.BuyerCreateDTO
 		if err := json.NewDecoder(r.Body).Decode(&dto); err != nil {
@@ -47,7 +47,7 @@ func (h *BuyerHandler) Save() http.HandlerFunc {
 			return
 		}
 
-		resp, err := h.service.Save(dto.DocToModel())
+		resp, err := h.service.Create(dto.DocToModel())
 		if err != nil {
 			errors.HandleError(w, err)
 			return
@@ -108,7 +108,7 @@ func (h *BuyerHandler) Update() http.HandlerFunc {
 			return
 		}
 
-		if err := validate.Struct(dto); err != nil {
+		if err := utils.ValidateRequestData(dto); err != nil {
 			errors.HandleError(w, errors.WrapErrUnprocessableEntity(err))
 			return
 		}

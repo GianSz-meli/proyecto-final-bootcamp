@@ -27,7 +27,7 @@ func checkCounter(data map[int]models.Buyer) int {
 	return idCounter
 }
 
-func (r *buyerMap) Save(buyer models.Buyer) models.Buyer {
+func (r *buyerMap) Create(buyer models.Buyer) models.Buyer {
 	r.idCounter++
 	buyer.Id = r.idCounter
 	r.db[buyer.Id] = buyer

@@ -16,12 +16,12 @@ func NewBuyerService(newRepository buyer.Repository) Service {
 	}
 }
 
-func (s *buyerService) Save(buyer models.Buyer) (models.Buyer, error) {
+func (s *buyerService) Create(buyer models.Buyer) (models.Buyer, error) {
 	if s.repository.ExistsByCardNumberId(buyer.CardNumberId) {
 		return models.Buyer{}, errors.WrapErrAlreadyExist("buyer", "card number id", buyer.CardNumberId)
 	}
 
-	return s.repository.Save(buyer), nil
+	return s.repository.Create(buyer), nil
 }
 
 func (s *buyerService) GetById(id int) (models.Buyer, error) {

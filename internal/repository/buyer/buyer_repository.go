@@ -5,7 +5,7 @@ import (
 )
 
 type Repository interface {
-	Save(buyer models.Buyer) models.Buyer
+	Create(buyer models.Buyer) models.Buyer
 	GetById(id int) (models.Buyer, bool)
 	GetAll() []models.Buyer
 	Update(buyer models.Buyer) models.Buyer
