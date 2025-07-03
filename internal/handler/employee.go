@@ -6,7 +6,6 @@ import (
 
 	"ProyectoFinal/internal/handler/utils"
 	employeeService "ProyectoFinal/internal/service/employee"
-	utilsService "ProyectoFinal/internal/service/utils"
 	pkgErrors "ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
 
@@ -125,7 +124,7 @@ func (h *EmployeeHandler) Update() http.HandlerFunc {
 			return
 		}
 
-		if updated := utilsService.UpdateFields(&employeeToUpdate, &reqBody); !updated {
+		if updated := utils.UpdateFields(&employeeToUpdate, &reqBody); !updated {
 			newError := fmt.Errorf("%w : no fields provided for update", pkgErrors.ErrUnprocessableEntity)
 			pkgErrors.HandleError(w, newError)
 			return

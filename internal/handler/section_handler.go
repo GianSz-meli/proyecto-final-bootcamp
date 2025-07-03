@@ -2,7 +2,6 @@ package handler
 
 import (
 	service "ProyectoFinal/internal/service/section"
-	utilsService "ProyectoFinal/internal/service/utils"
 	"ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
 	"fmt"
@@ -119,7 +118,7 @@ func (h *SectionDefault) Update() http.HandlerFunc {
 			return
 		}
 
-		if updated := utilsService.UpdateFields(&sectionToUpdate, &reqBody); !updated {
+		if updated := utilsHandler.UpdateFields(&sectionToUpdate, &reqBody); !updated {
 			newError := fmt.Errorf("%w : no fields provided for update", errors.ErrUnprocessableEntity)
 			errors.HandleError(w, newError)
 			return

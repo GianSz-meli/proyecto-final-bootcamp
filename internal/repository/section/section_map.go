@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"ProyectoFinal/internal/repository/utils"
 	"ProyectoFinal/pkg/models"
 )
 
@@ -12,23 +13,13 @@ func NewSectionMap(db map[int]models.Section) *SectionMap {
 
 	return &SectionMap{
 		db:        defaultDb,
-		idCounter: checkCounter(defaultDb),
+		idCounter: utils.GetLastId[models.Section](defaultDb),
 	}
 }
 
 type SectionMap struct {
 	db        map[int]models.Section
 	idCounter int
-}
-
-func checkCounter(data map[int]models.Section) int {
-	idCounter := 0
-	for _, section := range data {
-		if section.ID > idCounter {
-			idCounter = section.ID
-		}
-	}
-	return idCounter
 }
 
 func (r *SectionMap) GetAll() (s []models.Section, err error) {

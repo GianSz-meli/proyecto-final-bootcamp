@@ -3,7 +3,6 @@ package handler
 import (
 	"ProyectoFinal/internal/handler/utils"
 	service "ProyectoFinal/internal/service/products"
-	utilsService "ProyectoFinal/internal/service/utils"
 	pkgErrors "ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
 	"fmt"
@@ -104,7 +103,7 @@ func (h *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if updated := utilsService.UpdateFields(&currentProd, &reqBody); !updated {
+	if updated := utils.UpdateFields(&currentProd, &reqBody); !updated {
 		newError := fmt.Errorf("%w : no fields provided for update", pkgErrors.ErrUnprocessableEntity)
 		pkgErrors.HandleError(w, newError)
 		return
