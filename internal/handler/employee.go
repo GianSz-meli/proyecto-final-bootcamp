@@ -2,23 +2,19 @@ package handler
 
 import (
 	"net/http"
-	"strconv"
 
+	"ProyectoFinal/internal/handler/utils"
 	employeeService "ProyectoFinal/internal/service/employee"
 	pkgErrors "ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
 
 	"github.com/bootcamp-go/web/request"
 	"github.com/bootcamp-go/web/response"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-playground/validator/v10"
 )
 
 type EmployeeHandler struct {
 	service employeeService.Service
 }
-
-var validateEmployee = validator.New()
 
 func NewEmployeeHandler(service employeeService.Service) *EmployeeHandler {
 	return &EmployeeHandler{
@@ -40,21 +36,19 @@ func (h *EmployeeHandler) GetAll() http.HandlerFunc {
 			employeeDocs[i] = emp.ModelToDoc()
 		}
 
-		body := map[string][]models.EmployeeDoc{
-			"data": employeeDocs,
+		responseBody := models.SuccessResponse{
+			Data: employeeDocs,
 		}
 
-		response.JSON(w, http.StatusOK, body)
+		response.JSON(w, http.StatusOK, responseBody)
 	}
 }
 
 func (h *EmployeeHandler) GetById() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		idParam := chi.URLParam(r, "id")
-		id, err := strconv.Atoi(idParam)
+		id, err := utils.GetParamInt(r, "id")
 		if err != nil {
-			newErr := pkgErrors.WrapErrBadRequest(err)
-			pkgErrors.HandleError(w, newErr)
+			pkgErrors.HandleError(w, err)
 			return
 		}
 
@@ -64,11 +58,11 @@ func (h *EmployeeHandler) GetById() http.HandlerFunc {
 			return
 		}
 
-		body := map[string]models.EmployeeDoc{
-			"data": employee.ModelToDoc(),
+		responseBody := models.SuccessResponse{
+			Data: employee.ModelToDoc(),
 		}
 
-		response.JSON(w, http.StatusOK, body)
+		response.JSON(w, http.StatusOK, responseBody)
 	}
 }
 
@@ -82,18 +76,12 @@ func (h *EmployeeHandler) Create() http.HandlerFunc {
 			return
 		}
 
-		if err := validateEmployee.Struct(reqBody); err != nil {
-			newError := pkgErrors.WrapErrUnprocessableEntity(err)
-			pkgErrors.HandleError(w, newError)
+		if err := utils.ValidateRequestData(reqBody); err != nil {
+			pkgErrors.HandleError(w, err)
 			return
 		}
 
-		employee := models.Employee{
-			CardNumberID: reqBody.CardNumberID,
-			FirstName:    reqBody.FirstName,
-			LastName:     reqBody.LastName,
-			WarehouseID:  reqBody.WarehouseID,
-		}
+		employee := reqBody.DocToModel()
 
 		createdEmployee, err := h.service.Create(employee)
 
@@ -102,20 +90,18 @@ func (h *EmployeeHandler) Create() http.HandlerFunc {
 			return
 		}
 
-		body := map[string]models.EmployeeDoc{
-			"data": createdEmployee.ModelToDoc(),
+		responseBody := models.SuccessResponse{
+			Data: createdEmployee.ModelToDoc(),
 		}
-		response.JSON(w, http.StatusCreated, body)
+		response.JSON(w, http.StatusCreated, responseBody)
 	}
 }
 
 func (h *EmployeeHandler) Update() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		idParam := chi.URLParam(r, "id")
-		id, err := strconv.Atoi(idParam)
+		id, err := utils.GetParamInt(r, "id")
 		if err != nil {
-			newErr := pkgErrors.WrapErrBadRequest(err)
-			pkgErrors.HandleError(w, newErr)
+			pkgErrors.HandleError(w, err)
 			return
 		}
 
@@ -132,19 +118,7 @@ func (h *EmployeeHandler) Update() http.HandlerFunc {
 			return
 		}
 
-		updatedEmployee := currentEmployee
-		if reqBody.CardNumberID != nil {
-			updatedEmployee.CardNumberID = *reqBody.CardNumberID
-		}
-		if reqBody.FirstName != nil {
-			updatedEmployee.FirstName = *reqBody.FirstName
-		}
-		if reqBody.LastName != nil {
-			updatedEmployee.LastName = *reqBody.LastName
-		}
-		if reqBody.WarehouseID != nil {
-			updatedEmployee.WarehouseID = *reqBody.WarehouseID
-		}
+		updatedEmployee := reqBody.UpdateFields(currentEmployee)
 
 		finalEmployee, err := h.service.Update(id, updatedEmployee)
 		if err != nil {
@@ -152,20 +126,18 @@ func (h *EmployeeHandler) Update() http.HandlerFunc {
 			return
 		}
 
-		body := map[string]models.EmployeeDoc{
-			"data": finalEmployee.ModelToDoc(),
+		responseBody := models.SuccessResponse{
+			Data: finalEmployee.ModelToDoc(),
 		}
-		response.JSON(w, http.StatusOK, body)
+		response.JSON(w, http.StatusOK, responseBody)
 	}
 }
 
 func (h *EmployeeHandler) Delete() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		idParam := chi.URLParam(r, "id")
-		id, err := strconv.Atoi(idParam)
+		id, err := utils.GetParamInt(r, "id")
 		if err != nil {
-			newErr := pkgErrors.WrapErrBadRequest(err)
-			pkgErrors.HandleError(w, newErr)
+			pkgErrors.HandleError(w, err)
 			return
 		}
 

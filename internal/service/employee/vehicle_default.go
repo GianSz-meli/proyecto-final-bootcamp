@@ -57,6 +57,11 @@ func (s *service) Update(id int, employee models.Employee) (models.Employee, err
 		return models.Employee{}, newError
 	}
 
+	if s.repository.ExistsByCardNumberIdExcludingID(employee.CardNumberID, id) {
+		newError := fmt.Errorf("%w : employee with card_number_id %s already exists", errors.ErrAlreadyExists, employee.CardNumberID)
+		return models.Employee{}, newError
+	}
+
 	if err := s.repository.Update(id, employee); err != nil {
 		newError := fmt.Errorf("%w : failed to update employee with id %d", errors.ErrGeneral, id)
 		return models.Employee{}, newError
