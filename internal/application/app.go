@@ -4,6 +4,7 @@ import (
 	"ProyectoFinal/internal/application/di"
 	"ProyectoFinal/internal/application/loader"
 	"ProyectoFinal/internal/application/router"
+	"github.com/go-chi/chi/v5/middleware"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -48,17 +49,18 @@ func (a *ServerChi) Run() (err error) {
 	if err != nil {
 		panic(err)
 	}
+
+	//Load warehouse
 	warehouseDB, err := factory.NewWarehouseLoader().Load()
 	if err != nil {
 		panic(err)
 	}
+
+	//Load buyer
 	buyerDB, err := factory.NewBuyerLoader().Load()
 	if err != nil {
 		panic(err)
 	}
-
-	warehouseHandler := di.GetWarehouseHandler(warehouseDB)
-	buyerHandler := di.GetBuyerHandler(buyerDB)
 
 	// Load sections
 	sections, err := factory.NewSectionLoader().Load()
@@ -66,10 +68,15 @@ func (a *ServerChi) Run() (err error) {
 		panic(err)
 	}
 
-	sectionHandler := di.GetSectionHandler(sections)
-
+	// Dependency injection
 	sellerHandler := di.GetSellerHandler(sellerDB)
+	warehouseHandler := di.GetWarehouseHandler(warehouseDB)
+	sectionHandler := di.GetSectionHandler(sections)
+	buyerHandler := di.GetBuyerHandler(buyerDB)
 
+	//Middlewares
+
+	rt.Use(middleware.Logger)
 	rt.Route("/api/v1", func(r chi.Router) {
 		r.Mount("/sections", router.SectionRoutes(sectionHandler))
 		r.Mount("/sellers", router.GetSellerRouter(sellerHandler))

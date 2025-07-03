@@ -26,11 +26,13 @@ func (s *SellerDefault) Create(seller models.Seller) (models.Seller, error) {
 	return seller, nil
 }
 
+func (s *SellerDefault) GetAll() []models.Seller {
+	sellers := s.repository.GetAll()
+	return sellers
+
+}
+
 func (s *SellerDefault) GetById(id int) (models.Seller, error) {
-	if id <= 0 {
-		newError := fmt.Errorf("seller id must be positive, got %d", id)
-		return models.Seller{}, errors.WrapErrBadRequest(newError)
-	}
 	seller, ok := s.repository.GetById(id)
 	if !ok {
 		newError := fmt.Errorf("%w : seller with id %d not found", errors.ErrNotFound, id)
@@ -38,6 +40,17 @@ func (s *SellerDefault) GetById(id int) (models.Seller, error) {
 	}
 
 	return seller, nil
+}
+
+func (s *SellerDefault) Delete(id int) error {
+	if _, ok := s.repository.GetById(id); !ok {
+		newError := fmt.Errorf("%w : seller with id %d not found", errors.ErrNotFound, id)
+		return newError
+	}
+
+	s.repository.Delete(id)
+
+	return nil
 }
 
 func (s *SellerDefault) Update(id int, seller models.Seller) (models.Seller, error) {
