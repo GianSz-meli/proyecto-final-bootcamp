@@ -26,7 +26,7 @@ type BuyerDoc struct {
 	LastName     string `json:"last_name"`
 }
 
-func (b BuyerCreateDTO) DocToModel() Buyer {
+func (b BuyerCreateDTO) CreateDtoToModel() Buyer {
 	return Buyer{
 		CardNumberId: b.CardNumberId,
 		FirstName:    b.FirstName,
@@ -36,6 +36,15 @@ func (b BuyerCreateDTO) DocToModel() Buyer {
 
 func (b Buyer) ModelToDoc() BuyerDoc {
 	return BuyerDoc{
+		Id:           b.Id,
+		CardNumberId: b.CardNumberId,
+		FirstName:    b.FirstName,
+		LastName:     b.LastName,
+	}
+}
+
+func (b BuyerDoc) DocToModel() Buyer {
+	return Buyer{
 		Id:           b.Id,
 		CardNumberId: b.CardNumberId,
 		FirstName:    b.FirstName,
