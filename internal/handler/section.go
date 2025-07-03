@@ -2,18 +2,17 @@ package handler
 
 import (
 	service "ProyectoFinal/internal/service/section"
+	utilsService "ProyectoFinal/internal/service/utils"
 	"ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
-	"encoding/json"
+	"fmt"
 	"net/http"
 
-	"ProyectoFinal/internal/handler/utils"
+	utilsHandler "ProyectoFinal/internal/handler/utils"
 
+	"github.com/bootcamp-go/web/request"
 	"github.com/bootcamp-go/web/response"
-	"github.com/go-playground/validator/v10"
 )
-
-var sectionValidator = validator.New()
 
 func NewSectionDefault(sv service.SectionService) *SectionDefault {
 	return &SectionDefault{sv: sv}
@@ -43,15 +42,15 @@ func (h *SectionDefault) GetAll() http.HandlerFunc {
 	}
 }
 
-func (h *SectionDefault) GetByID() http.HandlerFunc {
+func (h *SectionDefault) GetById() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		idNum, err := utils.GetParamInt(r, "id")
+		idNum, err := utilsHandler.GetParamInt(r, "id")
 		if err != nil {
 			errors.HandleError(w, err)
 			return
 		}
 
-		section, err := h.sv.GetByID(idNum)
+		section, err := h.sv.GetById(idNum)
 		if err != nil {
 			errors.HandleError(w, err)
 			return
@@ -65,18 +64,22 @@ func (h *SectionDefault) GetByID() http.HandlerFunc {
 
 func (h *SectionDefault) Create() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var section models.Section
-		if err := json.NewDecoder(r.Body).Decode(&section); err != nil {
-			errors.HandleError(w, errors.WrapErrBadRequest(err))
+		var reqBody models.CreateSectionRequest
+
+		if err := request.JSON(r, &reqBody); err != nil {
+			newErr := errors.WrapErrBadRequest(err)
+			errors.HandleError(w, newErr)
 			return
 		}
 
-		if err := sectionValidator.Struct(section); err != nil {
-			errors.HandleError(w, errors.WrapErrBadRequest(err))
+		if err := utilsHandler.ValidateRequestData(reqBody); err != nil {
+			errors.HandleError(w, err)
 			return
 		}
 
-		createdSection, err := h.sv.Create(section)
+		model := reqBody.DocToModel()
+
+		createdSection, err := h.sv.Create(model)
 		if err != nil {
 			errors.HandleError(w, err)
 			return
@@ -90,24 +93,39 @@ func (h *SectionDefault) Create() http.HandlerFunc {
 
 func (h *SectionDefault) Update() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		idNum, err := utils.GetParamInt(r, "id")
+		idNum, err := utilsHandler.GetParamInt(r, "id")
 		if err != nil {
 			errors.HandleError(w, err)
 			return
 		}
 
-		var section models.Section
-		if err := json.NewDecoder(r.Body).Decode(&section); err != nil {
-			errors.HandleError(w, errors.WrapErrBadRequest(err))
+		var reqBody models.UpdateSectionRequest
+
+		if err := request.JSON(r, &reqBody); err != nil {
+			newErr := errors.WrapErrBadRequest(err)
+			errors.HandleError(w, newErr)
 			return
 		}
 
-		if err := sectionValidator.Struct(section); err != nil {
-			errors.HandleError(w, errors.WrapErrBadRequest(err))
+		if err := utilsHandler.ValidateRequestData(reqBody); err != nil {
+			errors.HandleError(w, err)
 			return
 		}
 
-		updatedSection, err := h.sv.Update(idNum, section)
+		sectionToUpdate, err := h.sv.GetById(idNum)
+		if err != nil {
+			newError := errors.WrapErrNotFound("section", "id", idNum)
+			errors.HandleError(w, newError)
+			return
+		}
+
+		if updated := utilsService.UpdateFields(&sectionToUpdate, &reqBody); !updated {
+			newError := fmt.Errorf("%w : no fields provided for update", errors.ErrUnprocessableEntity)
+			errors.HandleError(w, newError)
+			return
+		}
+
+		updatedSection, err := h.sv.Update(idNum, sectionToUpdate)
 		if err != nil {
 			errors.HandleError(w, err)
 			return
@@ -121,7 +139,7 @@ func (h *SectionDefault) Update() http.HandlerFunc {
 
 func (h *SectionDefault) Delete() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		idNum, err := utils.GetParamInt(r, "id")
+		idNum, err := utilsHandler.GetParamInt(r, "id")
 		if err != nil {
 			errors.HandleError(w, err)
 			return

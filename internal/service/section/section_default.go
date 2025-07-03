@@ -2,9 +2,9 @@ package service
 
 import (
 	repository "ProyectoFinal/internal/repository/section"
-	"ProyectoFinal/internal/service/utils"
 	"ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
+	"fmt"
 )
 
 func NewSectionDefault(rp repository.SectionRepository) *SectionDefault {
@@ -23,10 +23,14 @@ func (s *SectionDefault) GetAll() (sections []models.Section, err error) {
 	return sections, nil
 }
 
-func (s *SectionDefault) GetByID(id int) (section models.Section, err error) {
+func (s *SectionDefault) GetById(id int) (section models.Section, err error) {
 	section, err = s.rp.GetByID(id)
 	if err != nil {
 		return models.Section{}, err
+	}
+	if section.ID == 0 {
+		newError := fmt.Errorf("%w : section with id %d not found", errors.ErrNotFound, id)
+		return models.Section{}, newError
 	}
 	return section, nil
 }
@@ -49,6 +53,10 @@ func (s *SectionDefault) Update(id int, section models.Section) (updatedSection 
 	if err != nil {
 		return models.Section{}, err
 	}
+	if existingSection.ID == 0 {
+		newError := fmt.Errorf("%w : section with id %d not found", errors.ErrNotFound, id)
+		return models.Section{}, newError
+	}
 
 	if section.SectionNumber != 0 && section.SectionNumber != existingSection.SectionNumber {
 		exists := s.rp.ExistBySectionNumber(section.SectionNumber)
@@ -57,9 +65,8 @@ func (s *SectionDefault) Update(id int, section models.Section) (updatedSection 
 		}
 	}
 
-	_ = utils.UpdateFields(&existingSection, &section)
-
-	updatedSection, err = s.rp.Update(id, existingSection)
+	section.ID = id
+	updatedSection, err = s.rp.Update(id, section)
 	if err != nil {
 		return models.Section{}, err
 	}
@@ -67,6 +74,15 @@ func (s *SectionDefault) Update(id int, section models.Section) (updatedSection 
 }
 
 func (s *SectionDefault) Delete(id int) (err error) {
+	existingSection, err := s.rp.GetByID(id)
+	if err != nil {
+		return err
+	}
+	if existingSection.ID == 0 {
+		newError := fmt.Errorf("%w : section with id %d not found", errors.ErrNotFound, id)
+		return newError
+	}
+
 	err = s.rp.Delete(id)
 	if err != nil {
 		return err
