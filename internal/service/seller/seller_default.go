@@ -1,0 +1,60 @@
+package seller
+
+import (
+	"ProyectoFinal/internal/repository/seller"
+	"ProyectoFinal/pkg/errors"
+	"ProyectoFinal/pkg/models"
+	"fmt"
+)
+
+type SellerDefault struct {
+	repository seller.SellerRepository
+}
+
+func NewSellerService(repository seller.SellerRepository) SellerService {
+	return &SellerDefault{repository: repository}
+}
+
+func (s *SellerDefault) Create(seller models.Seller) (models.Seller, error) {
+	if s.repository.ExistsByCid(seller.Cid) {
+		newError := errors.WrapErrAlreadyExist("seller", "cid", seller.Cid)
+		return models.Seller{}, newError
+	}
+
+	s.repository.Create(&seller)
+
+	return seller, nil
+}
+
+func (s *SellerDefault) GetById(id int) (models.Seller, error) {
+	if id <= 0 {
+		newError := fmt.Errorf("seller id must be positive, got %d", id)
+		return models.Seller{}, errors.WrapErrBadRequest(newError)
+	}
+	seller, ok := s.repository.GetById(id)
+	if !ok {
+		newError := fmt.Errorf("%w : seller with id %d not found", errors.ErrNotFound, id)
+		return models.Seller{}, newError
+	}
+
+	return seller, nil
+}
+
+func (s *SellerDefault) Update(id int, seller models.Seller) (models.Seller, error) {
+	current, ok := s.repository.GetById(id)
+	if !ok {
+		newError := fmt.Errorf("%w : seller with id %d not found", errors.ErrNotFound, id)
+		return models.Seller{}, newError
+	}
+
+	if current.Cid != seller.Cid {
+		if s.repository.ExistsByCid(seller.Cid) {
+			newError := errors.WrapErrAlreadyExist("seller", "cid", seller.Cid)
+			return models.Seller{}, newError
+		}
+	}
+
+	s.repository.Update(&seller)
+
+	return seller, nil
+}
