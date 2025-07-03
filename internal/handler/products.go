@@ -43,7 +43,7 @@ func (h *ProductHandler) CreateProduct(w http.ResponseWriter, r *http.Request) {
 	}
 
 	body := models.SuccessResponse{Data: product.ModelToDoc()}
-	response.JSON(w, http.StatusCreated, body)
+	response.JSON(w, http.StatusOK, body)
 }
 
 func (h *ProductHandler) FindAllProducts(w http.ResponseWriter, r *http.Request) {
@@ -57,7 +57,7 @@ func (h *ProductHandler) FindAllProducts(w http.ResponseWriter, r *http.Request)
 		data[key] = value.ModelToDoc()
 	}
 	body := models.SuccessResponse{Data: data}
-	response.JSON(w, http.StatusCreated, body)
+	response.JSON(w, http.StatusOK, body)
 }
 
 func (h *ProductHandler) FindProductsById(w http.ResponseWriter, r *http.Request) {

@@ -15,7 +15,7 @@ type Product struct {
 	ExpirationRate int
 	Temperature    float32
 	FreezingRate   float64
-	ProductType    ProductType
+	ProductType    *ProductType
 }
 type ProductTypeDoc struct {
 	ID          int    `json:"id"`
@@ -60,7 +60,7 @@ func (p *Product) ModelToDoc() ProductDoc {
 		ExpirationRate: &p.ExpirationRate,
 		Temperature:    &p.Temperature,
 		FreezingRate:   &p.FreezingRate,
-		ProductType:    &p.ProductType,
+		ProductType:    p.ProductType,
 	}
 }
 
@@ -76,7 +76,7 @@ func (p *ProductDoc) DocToModel() Product {
 		ExpirationRate: *p.ExpirationRate,
 		Temperature:    *p.Temperature,
 		FreezingRate:   *p.FreezingRate,
-		ProductType:    *p.ProductType,
+		ProductType:    p.ProductType,
 	}
 }
 
