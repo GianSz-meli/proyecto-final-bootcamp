@@ -19,7 +19,7 @@ func (l *BuyerLoader) Load() (map[int]models.Buyer, error) {
 
 	var data []models.BuyerDoc
 	if err = json.NewDecoder(file).Decode(&data); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to decode buyers from %s: %w", l.path, err)
 	}
 
 	newMap := make(map[int]models.Buyer)
