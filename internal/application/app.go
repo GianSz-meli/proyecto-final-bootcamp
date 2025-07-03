@@ -4,8 +4,9 @@ import (
 	"ProyectoFinal/internal/application/di"
 	"ProyectoFinal/internal/application/loader"
 	"ProyectoFinal/internal/application/router"
-	"github.com/go-chi/chi/v5"
 	"net/http"
+
+	"github.com/go-chi/chi/v5"
 )
 
 type ConfigServerChi struct {
@@ -42,6 +43,7 @@ func (a *ServerChi) Run() (err error) {
 
 	factory := loader.NewLoaderFactory(a.loaderFilePath)
 
+	// Load sellers
 	sellerDB, err := factory.NewSellerLoader().Load()
 	if err != nil {
 		panic(err)
@@ -54,7 +56,16 @@ func (a *ServerChi) Run() (err error) {
 	sellerHandler := di.GetSellerHandler(sellerDB)
 	warehouseHandler := di.GetWarehouseHandler(warehouseDB)
 
+	// Load sections
+	sections, err := factory.NewSectionLoader().Load()
+	if err != nil {
+		panic(err)
+	}
+
+	sectionHandler := di.GetSectionHandler(sections)
+
 	rt.Route("/api/v1", func(r chi.Router) {
+		r.Mount("/sections", router.SectionRoutes(sectionHandler))
 		r.Mount("/sellers", router.GetSellerRouter(sellerHandler))
 		r.Mount("/warehouses", router.GetWarehouseRouter(warehouseHandler))
 	})

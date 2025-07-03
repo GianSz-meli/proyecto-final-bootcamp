@@ -12,11 +12,10 @@ func NewSellerRepository(db map[int]models.Seller) SellerRepository {
 	return &SellerMap{db: db}
 }
 
-func (r *SellerMap) Create(seller *models.Seller) error {
+func (r *SellerMap) Create(seller *models.Seller) {
 	id := len(r.db) + 1
 	seller.Id = id
 	r.db[id] = *seller
-	return nil
 }
 
 func (r *SellerMap) GetById(id int) (models.Seller, bool) {
@@ -44,4 +43,8 @@ func (r *SellerMap) GetAll() []models.Seller {
 
 func (r *SellerMap) Delete(id int) {
 	delete(r.db, id)
+}
+
+func (r *SellerMap) Update(seller *models.Seller) {
+	r.db[seller.Id] = *seller
 }

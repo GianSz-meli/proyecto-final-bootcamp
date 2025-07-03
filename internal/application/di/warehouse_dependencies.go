@@ -1,7 +1,7 @@
 package di
 
 import (
-	"ProyectoFinal/internal/handler"
+	handler "ProyectoFinal/internal/handler"
 	repository "ProyectoFinal/internal/repository/warehouse"
 	service "ProyectoFinal/internal/service/warehouse"
 	"ProyectoFinal/pkg/models"

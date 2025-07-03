@@ -35,3 +35,10 @@ func (s *SellerDoc) DocToModel() Seller {
 		Telephone:   s.Telephone,
 	}
 }
+
+type UpdateSellerRequest struct {
+	Cid         *int    `json:"cid" validate:"omitempty,gt=0"`
+	CompanyName *string `json:"company_name" validate:"omitempty,min=1"`
+	Address     *string `json:"address" validate:"omitempty,min=1"`
+	Telephone   *string `json:"telephone" validate:"omitempty,min=1"`
+}
