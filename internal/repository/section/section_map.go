@@ -39,7 +39,7 @@ func (r *SectionMap) GetAll() (s []models.Section, err error) {
 	return
 }
 
-func (r *SectionMap) GetByID(id int) (models.Section, error) {
+func (r *SectionMap) GetById(id int) (models.Section, error) {
 	section, exists := r.db[id]
 	if !exists {
 		return models.Section{}, nil

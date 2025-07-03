@@ -1,15 +1,15 @@
 package di
 
 import (
-	handler "ProyectoFinal/internal/handler"
-	repositorySection "ProyectoFinal/internal/repository/section"
-	serviceSection "ProyectoFinal/internal/service/section"
+	"ProyectoFinal/internal/handler"
+	repository "ProyectoFinal/internal/repository/section"
+	service "ProyectoFinal/internal/service/section"
 	"ProyectoFinal/pkg/models"
 )
 
 func GetSectionHandler(db map[int]models.Section) *handler.SectionDefault {
-	sectionRepository := repositorySection.NewSectionMap(db)
-	sectionService := serviceSection.NewSectionDefault(sectionRepository)
+	sectionRepository := repository.NewSectionMap(db)
+	sectionService := service.NewSectionDefault(sectionRepository)
 	sectionHandler := handler.NewSectionDefault(sectionService)
 	return sectionHandler
 }
