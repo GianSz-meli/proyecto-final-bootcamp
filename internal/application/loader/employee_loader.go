@@ -35,3 +35,4 @@ func (e *EmployeeLoader) Load() (map[int]models.Employee, error) {
 
 	return employeeMap, nil
 }
+

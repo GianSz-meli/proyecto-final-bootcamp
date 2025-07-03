@@ -1,6 +1,7 @@
 package employee
 
 import (
+	"ProyectoFinal/internal/repository/utils"
 	"ProyectoFinal/pkg/models"
 )
 
@@ -13,18 +14,8 @@ func NewRepository(employees map[int]models.Employee) Repository {
 	repo := &repository{
 		employees: employees,
 	}
-	repo.lastID = repo.getLastID()
+	repo.lastID = utils.GetLastId[models.Employee](employees)
 	return repo
-}
-
-func (r *repository) getLastID() int {
-	maxID := 0
-	for id := range r.employees {
-		if id > maxID {
-			maxID = id
-		}
-	}
-	return maxID
 }
 
 func (r *repository) GetAll() ([]models.Employee, error) {

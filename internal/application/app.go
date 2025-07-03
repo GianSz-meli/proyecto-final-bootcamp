@@ -1,8 +1,8 @@
 package application
 
 import (
+	"ProyectoFinal/docs/db"
 	"ProyectoFinal/internal/application/di"
-	"ProyectoFinal/internal/application/loader"
 	"ProyectoFinal/internal/application/router"
 	"net/http"
 
@@ -43,44 +43,15 @@ func NewServerChi(cfg *ConfigServerChi) *ServerChi {
 func (a *ServerChi) Run() (err error) {
 	rt := chi.NewRouter()
 
-	factory := loader.NewLoaderFactory(a.loaderFilePath)
-
-	// Load sellers
-	sellerDB, err := factory.NewSellerLoader().Load()
-	if err != nil {
-		panic(err)
-	}
-
-	//Load warehouse
-	warehouseDB, err := factory.NewWarehouseLoader().Load()
-	if err != nil {
-		panic(err)
-	}
-
-	//Load buyer
-	buyerDB, err := factory.NewBuyerLoader().Load()
-	if err != nil {
-		panic(err)
-	}
-
-	// Load sections
-	sections, err := factory.NewSectionLoader().Load()
-	if err != nil {
-		panic(err)
-	}
-
-	// Load employee data
-	employeeDB, err := factory.NewEmployeeLoader().Load()
-	if err != nil {
-		panic(err)
-	}
+	database := db.LoadDB(a.loaderFilePath)
 
 	// Dependency injection
-	sellerHandler := di.GetSellerHandler(sellerDB)
-	warehouseHandler := di.GetWarehouseHandler(warehouseDB)
-	sectionHandler := di.GetSectionHandler(sections)
-	buyerHandler := di.GetBuyerHandler(buyerDB)
-	employeeHandler := di.GetEmployeeHandler(employeeDB)
+	sellerHandler := di.GetSellerHandler(database.Seller)
+	warehouseHandler := di.GetWarehouseHandler(database.Warehouse)
+	sectionHandler := di.GetSectionHandler(database.Section)
+	buyerHandler := di.GetBuyerHandler(database.Buyer)
+	employeeHandler := di.GetEmployeeHandler(database.Employee)
+	productHandler := di.GetProductsHandler(database.Product)
 
 	//Middlewares
 	rt.Use(middleware.Logger)
@@ -90,6 +61,7 @@ func (a *ServerChi) Run() (err error) {
 		r.Mount("/sellers", router.GetSellerRouter(sellerHandler))
 		r.Mount("/employees", router.EmployeeRoutes(employeeHandler))
 		r.Mount("/warehouses", router.GetWarehouseRouter(warehouseHandler))
+		r.Mount("/products", router.ProductRoutes(productHandler))
 		r.Mount("/buyers", router.GetBuyerRouter(buyerHandler))
 	})
 
