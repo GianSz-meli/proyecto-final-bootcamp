@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"github.com/bootcamp-go/web/request"
 	"github.com/bootcamp-go/web/response"
-	"github.com/go-playground/validator/v10"
 	"net/http"
 )
 
@@ -21,11 +20,9 @@ func NewSellerHandler(service seller.SellerService) *SellerHandler {
 	return &SellerHandler{service: service}
 }
 
-var validate = validator.New()
-
 func (h *SellerHandler) Create() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var reqBody models.SellerDoc
+		var reqBody models.CreateSellerRequest
 
 		if err := request.JSON(r, &reqBody); err != nil {
 			newErr := errors.WrapErrBadRequest(err)
@@ -33,9 +30,8 @@ func (h *SellerHandler) Create() http.HandlerFunc {
 			return
 		}
 
-		if err := validate.Struct(reqBody); err != nil {
-			newError := errors.WrapErrBadRequest(err)
-			errors.HandleError(w, newError)
+		if err := utilsHandler.ValidateRequestData(reqBody); err != nil {
+			errors.HandleError(w, err)
 			return
 		}
 
@@ -72,9 +68,8 @@ func (h *SellerHandler) Update() http.HandlerFunc {
 			return
 		}
 
-		if err := validate.Struct(reqBody); err != nil {
-			newError := errors.WrapErrUnprocessableEntity(err)
-			errors.HandleError(w, newError)
+		if err := utilsHandler.ValidateRequestData(reqBody); err != nil {
+			errors.HandleError(w, err)
 			return
 		}
 
@@ -105,5 +100,64 @@ func (h *SellerHandler) Update() http.HandlerFunc {
 
 		response.JSON(w, http.StatusOK, body)
 
+	}
+}
+
+func (h *SellerHandler) GetAll() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		sellers := h.service.GetAll()
+
+		var sellersDoc []models.SellerDoc
+
+		for _, seller := range sellers {
+			sellersDoc = append(sellersDoc, seller.ModelToDoc())
+		}
+
+		body := models.SuccessResponse{
+			Data: sellersDoc,
+		}
+		response.JSON(w, http.StatusOK, body)
+	}
+}
+
+func (h *SellerHandler) GetById() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id, err := utilsHandler.GetParamInt(r, "id")
+		if err != nil {
+			errors.HandleError(w, err)
+			return
+		}
+
+		seller, err := h.service.GetById(id)
+
+		if err != nil {
+			errors.HandleError(w, err)
+			return
+		}
+
+		body := models.SuccessResponse{
+			Data: seller.ModelToDoc(),
+		}
+		response.JSON(w, http.StatusOK, body)
+	}
+}
+
+func (h *SellerHandler) Delete() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id, err := utilsHandler.GetParamInt(r, "id")
+		if err != nil {
+			errors.HandleError(w, err)
+			return
+		}
+
+		err = h.service.Delete(id)
+
+		if err != nil {
+			errors.HandleError(w, err)
+			return
+		}
+
+		w.WriteHeader(http.StatusNoContent)
 	}
 }
