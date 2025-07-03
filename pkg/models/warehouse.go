@@ -11,15 +11,7 @@ type Warehouse struct {
 }
 
 func (w Warehouse) ModelToDoc() WarehouseDocument {
-	return WarehouseDocument{
-		ID:                 w.ID,
-		WarehouseCode:      w.WarehouseCode,
-		Address:            w.Address,
-		Telephone:          w.Telephone,
-		MinimumCapacity:    w.MinimumCapacity,
-		MinimumTemperature: w.MinimumTemperature,
-		LocalityId:         w.LocalityId,
-	}
+	return WarehouseDocument(w)
 }
 
 type WarehouseDocument struct {
@@ -33,15 +25,7 @@ type WarehouseDocument struct {
 }
 
 func (w WarehouseDocument) DocToModel() Warehouse {
-	return Warehouse{
-		ID:                 w.ID,
-		WarehouseCode:      w.WarehouseCode,
-		Address:            w.Address,
-		Telephone:          w.Telephone,
-		MinimumCapacity:    w.MinimumCapacity,
-		MinimumTemperature: w.MinimumTemperature,
-		LocalityId:         w.LocalityId,
-	}
+	return Warehouse(w)
 }
 
 type CreateWarehouseRequest struct {
@@ -50,7 +34,7 @@ type CreateWarehouseRequest struct {
 	Telephone          string   `json:"telephone" validate:"required,numeric,min=7"`
 	MinimumCapacity    *int     `json:"minimum_capacity" validate:"required,min=0"`
 	MinimumTemperature *float64 `json:"minimum_temperature" validate:"required"`
-	LocalityId         *int     `json:"locality_id"`
+	LocalityId         *int     `json:"locality_id" validate:"omitempty,gt=0"`
 }
 
 func (c CreateWarehouseRequest) DocToModel() Warehouse {
@@ -70,7 +54,7 @@ type UpdateWarehouseRequest struct {
 	Telephone          *string  `json:"telephone" validate:"omitempty,numeric,min=7"`
 	MinimumCapacity    *int     `json:"minimum_capacity" validate:"omitempty,min=0"`
 	MinimumTemperature *float64 `json:"minimum_temperature"`
-	LocalityId         *int     `json:"locality_id"`
+	LocalityId         *int     `json:"locality_id" validate:"omitempty,gt=0"`
 }
 
 func (u UpdateWarehouseRequest) DocToModel() Warehouse {
