@@ -4,8 +4,9 @@ import (
 	"ProyectoFinal/internal/application/di"
 	"ProyectoFinal/internal/application/loader"
 	"ProyectoFinal/internal/application/router"
-	"github.com/go-chi/chi/v5/middleware"
 	"net/http"
+
+	"github.com/go-chi/chi/v5/middleware"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -78,7 +79,7 @@ func (a *ServerChi) Run() (err error) {
 
 	rt.Use(middleware.Logger)
 	rt.Route("/api/v1", func(r chi.Router) {
-		r.Mount("/sections", router.SectionRoutes(sectionHandler))
+		r.Mount("/sections", router.GetSectionRouter(sectionHandler))
 		r.Mount("/sellers", router.GetSellerRouter(sellerHandler))
 		r.Mount("/warehouses", router.GetWarehouseRouter(warehouseHandler))
 		r.Mount("/buyers", router.GetBuyerRouter(buyerHandler))
