@@ -5,8 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	handlerUtils "ProyectoFinal/internal/handler/utils"
-	serviceUtils "ProyectoFinal/internal/service/utils"
+	"ProyectoFinal/internal/handler/utils"
 
 	"ProyectoFinal/internal/service/warehouse"
 	"ProyectoFinal/pkg/errors"
@@ -38,7 +37,7 @@ func (h *WarehouseHandler) GetAllWarehouses(w http.ResponseWriter, r *http.Reque
 }
 
 func (h *WarehouseHandler) GetWarehouseById(w http.ResponseWriter, r *http.Request) {
-	id, err := handlerUtils.GetParamInt(r, "id")
+	id, err := utils.GetParamInt(r, "id")
 	if err != nil {
 		errors.HandleError(w, err)
 		return
@@ -63,7 +62,7 @@ func (h *WarehouseHandler) CreateWarehouse(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	if err := handlerUtils.ValidateRequestData(createRequest); err != nil {
+	if err := utils.ValidateRequestData(createRequest); err != nil {
 		errors.HandleError(w, err)
 		return
 	}
@@ -83,7 +82,7 @@ func (h *WarehouseHandler) CreateWarehouse(w http.ResponseWriter, r *http.Reques
 }
 
 func (h *WarehouseHandler) UpdateWarehouse(w http.ResponseWriter, r *http.Request) {
-	id, err := handlerUtils.GetParamInt(r, "id")
+	id, err := utils.GetParamInt(r, "id")
 	if err != nil {
 		errors.HandleError(w, err)
 		return
@@ -95,7 +94,7 @@ func (h *WarehouseHandler) UpdateWarehouse(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	if err := handlerUtils.ValidateRequestData(updateRequest); err != nil {
+	if err := utils.ValidateRequestData(updateRequest); err != nil {
 		errors.HandleError(w, err)
 		return
 	}
@@ -106,7 +105,7 @@ func (h *WarehouseHandler) UpdateWarehouse(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	if updated := serviceUtils.UpdateFields(currentWarehouse, &updateRequest); !updated {
+	if updated := utils.UpdateFields(currentWarehouse, &updateRequest); !updated {
 		newError := errors.WrapErrUnprocessableEntity(fmt.Errorf("no fields provided for update"))
 		errors.HandleError(w, newError)
 		return
@@ -125,7 +124,7 @@ func (h *WarehouseHandler) UpdateWarehouse(w http.ResponseWriter, r *http.Reques
 }
 
 func (h *WarehouseHandler) DeleteWarehouse(w http.ResponseWriter, r *http.Request) {
-	id, err := handlerUtils.GetParamInt(r, "id")
+	id, err := utils.GetParamInt(r, "id")
 	if err != nil {
 		errors.HandleError(w, err)
 		return
