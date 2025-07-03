@@ -33,6 +33,10 @@ func (f *FactoryLoader) NewEmployeeLoader() Loader[models.Employee] {
 	return &EmployeeLoader{path: f.paths[Employee]}
 }
 
+func (f *FactoryLoader) NewProductLoader() Loader[models.Product] {
+	return &ProductLoader{path: f.paths[Product]}
+}
+
 func (f *FactoryLoader) NewWarehouseLoader() Loader[models.Warehouse] {
 	return &WarehouseLoader{path: f.paths[Warehouse]}
 }

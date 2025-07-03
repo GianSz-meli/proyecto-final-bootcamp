@@ -56,6 +56,11 @@ func (a *ServerChi) Run() (err error) {
 	if err != nil {
 		panic(err)
 	}
+	productDB, err := factory.NewProductLoader().Load()
+	if err != nil {
+		panic(err)
+	}
+
 
 	//Load buyer
 	buyerDB, err := factory.NewBuyerLoader().Load()
@@ -81,7 +86,7 @@ func (a *ServerChi) Run() (err error) {
 	sectionHandler := di.GetSectionHandler(sections)
 	buyerHandler := di.GetBuyerHandler(buyerDB)
 	employeeHandler := di.GetEmployeeHandler(employeeDB)
-
+	productHandler := di.GetProductsHandler(productDB)
 	//Middlewares
 	rt.Use(middleware.Logger)
 
@@ -90,6 +95,7 @@ func (a *ServerChi) Run() (err error) {
 		r.Mount("/sellers", router.GetSellerRouter(sellerHandler))
 		r.Mount("/employees", router.EmployeeRoutes(employeeHandler))
 		r.Mount("/warehouses", router.GetWarehouseRouter(warehouseHandler))
+		r.Mount("/products", router.ProductRoutes(productHandler))
 		r.Mount("/buyers", router.GetBuyerRouter(buyerHandler))
 	})
 
