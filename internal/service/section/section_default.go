@@ -28,10 +28,6 @@ func (s *SectionDefault) GetById(id int) (section models.Section, err error) {
 	if err != nil {
 		return models.Section{}, err
 	}
-	if section.ID == 0 {
-		newError := fmt.Errorf("%w : section with id %d not found", errors.ErrNotFound, id)
-		return models.Section{}, newError
-	}
 	return section, nil
 }
 
