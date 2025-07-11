@@ -2,6 +2,7 @@ package main
 
 import (
 	"ProyectoFinal/internal/application"
+	"ProyectoFinal/internal/application/config"
 	"ProyectoFinal/internal/application/loader"
 	"fmt"
 )
@@ -14,10 +15,13 @@ func main() {
 			loader.Section:   "docs/db/sections_10.json",
 			loader.Employee:  "docs/db/employees.json",
 			loader.Warehouse: "docs/db/warehouses.json",
-			loader.Product: "docs/db/products.json",
+			loader.Product:   "docs/db/products.json",
 			loader.Buyer:     "docs/db/buyers.json",
 		},
 	}
+
+	config.LoadDotEnv()
+
 	app := application.NewServerChi(cfg)
 
 	fmt.Printf("Server started in http://localhost%s \n", cfg.ServerAddress)
