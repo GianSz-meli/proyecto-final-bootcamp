@@ -44,6 +44,8 @@ func (a *ServerChi) Run() (err error) {
 	rt := chi.NewRouter()
 
 	database := db.LoadDB(a.loaderFilePath)
+	//TODO: Replace LoadDB to InitDB
+	//d:= db.InitDB()
 
 	// Dependency injection
 	sellerHandler := di.GetSellerHandler(database.Seller)
