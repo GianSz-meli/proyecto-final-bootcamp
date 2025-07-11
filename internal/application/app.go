@@ -1,8 +1,12 @@
 package application
 
 import (
-	"ProyectoFinal/internal/application/loader"
+	"ProyectoFinal/docs/db"
+	"ProyectoFinal/internal/application/di"
+	"ProyectoFinal/internal/application/router"
 	"net/http"
+
+	"github.com/go-chi/chi/v5/middleware"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -39,17 +43,26 @@ func NewServerChi(cfg *ConfigServerChi) *ServerChi {
 func (a *ServerChi) Run() (err error) {
 	rt := chi.NewRouter()
 
-	factory := loader.NewLoaderFactory(a.loaderFilePath)
-	_, err = factory.NewSellerLoader().Load()
-	if err != nil {
-		panic(err)
-	}
+	database := db.LoadDB(a.loaderFilePath)
+
+	// Dependency injection
+	sellerHandler := di.GetSellerHandler(database.Seller)
+	warehouseHandler := di.GetWarehouseHandler(database.Warehouse)
+	sectionHandler := di.GetSectionHandler(database.Section)
+	buyerHandler := di.GetBuyerHandler(database.Buyer)
+	employeeHandler := di.GetEmployeeHandler(database.Employee)
+	productHandler := di.GetProductsHandler(database.Product)
+
+	//Middlewares
+	rt.Use(middleware.Logger)
 
 	rt.Route("/api/v1", func(r chi.Router) {
-		r.Mount("/ping", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.WriteHeader(http.StatusOK)
-			w.Write([]byte("pong"))
-		})) // TODO: remove this
+		r.Mount("/sections", router.GetSectionRouter(sectionHandler))
+		r.Mount("/sellers", router.GetSellerRouter(sellerHandler))
+		r.Mount("/employees", router.EmployeeRoutes(employeeHandler))
+		r.Mount("/warehouses", router.GetWarehouseRouter(warehouseHandler))
+		r.Mount("/products", router.ProductRoutes(productHandler))
+		r.Mount("/buyers", router.GetBuyerRouter(buyerHandler))
 	})
 
 	err = http.ListenAndServe(a.serverAddress, rt)

@@ -2,6 +2,7 @@ package errors
 
 import (
 	"errors"
+	"fmt"
 	"github.com/bootcamp-go/web/response"
 	"net/http"
 )
@@ -11,12 +12,18 @@ type ApiError struct {
 }
 
 var (
-	ErrGeneral  = errors.New("internal server error")
-	ErrNotFound = errors.New("not found")
+	ErrGeneral             = errors.New("internal server error")
+	ErrNotFound            = errors.New("not found")
+	ErrAlreadyExists       = errors.New("resource already exists")
+	ErrBadRequest          = errors.New("bad request")
+	ErrUnprocessableEntity = errors.New("unprocessable entity")
 
 	mapErr = map[error]ApiError{
-		ErrGeneral:  NewErrInternalServer(),
-		ErrNotFound: NewErrNotFound(),
+		ErrGeneral:             NewErrInternalServer(),
+		ErrNotFound:            NewErrNotFound(),
+		ErrAlreadyExists:       NewErrAlreadyExists(),
+		ErrBadRequest:          NewErrBadRequest(),
+		ErrUnprocessableEntity: NewErrUnprocessableEntity(),
 	}
 )
 
@@ -29,6 +36,24 @@ func NewErrInternalServer() ApiError {
 func NewErrNotFound() ApiError {
 	return ApiError{
 		StatusCode: http.StatusNotFound,
+	}
+}
+
+func NewErrAlreadyExists() ApiError {
+	return ApiError{
+		StatusCode: http.StatusConflict,
+	}
+}
+
+func NewErrBadRequest() ApiError {
+	return ApiError{
+		StatusCode: http.StatusBadRequest,
+	}
+}
+
+func NewErrUnprocessableEntity() ApiError {
+	return ApiError{
+		StatusCode: http.StatusUnprocessableEntity,
 	}
 }
 
@@ -46,4 +71,20 @@ func HandleError(w http.ResponseWriter, err error) {
 		return
 	}
 	response.Error(w, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
+}
+
+func WrapErrAlreadyExist(domain, property string, value any) error {
+	return fmt.Errorf("%w : %s with %s %v already exists", ErrAlreadyExists, domain, property, value)
+}
+
+func WrapErrBadRequest(err error) error {
+	return fmt.Errorf("%w : %s", ErrBadRequest, err.Error())
+}
+
+func WrapErrUnprocessableEntity(err error) error {
+	return fmt.Errorf("%w : %s", ErrUnprocessableEntity, err.Error())
+}
+
+func WrapErrNotFound(domain, property string, value any) error {
+	return fmt.Errorf("%w : %s with %s %v not found", ErrNotFound, domain, property, value)
 }

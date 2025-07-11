@@ -1,0 +1,352 @@
+[
+  {
+    "id": 1,
+    "card_number_id": "12345678",
+    "first_name": "Juan Carlos",
+    "last_name": "García",
+    "warehouse_id": 1
+  },
+  {
+    "id": 2,
+    "card_number_id": "23456789",
+    "first_name": "María Elena",
+    "last_name": "López",
+    "warehouse_id": 2
+  },
+  {
+    "id": 3,
+    "card_number_id": "34567890",
+    "first_name": "Pedro",
+    "last_name": "Martínez",
+    "warehouse_id": 1
+  },
+  {
+    "id": 4,
+    "card_number_id": "45678901",
+    "first_name": "Ana Sofía",
+    "last_name": "Rodríguez",
+    "warehouse_id": 3
+  },
+  {
+    "id": 5,
+    "card_number_id": "56789012",
+    "first_name": "Carlos Eduardo",
+    "last_name": "Hernández",
+    "warehouse_id": 2
+  },
+  {
+    "id": 6,
+    "card_number_id": "67890123",
+    "first_name": "Laura Patricia",
+    "last_name": "González",
+    "warehouse_id": 4
+  },
+  {
+    "id": 7,
+    "card_number_id": "78901234",
+    "first_name": "Miguel Ángel",
+    "last_name": "Pérez",
+    "warehouse_id": 1
+  },
+  {
+    "id": 8,
+    "card_number_id": "89012345",
+    "first_name": "Carmen Rosa",
+    "last_name": "Sánchez",
+    "warehouse_id": 5
+  },
+  {
+    "id": 9,
+    "card_number_id": "90123456",
+    "first_name": "Roberto",
+    "last_name": "Jiménez",
+    "warehouse_id": 3
+  },
+  {
+    "id": 10,
+    "card_number_id": "01234567",
+    "first_name": "Gabriela",
+    "last_name": "Torres",
+    "warehouse_id": 2
+  },
+  {
+    "id": 11,
+    "card_number_id": "11234568",
+    "first_name": "Fernando",
+    "last_name": "Morales",
+    "warehouse_id": 6
+  },
+  {
+    "id": 12,
+    "card_number_id": "21234569",
+    "first_name": "Isabel",
+    "last_name": "Castro",
+    "warehouse_id": 1
+  },
+  {
+    "id": 13,
+    "card_number_id": "31234570",
+    "first_name": "Alejandro",
+    "last_name": "Vargas",
+    "warehouse_id": 4
+  },
+  {
+    "id": 14,
+    "card_number_id": "41234571",
+    "first_name": "Mónica",
+    "last_name": "Ruiz",
+    "warehouse_id": 7
+  },
+  {
+    "id": 15,
+    "card_number_id": "51234572",
+    "first_name": "David",
+    "last_name": "Ortega",
+    "warehouse_id": 3
+  },
+  {
+    "id": 16,
+    "card_number_id": "61234573",
+    "first_name": "Patricia",
+    "last_name": "Mendoza",
+    "warehouse_id": 5
+  },
+  {
+    "id": 17,
+    "card_number_id": "71234574",
+    "first_name": "Ricardo",
+    "last_name": "Silva",
+    "warehouse_id": 2
+  },
+  {
+    "id": 18,
+    "card_number_id": "81234575",
+    "first_name": "Andrea",
+    "last_name": "Ramos",
+    "warehouse_id": 8
+  },
+  {
+    "id": 19,
+    "card_number_id": "91234576",
+    "first_name": "José Luis",
+    "last_name": "Guerrero",
+    "warehouse_id": 1
+  },
+  {
+    "id": 20,
+    "card_number_id": "02234567",
+    "first_name": "Lucía",
+    "last_name": "Flores",
+    "warehouse_id": 6
+  },
+  {
+    "id": 21,
+    "card_number_id": "12234578",
+    "first_name": "Sergio",
+    "last_name": "Medina",
+    "warehouse_id": 4
+  },
+  {
+    "id": 22,
+    "card_number_id": "22234579",
+    "first_name": "Verónica",
+    "last_name": "Delgado",
+    "warehouse_id": 9
+  },
+  {
+    "id": 23,
+    "card_number_id": "32234580",
+    "first_name": "Raúl",
+    "last_name": "Aguilar",
+    "warehouse_id": 3
+  },
+  {
+    "id": 24,
+    "card_number_id": "42234581",
+    "first_name": "Natalia",
+    "last_name": "Romero",
+    "warehouse_id": 7
+  },
+  {
+    "id": 25,
+    "card_number_id": "52234582",
+    "first_name": "Javier",
+    "last_name": "Vega",
+    "warehouse_id": 2
+  },
+  {
+    "id": 26,
+    "card_number_id": "62234583",
+    "first_name": "Diana",
+    "last_name": "Navarro",
+    "warehouse_id": 10
+  },
+  {
+    "id": 27,
+    "card_number_id": "72234584",
+    "first_name": "Andrés",
+    "last_name": "Campos",
+    "warehouse_id": 5
+  },
+  {
+    "id": 28,
+    "card_number_id": "82234585",
+    "first_name": "Claudia",
+    "last_name": "Espinoza",
+    "warehouse_id": 1
+  },
+  {
+    "id": 29,
+    "card_number_id": "92234586",
+    "first_name": "Héctor",
+    "last_name": "Paredes",
+    "warehouse_id": 8
+  },
+  {
+    "id": 30,
+    "card_number_id": "03234567",
+    "first_name": "Beatriz",
+    "last_name": "Córdoba",
+    "warehouse_id": 6
+  },
+  {
+    "id": 31,
+    "card_number_id": "13234588",
+    "first_name": "Daniel",
+    "last_name": "Lara",
+    "warehouse_id": 4
+  },
+  {
+    "id": 32,
+    "card_number_id": "23234589",
+    "first_name": "Rocío",
+    "last_name": "Cabrera",
+    "warehouse_id": 9
+  },
+  {
+    "id": 33,
+    "card_number_id": "33234590",
+    "first_name": "Guillermo",
+    "last_name": "Ponce",
+    "warehouse_id": 3
+  },
+  {
+    "id": 34,
+    "card_number_id": "43234591",
+    "first_name": "Silvia",
+    "last_name": "Fuentes",
+    "warehouse_id": 7
+  },
+  {
+    "id": 35,
+    "card_number_id": "53234592",
+    "first_name": "Óscar",
+    "last_name": "Maldonado",
+    "warehouse_id": 2
+  },
+  {
+    "id": 36,
+    "card_number_id": "63234593",
+    "first_name": "Teresa",
+    "last_name": "Sandoval",
+    "warehouse_id": 10
+  },
+  {
+    "id": 37,
+    "card_number_id": "73234594",
+    "first_name": "Emilio",
+    "last_name": "Contreras",
+    "warehouse_id": 1
+  },
+  {
+    "id": 38,
+    "card_number_id": "83234595",
+    "first_name": "Mariana",
+    "last_name": "Valencia",
+    "warehouse_id": 5
+  },
+  {
+    "id": 39,
+    "card_number_id": "93234596",
+    "first_name": "Arturo",
+    "last_name": "Pacheco",
+    "warehouse_id": 8
+  },
+  {
+    "id": 40,
+    "card_number_id": "04234567",
+    "first_name": "Lorena",
+    "last_name": "Ibarra",
+    "warehouse_id": 6
+  },
+  {
+    "id": 41,
+    "card_number_id": "14234598",
+    "first_name": "Francisco",
+    "last_name": "Carrillo",
+    "warehouse_id": 4
+  },
+  {
+    "id": 42,
+    "card_number_id": "24234599",
+    "first_name": "Alejandra",
+    "last_name": "Montes",
+    "warehouse_id": 9
+  },
+  {
+    "id": 43,
+    "card_number_id": "34234600",
+    "first_name": "Rubén",
+    "last_name": "Acosta",
+    "warehouse_id": 3
+  },
+  {
+    "id": 44,
+    "card_number_id": "44234601",
+    "first_name": "Elena",
+    "last_name": "Cervantes",
+    "warehouse_id": 7
+  },
+  {
+    "id": 45,
+    "card_number_id": "54234602",
+    "first_name": "Iván",
+    "last_name": "Gallardo",
+    "warehouse_id": 2
+  },
+  {
+    "id": 46,
+    "card_number_id": "64234603",
+    "first_name": "Paola",
+    "last_name": "Estrada",
+    "warehouse_id": 10
+  },
+  {
+    "id": 47,
+    "card_number_id": "74234604",
+    "first_name": "Mauricio",
+    "last_name": "Velázquez",
+    "warehouse_id": 1
+  },
+  {
+    "id": 48,
+    "card_number_id": "84234605",
+    "first_name": "Karina",
+    "last_name": "Moreno",
+    "warehouse_id": 5
+  },
+  {
+    "id": 49,
+    "card_number_id": "94234606",
+    "first_name": "Armando",
+    "last_name": "Herrera",
+    "warehouse_id": 8
+  },
+  {
+    "id": 50,
+    "card_number_id": "05234567",
+    "first_name": "Valeria",
+    "last_name": "Peña",
+    "warehouse_id": 6
+  }
+]
