@@ -2,6 +2,7 @@ package main
 
 import (
 	"ProyectoFinal/internal/application"
+	"ProyectoFinal/internal/application/config"
 	"ProyectoFinal/internal/application/loader"
 	"fmt"
 )
@@ -18,7 +19,8 @@ func main() {
 			loader.Buyer:     "docs/db/buyers.json",
 		},
 	}
-	application.LoadDotEnv()
+
+	config.LoadDotEnv()
 
 	app := application.NewServerChi(cfg)
 
