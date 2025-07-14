@@ -25,7 +25,11 @@ func NewWarehouseHandler(warehouseService warehouse.WarehouseService) *Warehouse
 }
 
 func (h *WarehouseHandler) GetAllWarehouses(w http.ResponseWriter, r *http.Request) {
-	warehouses := h.warehouseService.GetAllWarehouses()
+	warehouses, err := h.warehouseService.GetAllWarehouses()
+	if err != nil {
+		errors.HandleError(w, err)
+		return
+	}
 	warehousesDoc := make([]models.WarehouseDocument, 0, len(warehouses))
 	for _, wh := range warehouses {
 		warehousesDoc = append(warehousesDoc, wh.ModelToDoc())
