@@ -1,18 +1,22 @@
 package warehouse
 
 import (
+	"ProyectoFinal/internal/repository/locality"
 	"ProyectoFinal/internal/repository/warehouse"
 	"ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
+	"fmt"
 )
 
 type WarehouseServiceImpl struct {
 	warehouseRepo warehouse.WarehouseRepository
+	localityRepo  locality.LocalityRepository
 }
 
-func NewWarehouseService(warehouseRepo warehouse.WarehouseRepository) WarehouseService {
+func NewWarehouseService(warehouseRepo warehouse.WarehouseRepository, localityRepo locality.LocalityRepository) WarehouseService {
 	return &WarehouseServiceImpl{
 		warehouseRepo: warehouseRepo,
+		localityRepo:  localityRepo,
 	}
 }
 
@@ -36,6 +40,16 @@ func (s *WarehouseServiceImpl) GetWarehouseById(id int) (models.Warehouse, error
 }
 
 func (s *WarehouseServiceImpl) CreateWarehouse(warehouse models.Warehouse) (models.Warehouse, error) {
+	if warehouse.LocalityId != nil {
+		locality, err := s.localityRepo.GetById(*warehouse.LocalityId)
+		if err != nil {
+			return models.Warehouse{}, err
+		}
+		if locality == nil {
+			return models.Warehouse{}, errors.WrapErrBadRequest(fmt.Errorf("locality with id %d not found", *warehouse.LocalityId))
+		}
+		warehouse.Locality = locality
+	}
 	exists, err := s.warehouseRepo.ExistsByCode(warehouse.WarehouseCode)
 	if err != nil {
 		return models.Warehouse{}, err
@@ -58,6 +72,17 @@ func (s *WarehouseServiceImpl) UpdateWarehouse(id int, warehouse models.Warehous
 	}
 	if existingWarehouse == nil {
 		return models.Warehouse{}, errors.WrapErrNotFound("warehouse", "id", id)
+	}
+
+	if warehouse.LocalityId != nil {
+		locality, err := s.localityRepo.GetById(*warehouse.LocalityId)
+		if err != nil {
+			return models.Warehouse{}, err
+		}
+		if locality == nil {
+			return models.Warehouse{}, errors.WrapErrBadRequest(fmt.Errorf("locality with id %d not found", *warehouse.LocalityId))
+		}
+		warehouse.Locality = locality
 	}
 
 	if warehouse.WarehouseCode != existingWarehouse.WarehouseCode {

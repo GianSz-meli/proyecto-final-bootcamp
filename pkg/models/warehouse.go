@@ -8,24 +8,45 @@ type Warehouse struct {
 	MinimumCapacity    int
 	MinimumTemperature float64
 	LocalityId         *int
+	Locality           *Locality
 }
 
 func (w Warehouse) ModelToDoc() WarehouseDocument {
-	return WarehouseDocument(w)
+	return WarehouseDocument{
+		ID:                 w.ID,
+		WarehouseCode:      w.WarehouseCode,
+		Address:            w.Address,
+		Telephone:          w.Telephone,
+		MinimumCapacity:    w.MinimumCapacity,
+		MinimumTemperature: w.MinimumTemperature,
+		Locality:           w.Locality,
+	}
 }
 
 type WarehouseDocument struct {
-	ID                 int     `json:"id"`
-	WarehouseCode      string  `json:"warehouse_code"`
-	Address            string  `json:"address"`
-	Telephone          string  `json:"telephone"`
-	MinimumCapacity    int     `json:"minimum_capacity"`
-	MinimumTemperature float64 `json:"minimum_temperature"`
-	LocalityId         *int     `json:"locality_id"`
+	ID                 int       `json:"id"`
+	WarehouseCode      string    `json:"warehouse_code"`
+	Address            string    `json:"address"`
+	Telephone          string    `json:"telephone"`
+	MinimumCapacity    int       `json:"minimum_capacity"`
+	MinimumTemperature float64   `json:"minimum_temperature"`
+	Locality           *Locality `json:"locality"`
 }
 
 func (w WarehouseDocument) DocToModel() Warehouse {
-	return Warehouse(w)
+	wh := Warehouse{
+		ID:                 w.ID,
+		WarehouseCode:      w.WarehouseCode,
+		Address:            w.Address,
+		Telephone:          w.Telephone,
+		MinimumCapacity:    w.MinimumCapacity,
+		MinimumTemperature: w.MinimumTemperature,
+		Locality:           w.Locality,
+	}
+	if w.Locality != nil {
+		wh.Locality.Id = w.Locality.Id
+	}
+	return wh
 }
 
 type CreateWarehouseRequest struct {
@@ -38,6 +59,10 @@ type CreateWarehouseRequest struct {
 }
 
 func (c CreateWarehouseRequest) DocToModel() Warehouse {
+	var locality *Locality
+	if c.LocalityId != nil {
+		locality = &Locality{Id: c.LocalityId}
+	}
 	return Warehouse{
 		WarehouseCode:      c.WarehouseCode,
 		Address:            c.Address,
@@ -45,6 +70,7 @@ func (c CreateWarehouseRequest) DocToModel() Warehouse {
 		MinimumCapacity:    *c.MinimumCapacity,
 		MinimumTemperature: *c.MinimumTemperature,
 		LocalityId:         c.LocalityId,
+		Locality:           locality,
 	}
 }
 
@@ -58,6 +84,10 @@ type UpdateWarehouseRequest struct {
 }
 
 func (u UpdateWarehouseRequest) DocToModel() Warehouse {
+	var locality *Locality
+	if u.LocalityId != nil {
+		locality = &Locality{Id: u.LocalityId}
+	}
 	return Warehouse{
 		WarehouseCode:      *u.WarehouseCode,
 		Address:            *u.Address,
@@ -65,5 +95,6 @@ func (u UpdateWarehouseRequest) DocToModel() Warehouse {
 		MinimumCapacity:    *u.MinimumCapacity,
 		MinimumTemperature: *u.MinimumTemperature,
 		LocalityId:         u.LocalityId,
+		Locality:           locality,
 	}
 }
