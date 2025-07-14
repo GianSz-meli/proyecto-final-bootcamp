@@ -1,0 +1,143 @@
+package employee
+
+import (
+	"ProyectoFinal/pkg/models"
+	"database/sql"
+	"fmt"
+)
+
+type mysqlRepository struct {
+	db *sql.DB
+}
+
+func NewMySQLRepository(db *sql.DB) Repository {
+	return &mysqlRepository{
+		db: db,
+	}
+}
+
+func (r *mysqlRepository) GetAll() ([]models.Employee, error) {
+	rows, err := r.db.Query(QueryGetAllEmployees)
+	if err != nil {
+		return nil, fmt.Errorf("error querying employees: %w", err)
+	}
+	defer rows.Close()
+
+	var employees []models.Employee
+	for rows.Next() {
+		var employee models.Employee
+		var warehouseID sql.NullInt64
+
+		err := rows.Scan(&employee.ID, &employee.CardNumberID, &employee.FirstName, &employee.LastName, &warehouseID)
+		if err != nil {
+			return nil, fmt.Errorf("error scanning employee row: %w", err)
+		}
+
+		// Handle nullable warehouse_id
+		if warehouseID.Valid {
+			employee.WarehouseID = int(warehouseID.Int64)
+		}
+
+		employees = append(employees, employee)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("error iterating employee rows: %w", err)
+	}
+
+	return employees, nil
+}
+
+func (r *mysqlRepository) GetById(id int) (models.Employee, bool) {
+	row := r.db.QueryRow(QueryGetEmployeeById, id)
+
+	var employee models.Employee
+	var warehouseID sql.NullInt64
+
+	err := row.Scan(&employee.ID, &employee.CardNumberID, &employee.FirstName, &employee.LastName, &warehouseID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return models.Employee{}, false
+		}
+		return models.Employee{}, false
+	}
+
+	// Handle nullable warehouse_id
+	if warehouseID.Valid {
+		employee.WarehouseID = int(warehouseID.Int64)
+	}
+
+	return employee, true
+}
+
+func (r *mysqlRepository) Create(employee *models.Employee) error {
+	var warehouseID sql.NullInt64
+	if employee.WarehouseID != 0 {
+		warehouseID = sql.NullInt64{Int64: int64(employee.WarehouseID), Valid: true}
+	}
+
+	result, err := r.db.Exec(QueryCreateEmployee, employee.CardNumberID, employee.FirstName, employee.LastName, warehouseID)
+	if err != nil {
+		return fmt.Errorf("error creating employee: %w", err)
+	}
+
+	lastInsertID, err := result.LastInsertId()
+	if err != nil {
+		return fmt.Errorf("error getting last insert ID: %w", err)
+	}
+
+	employee.ID = int(lastInsertID)
+	return nil
+}
+
+func (r *mysqlRepository) ExistsByCardNumberId(cardNumberId string) bool {
+	var exists bool
+
+	err := r.db.QueryRow(QueryExistsByCardNumberId, cardNumberId).Scan(&exists)
+	if err != nil {
+		return false
+	}
+
+	return exists
+}
+
+func (r *mysqlRepository) Update(id int, employee models.Employee) error {
+	var warehouseID sql.NullInt64
+	if employee.WarehouseID != 0 {
+		warehouseID = sql.NullInt64{Int64: int64(employee.WarehouseID), Valid: true}
+	}
+
+	result, err := r.db.Exec(QueryUpdateEmployee, employee.CardNumberID, employee.FirstName, employee.LastName, warehouseID, id)
+	if err != nil {
+		return fmt.Errorf("error updating employee: %w", err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("error getting rows affected: %w", err)
+	}
+
+	if rowsAffected == 0 {
+		return fmt.Errorf("no employee found with id %d", id)
+	}
+
+	return nil
+}
+
+func (r *mysqlRepository) Delete(id int) {
+	result, err := r.db.Exec(QueryDeleteEmployee, id)
+	if err != nil {
+		fmt.Printf("Error deleting employee with id %d: %v\n", id, err)
+		return
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		fmt.Printf("Error checking rows affected for employee id %d: %v\n", id, err)
+		return
+	}
+
+	if rowsAffected == 0 {
+		fmt.Printf("Warning: No employee found with id %d to delete\n", id)
+	}
+}

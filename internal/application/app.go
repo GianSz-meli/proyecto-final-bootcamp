@@ -2,6 +2,7 @@ package application
 
 import (
 	"ProyectoFinal/docs/db"
+	"ProyectoFinal/internal/application/config"
 	"ProyectoFinal/internal/application/di"
 	"ProyectoFinal/internal/application/router"
 	"net/http"
@@ -44,15 +45,18 @@ func (a *ServerChi) Run() (err error) {
 	rt := chi.NewRouter()
 
 	database := db.LoadDB(a.loaderFilePath)
-	//TODO: Replace LoadDB to InitDB
-	//d:= db.InitDB()
+
+	// Initialize MySQL connection
+	mysqlDB := config.InitDB()
+	defer mysqlDB.Close()
 
 	// Dependency injection
 	sellerHandler := di.GetSellerHandler(database.Seller)
 	warehouseHandler := di.GetWarehouseHandler(database.Warehouse)
 	sectionHandler := di.GetSectionHandler(database.Section)
 	buyerHandler := di.GetBuyerHandler(database.Buyer)
-	employeeHandler := di.GetEmployeeHandler(database.Employee)
+	// Use MySQL for employee handler
+	employeeHandler := di.GetEmployeeHandler(mysqlDB)
 	productHandler := di.GetProductsHandler(database.Product)
 
 	//Middlewares
