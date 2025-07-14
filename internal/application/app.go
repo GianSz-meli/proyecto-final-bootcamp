@@ -55,7 +55,6 @@ func (a *ServerChi) Run() (err error) {
 	warehouseHandler := di.GetWarehouseHandler(database.Warehouse)
 	sectionHandler := di.GetSectionHandler(database.Section)
 	buyerHandler := di.GetBuyerHandler(database.Buyer)
-	// Use MySQL for employee handler
 	employeeHandler := di.GetEmployeeHandler(mysqlDB)
 	productHandler := di.GetProductsHandler(database.Product)
 
