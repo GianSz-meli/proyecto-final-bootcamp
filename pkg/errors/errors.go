@@ -3,8 +3,10 @@ package errors
 import (
 	"errors"
 	"fmt"
-	"github.com/bootcamp-go/web/response"
 	"net/http"
+
+	"github.com/bootcamp-go/web/response"
+	"github.com/go-sql-driver/mysql"
 )
 
 type ApiError struct {
@@ -65,12 +67,35 @@ func getMappedError(err error) *ApiError {
 	}
 	return nil
 }
+
 func HandleError(w http.ResponseWriter, err error) {
 	if mappedError := getMappedError(err); mappedError != nil {
 		response.Error(w, mappedError.StatusCode, err.Error())
 		return
 	}
+
+	var mysqlErr *mysql.MySQLError
+	if errors.As(err, &mysqlErr) {
+		handleMySQLError(w, mysqlErr)
+		return
+	}
+
 	response.Error(w, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
+}
+
+func handleMySQLError(w http.ResponseWriter, mysqlErr *mysql.MySQLError) {
+	switch mysqlErr.Number {
+	case 1062: // Duplicate entry for key
+		response.Error(w, http.StatusConflict, "Resource already exists. The given data violates a unique constraint")
+	case 1452: // Foreign key constraint fails
+		response.Error(w, http.StatusBadRequest, "Invalid reference. The given data references an invalid or missing record")
+	case 1048: // Column cannot be null
+		response.Error(w, http.StatusBadRequest, "Required field cannot be empty")
+	case 1366: // Incorrect data type
+		response.Error(w, http.StatusBadRequest, "Invalid data type")
+	default:
+		response.Error(w, http.StatusInternalServerError, "Technical error when connecting to the database")
+	}
 }
 
 func WrapErrAlreadyExist(domain, property string, value any) error {
