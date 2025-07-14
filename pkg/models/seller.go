@@ -45,7 +45,7 @@ type CreateSellerRequest struct {
 	CompanyName string `json:"company_name" validate:"required"`
 	Address     string `json:"address" validate:"required"`
 	Telephone   string `json:"telephone" validate:"required"`
-	LocalityId  int    `json:"locality_id" validate:"gt=0"`
+	LocalityId  int    `json:"locality_id" validate:"required,gt=0"`
 }
 
 func (s *CreateSellerRequest) DocToModel() Seller {
