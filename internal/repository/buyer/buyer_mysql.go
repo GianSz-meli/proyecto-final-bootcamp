@@ -1,6 +1,7 @@
 package buyer
 
 import (
+	pkgErrors "ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
 	"database/sql"
 	"errors"
@@ -27,7 +28,7 @@ func (r *buyerMySql) GetById(id int) (*models.Buyer, error) {
 	)
 
 	if errors.Is(err, sql.ErrNoRows) {
-		return nil, nil
+		return nil, pkgErrors.WrapErrNotFound("buyer", "id", id)
 	}
 
 	if err != nil {
