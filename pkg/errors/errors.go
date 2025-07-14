@@ -65,7 +65,8 @@ func getMappedError(err error) *ApiError {
 	}
 	return nil
 }
-func HandleError(w http.ResponseWriter, err error) {
+func HandleError(w http.ResponseWriter, e error) {
+	err := HandleMysqlError(e)
 	if mappedError := getMappedError(err); mappedError != nil {
 		response.Error(w, mappedError.StatusCode, err.Error())
 		return
