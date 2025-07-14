@@ -8,7 +8,6 @@ import (
 	"database/sql"
 )
 
-// GetEmployeeHandler returns a handler configured with MySQL repository
 func GetEmployeeHandler(db *sql.DB) *handler.EmployeeHandler {
 	employeeRepo := employeeRepository.NewMySQLRepository(db)
 	employeeSrv := employeeService.NewService(employeeRepo)
@@ -16,8 +15,6 @@ func GetEmployeeHandler(db *sql.DB) *handler.EmployeeHandler {
 	return employeeHdl
 }
 
-// GetEmployeeHandlerWithMap returns a handler configured with map-based repository (JSON)
-// This is kept for backward compatibility if needed
 func GetEmployeeHandlerWithMap(db map[int]models.Employee) *handler.EmployeeHandler {
 	employeeRepo := employeeRepository.NewRepository(db)
 	employeeSrv := employeeService.NewService(employeeRepo)

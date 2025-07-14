@@ -33,7 +33,6 @@ func (r *mysqlRepository) GetAll() ([]models.Employee, error) {
 			return nil, fmt.Errorf("error scanning employee row: %w", err)
 		}
 
-		// Handle nullable warehouse_id
 		if warehouseID.Valid {
 			employee.WarehouseID = int(warehouseID.Int64)
 		}
@@ -62,7 +61,6 @@ func (r *mysqlRepository) GetById(id int) (models.Employee, error) {
 		return models.Employee{}, fmt.Errorf("error scanning employee row: %w", err)
 	}
 
-	// Handle nullable warehouse_id
 	if warehouseID.Valid {
 		employee.WarehouseID = int(warehouseID.Int64)
 	}

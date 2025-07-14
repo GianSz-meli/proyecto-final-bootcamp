@@ -1,7 +1,6 @@
 package employee
 
 const (
-	// SQL queries for employee operations
 	QueryGetAllEmployees = "SELECT id, card_number_id, first_name, last_name, warehouse_id FROM employees"
 
 	QueryGetEmployeeById = "SELECT id, card_number_id, first_name, last_name, warehouse_id FROM employees WHERE id = ?"
