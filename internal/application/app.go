@@ -2,13 +2,12 @@ package application
 
 import (
 	"ProyectoFinal/docs/db"
+	"ProyectoFinal/internal/application/config"
 	"ProyectoFinal/internal/application/di"
 	"ProyectoFinal/internal/application/router"
-	"net/http"
-
-	"github.com/go-chi/chi/v5/middleware"
-
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+	"net/http"
 )
 
 type ConfigServerChi struct {
@@ -44,14 +43,13 @@ func (a *ServerChi) Run() (err error) {
 	rt := chi.NewRouter()
 
 	database := db.LoadDB(a.loaderFilePath)
-	//TODO: Replace LoadDB to InitDB
-	//d:= db.InitDB()
+	newDB := config.InitDB()
 
 	// Dependency injection
 	sellerHandler := di.GetSellerHandler(database.Seller)
 	warehouseHandler := di.GetWarehouseHandler(database.Warehouse)
 	sectionHandler := di.GetSectionHandler(database.Section)
-	buyerHandler := di.GetBuyerHandler(database.Buyer)
+	buyerHandler := di.GetBuyerHandler(newDB)
 	employeeHandler := di.GetEmployeeHandler(database.Employee)
 	productHandler := di.GetProductsHandler(database.Product)
 

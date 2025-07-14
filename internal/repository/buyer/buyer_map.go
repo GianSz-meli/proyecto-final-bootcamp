@@ -11,7 +11,7 @@ type buyerMap struct {
 	idCounter int
 }
 
-func NewBuyerRepository(data map[int]models.Buyer) Repository {
+func NewBuyerRepository(data map[int]models.Buyer) RepositoryMap {
 	return &buyerMap{
 		db:        data,
 		idCounter: utils.GetLastId(data),
