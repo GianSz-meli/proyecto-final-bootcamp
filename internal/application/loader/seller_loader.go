@@ -3,7 +3,6 @@ package loader
 import (
 	"ProyectoFinal/pkg/models"
 	"encoding/json"
-	"fmt"
 	"log"
 	"os"
 )
