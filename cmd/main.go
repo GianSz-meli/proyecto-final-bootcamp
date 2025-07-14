@@ -2,6 +2,7 @@ package main
 
 import (
 	"ProyectoFinal/internal/application"
+	"ProyectoFinal/internal/application/config"
 	"ProyectoFinal/internal/application/loader"
 	"fmt"
 )
@@ -18,6 +19,9 @@ func main() {
 			loader.Buyer:     "docs/db/buyers.json",
 		},
 	}
+
+	config.LoadDotEnv()
+
 	app := application.NewServerChi(cfg)
 
 	fmt.Printf("Server started in http://localhost%s \n", cfg.ServerAddress)
