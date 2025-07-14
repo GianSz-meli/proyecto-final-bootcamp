@@ -7,10 +7,10 @@ import (
 )
 
 type buyerService struct {
-	repository buyer.Repository
+	repository buyer.RepositoryMap
 }
 
-func NewBuyerService(newRepository buyer.Repository) Service {
+func NewBuyerService(newRepository buyer.RepositoryMap) Service {
 	return &buyerService{
 		repository: newRepository,
 	}
