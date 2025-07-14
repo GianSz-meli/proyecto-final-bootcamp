@@ -79,21 +79,16 @@ func (r *buyerMySql) Create(buyer *models.Buyer) (*models.Buyer, error) {
 }
 
 func (r *buyerMySql) Update(buyer *models.Buyer) (*models.Buyer, error) {
-	result, execErr := r.db.Exec(UPDATE_BUYER, buyer.CardNumberId, buyer.FirstName, buyer.LastName, buyer.Id)
+	_, execErr := r.db.Exec(UPDATE_BUYER, buyer.CardNumberId, buyer.FirstName, buyer.LastName, buyer.Id)
 	if execErr != nil {
 		return nil, execErr
 	}
 
-	rowsAffected, rowsErr := result.RowsAffected()
-	if rowsErr != nil {
-		return nil, rowsErr
+	updated, err := r.GetById(buyer.Id)
+	if err != nil {
+		return nil, err
 	}
-
-	if rowsAffected == 0 {
-		return nil, nil
-	}
-
-	return buyer, nil
+	return updated, nil
 }
 
 func (r *buyerMySql) Delete(id int) error {

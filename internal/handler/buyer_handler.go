@@ -107,6 +107,8 @@ func (h *BuyerHandler) Update() http.HandlerFunc {
 			return
 		}
 
+		fmt.Printf("DTO después de deserializar: %+v\n", dto)
+
 		if validateDtoErr := utils.ValidateRequestData(dto); validateDtoErr != nil {
 			log.Println(validateDtoErr)
 			errors.HandleError(w, validateDtoErr)
@@ -120,12 +122,14 @@ func (h *BuyerHandler) Update() http.HandlerFunc {
 			return
 		}
 
-		if updated := utils.UpdateFields(&buyerToUpdate, &dto); !updated {
+		if updated := utils.UpdateFields(buyerToUpdate, &dto); !updated {
 			newError := fmt.Errorf("%w : no fields provided for update", errors.ErrUnprocessableEntity)
 			log.Println(newError)
 			errors.HandleError(w, newError)
 			return
 		}
+
+		fmt.Printf("Voy a actualizar: %+v\n", buyerToUpdate)
 
 		resp, updateErr := h.service.Update(id, buyerToUpdate)
 		if updateErr != nil {
