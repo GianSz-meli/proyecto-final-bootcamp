@@ -6,6 +6,7 @@ import (
 	pkgErrors "ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/bootcamp-go/web/request"
@@ -33,11 +34,12 @@ func (h *ProductHandler) CreateProduct(w http.ResponseWriter, r *http.Request) {
 		pkgErrors.HandleError(w, err)
 		return
 	}
-
+	println("antes doctomodel")
 	model := reqBody.DocToModel()
-
+	println("despues doctomodel")
 	product, err := h.service.CreateProduct(model)
 	if err != nil {
+		log.Println(err)
 		pkgErrors.HandleError(w, err)
 		return
 	}
@@ -49,6 +51,7 @@ func (h *ProductHandler) CreateProduct(w http.ResponseWriter, r *http.Request) {
 func (h *ProductHandler) FindAllProducts(w http.ResponseWriter, r *http.Request) {
 	products, err := h.service.FindAllProducts()
 	if err != nil {
+		log.Println(err)
 		pkgErrors.HandleError(w, err)
 		return
 	}
@@ -81,12 +84,14 @@ func (h *ProductHandler) FindProductsById(w http.ResponseWriter, r *http.Request
 func (h *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	id, err := utils.GetParamInt(r, "id")
 	if err != nil {
+		log.Println(err)
 		pkgErrors.HandleError(w, err)
 		return
 	}
 
 	currentProd, err := h.service.FindProductsById(id)
 	if err != nil {
+		log.Println(err)
 		pkgErrors.HandleError(w, err)
 		return
 	}
@@ -108,9 +113,10 @@ func (h *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 		pkgErrors.HandleError(w, newError)
 		return
 	}
-
+	
 	update, err := h.service.UpdateProduct(id, currentProd)
 	if err != nil {
+		log.Println(err)
 		pkgErrors.HandleError(w, err)
 		return
 	}
@@ -121,11 +127,13 @@ func (h *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 func (h *ProductHandler) DeleteProduct(w http.ResponseWriter, r *http.Request) {
 	id, err := utils.GetParamInt(r, "id")
 	if err != nil {
+		log.Println(err)
 		pkgErrors.HandleError(w, err)
 		return
 	}
 	err = h.service.DeleteProduct(id)
 	if err != nil {
+		log.Println(err)
 		pkgErrors.HandleError(w, err)
 		return
 	}
