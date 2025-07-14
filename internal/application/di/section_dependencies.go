@@ -4,11 +4,11 @@ import (
 	"ProyectoFinal/internal/handler"
 	repository "ProyectoFinal/internal/repository/section"
 	service "ProyectoFinal/internal/service/section"
-	"ProyectoFinal/pkg/models"
+	"database/sql"
 )
 
-func GetSectionHandler(db map[int]models.Section) *handler.SectionDefault {
-	sectionRepository := repository.NewSectionMap(db)
+func GetSectionHandler(db *sql.DB) *handler.SectionDefault {
+	sectionRepository := repository.NewSectionMySQL(db)
 	sectionService := service.NewSectionDefault(sectionRepository)
 	sectionHandler := handler.NewSectionDefault(sectionService)
 	return sectionHandler

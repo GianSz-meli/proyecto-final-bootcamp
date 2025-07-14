@@ -1,7 +1,7 @@
 package application
 
 import (
-	"ProyectoFinal/docs/db"
+	"ProyectoFinal/internal/application/config"
 	"ProyectoFinal/internal/application/di"
 	"ProyectoFinal/internal/application/router"
 	"net/http"
@@ -43,28 +43,26 @@ func NewServerChi(cfg *ConfigServerChi) *ServerChi {
 func (a *ServerChi) Run() (err error) {
 	rt := chi.NewRouter()
 
-	database := db.LoadDB(a.loaderFilePath)
-	//TODO: Replace LoadDB to InitDB
-	//d:= db.InitDB()
-
+	dbConn := config.InitDB()
 	// Dependency injection
-	sellerHandler := di.GetSellerHandler(database.Seller)
-	warehouseHandler := di.GetWarehouseHandler(database.Warehouse)
-	sectionHandler := di.GetSectionHandler(database.Section)
-	buyerHandler := di.GetBuyerHandler(database.Buyer)
-	employeeHandler := di.GetEmployeeHandler(database.Employee)
-	productHandler := di.GetProductsHandler(database.Product)
+	sectionHandler := di.GetSectionHandler(dbConn)
+	// TODO: Actualizar los siguientes handlers para usar MySQL si es necesario
+	// sellerHandler := di.GetSellerHandler(...)
+	// warehouseHandler := di.GetWarehouseHandler(...)
+	// buyerHandler := di.GetBuyerHandler(...)
+	// employeeHandler := di.GetEmployeeHandler(...)
+	// productHandler := di.GetProductsHandler(...)
 
 	//Middlewares
 	rt.Use(middleware.Logger)
 
 	rt.Route("/api/v1", func(r chi.Router) {
 		r.Mount("/sections", router.GetSectionRouter(sectionHandler))
-		r.Mount("/sellers", router.GetSellerRouter(sellerHandler))
-		r.Mount("/employees", router.EmployeeRoutes(employeeHandler))
-		r.Mount("/warehouses", router.GetWarehouseRouter(warehouseHandler))
-		r.Mount("/products", router.ProductRoutes(productHandler))
-		r.Mount("/buyers", router.GetBuyerRouter(buyerHandler))
+		// r.Mount("/sellers", router.GetSellerRouter(sellerHandler))
+		// r.Mount("/employees", router.EmployeeRoutes(employeeHandler))
+		// r.Mount("/warehouses", router.GetWarehouseRouter(warehouseHandler))
+		// r.Mount("/products", router.ProductRoutes(productHandler))
+		// r.Mount("/buyers", router.GetBuyerRouter(buyerHandler))
 	})
 
 	err = http.ListenAndServe(a.serverAddress, rt)
