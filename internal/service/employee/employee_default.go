@@ -27,8 +27,8 @@ func (s *service) GetAll() ([]models.Employee, error) {
 }
 
 func (s *service) GetById(id int) (models.Employee, error) {
-	employee, ok := s.repository.GetById(id)
-	if !ok {
+	employee, err := s.repository.GetById(id)
+	if err != nil {
 		newError := fmt.Errorf("%w : employee with id %d not found", errors.ErrNotFound, id)
 		return models.Employee{}, newError
 	}
@@ -37,7 +37,11 @@ func (s *service) GetById(id int) (models.Employee, error) {
 }
 
 func (s *service) Create(employee models.Employee) (models.Employee, error) {
-	if s.repository.ExistsByCardNumberId(employee.CardNumberID) {
+	exists, err := s.repository.ExistsByCardNumberId(employee.CardNumberID)
+	if err != nil {
+		return models.Employee{}, fmt.Errorf("%w : failed to check if employee exists", errors.ErrGeneral)
+	}
+	if exists {
 		newError := errors.WrapErrAlreadyExist("employee", "card_number_id", employee.CardNumberID)
 		return models.Employee{}, newError
 	}
@@ -51,14 +55,18 @@ func (s *service) Create(employee models.Employee) (models.Employee, error) {
 }
 
 func (s *service) Update(id int, employee models.Employee) (models.Employee, error) {
-	current, ok := s.repository.GetById(id)
-	if !ok {
+	current, err := s.repository.GetById(id)
+	if err != nil {
 		newError := fmt.Errorf("%w : employee with id %d not found", errors.ErrNotFound, id)
 		return models.Employee{}, newError
 	}
 
 	if current.CardNumberID != employee.CardNumberID {
-		if s.repository.ExistsByCardNumberId(employee.CardNumberID) {
+		exists, err := s.repository.ExistsByCardNumberId(employee.CardNumberID)
+		if err != nil {
+			return models.Employee{}, fmt.Errorf("%w : failed to check if employee exists", errors.ErrGeneral)
+		}
+		if exists {
 			newError := errors.WrapErrAlreadyExist("employee", "card_number_id", employee.CardNumberID)
 			return models.Employee{}, newError
 		}
@@ -73,11 +81,8 @@ func (s *service) Update(id int, employee models.Employee) (models.Employee, err
 }
 
 func (s *service) Delete(id int) error {
-	_, ok := s.repository.GetById(id)
-	if !ok {
-		return fmt.Errorf("%w : employee with id %d not found", errors.ErrNotFound, id)
+	if err := s.repository.Delete(id); err != nil {
+		return fmt.Errorf("%w : failed to delete employee with id %d", errors.ErrNotFound, id)
 	}
-
-	s.repository.Delete(id)
 	return nil
 }

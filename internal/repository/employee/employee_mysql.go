@@ -48,7 +48,7 @@ func (r *mysqlRepository) GetAll() ([]models.Employee, error) {
 	return employees, nil
 }
 
-func (r *mysqlRepository) GetById(id int) (models.Employee, bool) {
+func (r *mysqlRepository) GetById(id int) (models.Employee, error) {
 	row := r.db.QueryRow(QueryGetEmployeeById, id)
 
 	var employee models.Employee
@@ -57,9 +57,9 @@ func (r *mysqlRepository) GetById(id int) (models.Employee, bool) {
 	err := row.Scan(&employee.ID, &employee.CardNumberID, &employee.FirstName, &employee.LastName, &warehouseID)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return models.Employee{}, false
+			return models.Employee{}, fmt.Errorf("employee with id %d not found", id)
 		}
-		return models.Employee{}, false
+		return models.Employee{}, fmt.Errorf("error scanning employee row: %w", err)
 	}
 
 	// Handle nullable warehouse_id
@@ -67,7 +67,7 @@ func (r *mysqlRepository) GetById(id int) (models.Employee, bool) {
 		employee.WarehouseID = int(warehouseID.Int64)
 	}
 
-	return employee, true
+	return employee, nil
 }
 
 func (r *mysqlRepository) Create(employee *models.Employee) error {
@@ -90,15 +90,15 @@ func (r *mysqlRepository) Create(employee *models.Employee) error {
 	return nil
 }
 
-func (r *mysqlRepository) ExistsByCardNumberId(cardNumberId string) bool {
+func (r *mysqlRepository) ExistsByCardNumberId(cardNumberId string) (bool, error) {
 	var exists bool
 
 	err := r.db.QueryRow(QueryExistsByCardNumberId, cardNumberId).Scan(&exists)
 	if err != nil {
-		return false
+		return false, fmt.Errorf("error checking if employee exists with card_number_id %s: %w", cardNumberId, err)
 	}
 
-	return exists
+	return exists, nil
 }
 
 func (r *mysqlRepository) Update(id int, employee models.Employee) error {
@@ -124,20 +124,20 @@ func (r *mysqlRepository) Update(id int, employee models.Employee) error {
 	return nil
 }
 
-func (r *mysqlRepository) Delete(id int) {
+func (r *mysqlRepository) Delete(id int) error {
 	result, err := r.db.Exec(QueryDeleteEmployee, id)
 	if err != nil {
-		fmt.Printf("Error deleting employee with id %d: %v\n", id, err)
-		return
+		return fmt.Errorf("error deleting employee with id %d: %w", id, err)
 	}
 
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
-		fmt.Printf("Error checking rows affected for employee id %d: %v\n", id, err)
-		return
+		return fmt.Errorf("error checking rows affected for employee id %d: %w", id, err)
 	}
 
 	if rowsAffected == 0 {
-		fmt.Printf("Warning: No employee found with id %d to delete\n", id)
+		return fmt.Errorf("no employee found with id %d to delete", id)
 	}
+
+	return nil
 }
