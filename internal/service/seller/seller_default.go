@@ -4,7 +4,6 @@ import (
 	"ProyectoFinal/internal/repository/seller"
 	"ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
-	"fmt"
 )
 
 type SellerDefault struct {
@@ -16,58 +15,78 @@ func NewSellerService(repository seller.SellerRepository) SellerService {
 }
 
 func (s *SellerDefault) Create(seller models.Seller) (models.Seller, error) {
-	if s.repository.ExistsByCid(seller.Cid) {
+	exists, err := s.repository.ExistsByCid(seller.Cid)
+	if err != nil {
+		return models.Seller{}, err
+	}
+	if exists {
 		newError := errors.WrapErrAlreadyExist("seller", "cid", seller.Cid)
 		return models.Seller{}, newError
 	}
 
-	s.repository.Create(&seller)
+	newSeller, err := s.repository.Create(seller)
 
-	return seller, nil
+	if err != nil {
+		return models.Seller{}, err
+	}
+
+	return newSeller, nil
 }
 
-func (s *SellerDefault) GetAll() []models.Seller {
-	sellers := s.repository.GetAll()
-	return sellers
+func (s *SellerDefault) GetAll() ([]models.Seller, error) {
+	sellers, err := s.repository.GetAll()
+
+	if err != nil {
+		return nil, err
+	}
+	return sellers, nil
 
 }
 
 func (s *SellerDefault) GetById(id int) (models.Seller, error) {
-	seller, ok := s.repository.GetById(id)
-	if !ok {
-		newError := fmt.Errorf("%w : seller with id %d not found", errors.ErrNotFound, id)
-		return models.Seller{}, newError
+	seller, err := s.repository.GetById(id)
+	if err != nil {
+		return models.Seller{}, err
 	}
-
-	return seller, nil
+	return *seller, nil
 }
 
 func (s *SellerDefault) Delete(id int) error {
-	if _, ok := s.repository.GetById(id); !ok {
-		newError := fmt.Errorf("%w : seller with id %d not found", errors.ErrNotFound, id)
-		return newError
+	if _, err := s.repository.GetById(id); err != nil {
+		return err
 	}
 
-	s.repository.Delete(id)
+	err := s.repository.Delete(id)
+
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
 
 func (s *SellerDefault) Update(id int, seller models.Seller) (models.Seller, error) {
-	current, ok := s.repository.GetById(id)
-	if !ok {
-		newError := fmt.Errorf("%w : seller with id %d not found", errors.ErrNotFound, id)
-		return models.Seller{}, newError
+	current, err := s.repository.GetById(id)
+	if err != nil {
+		return models.Seller{}, err
 	}
 
 	if current.Cid != seller.Cid {
-		if s.repository.ExistsByCid(seller.Cid) {
+		exists, err := s.repository.ExistsByCid(seller.Cid)
+		if err != nil {
+			return models.Seller{}, err
+		}
+		if exists {
 			newError := errors.WrapErrAlreadyExist("seller", "cid", seller.Cid)
 			return models.Seller{}, newError
 		}
 	}
 
-	s.repository.Update(&seller)
+	seller, err = s.repository.Update(&seller)
+
+	if err != nil {
+		return models.Seller{}, err
+	}
 
 	return seller, nil
 }

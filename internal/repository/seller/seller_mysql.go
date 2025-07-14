@@ -6,6 +6,7 @@ import (
 	"ProyectoFinal/pkg/models"
 	"database/sql"
 	"errors"
+	"fmt"
 )
 
 type SellerMysql struct {
@@ -31,7 +32,7 @@ func (r *SellerMysql) Create(seller models.Seller) (models.Seller, error) {
 	return seller, nil
 }
 
-func (r *SellerMysql) GetById(id int) *models.Seller {
+func (r *SellerMysql) GetById(id int) (*models.Seller, error) {
 	row := r.db.QueryRow(SQL_GET_BY_ID, id)
 	if err := row.Err(); err != nil {
 		return nil, err
@@ -49,7 +50,7 @@ func (r *SellerMysql) GetById(id int) *models.Seller {
 	return &seller, nil
 }
 
-func (r *SellerMysql) ExistsByCid(cid int) (bool, error) {
+func (r *SellerMysql) ExistsByCid(cid string) (bool, error) {
 	var exists bool
 
 	if err := r.db.QueryRow(SQL_EXIST_BY_CID, cid).Scan(&exists); err != nil {
@@ -73,15 +74,8 @@ func (r *SellerMysql) GetAll() ([]models.Seller, error) {
 
 	for rows.Next() {
 		var seller models.Seller
-		if err := rows.Scan(
-			&seller.Id,
-			&seller.Cid,
-			&seller.CompanyName,
-			&seller.Address,
-			&seller.Telephone,
-			&seller.LocalityId,
-		); err != nil {
-			return err
+		if err = utils.SellerScan(rows, &seller); err != nil {
+			return nil, err
 		}
 		sellers = append(sellers, seller)
 	}
@@ -99,14 +93,9 @@ func (r *SellerMysql) Delete(id int) error {
 
 func (r *SellerMysql) Update(seller *models.Seller) (models.Seller, error) {
 
-	result, err := r.db.Exec(SQL_UPDATE, seller.Cid, seller.CompanyName, seller.Address, seller.Telephone, seller.LocalityId, seller.Id)
+	_, err := r.db.Exec(SQL_UPDATE, seller.Cid, seller.CompanyName, seller.Address, seller.Telephone, seller.LocalityId, seller.Id)
 	if err != nil {
 		return models.Seller{}, err
 	}
-	lastId, err := result.LastInsertId()
-	if err != nil {
-		return models.Seller{}, err
-	}
-	seller.Id = int(lastId)
 	return *seller, nil
 }

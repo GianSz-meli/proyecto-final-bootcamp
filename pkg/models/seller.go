@@ -2,11 +2,11 @@ package models
 
 type Seller struct {
 	Id          int    `json:"id"`
-	Cid         int    `json:"cid"`
+	Cid         string `json:"cid"`
 	CompanyName string `json:"company_name"`
 	Address     string `json:"address"`
 	Telephone   string `json:"telephone"`
-	LocalityId  *int   `json:"locality_id"`
+	LocalityId  int    `json:"locality_id"`
 }
 
 func (m *Seller) ModelToDoc() SellerDoc {
@@ -22,11 +22,11 @@ func (m *Seller) ModelToDoc() SellerDoc {
 
 type SellerDoc struct {
 	Id          int    `json:"id"`
-	Cid         int    `json:"cid" validate:"required"`
+	Cid         string `json:"cid" validate:"required"`
 	CompanyName string `json:"company_name" validate:"required"`
 	Address     string `json:"address" validate:"required"`
 	Telephone   string `json:"telephone" validate:"required"`
-	LocalityId  *int   `json:"locality_id"`
+	LocalityId  int    `json:"locality_id" validate:"required"`
 }
 
 func (s *SellerDoc) DocToModel() Seller {
@@ -41,11 +41,11 @@ func (s *SellerDoc) DocToModel() Seller {
 }
 
 type CreateSellerRequest struct {
-	Cid         int    `json:"cid" validate:"required"`
+	Cid         string `json:"cid" validate:"required"`
 	CompanyName string `json:"company_name" validate:"required"`
 	Address     string `json:"address" validate:"required"`
 	Telephone   string `json:"telephone" validate:"required"`
-	LocalityId  *int   `json:"locality_id" validate:"omitempty,gt=0"`
+	LocalityId  int    `json:"locality_id" validate:"gt=0"`
 }
 
 func (s *CreateSellerRequest) DocToModel() Seller {
@@ -59,7 +59,7 @@ func (s *CreateSellerRequest) DocToModel() Seller {
 }
 
 type UpdateSellerRequest struct {
-	Cid         *int    `json:"cid" validate:"omitempty,gt=0"`
+	Cid         *string `json:"cid" validate:"omitempty,gt=0"`
 	CompanyName *string `json:"company_name" validate:"omitempty,min=1"`
 	Address     *string `json:"address" validate:"omitempty,min=1"`
 	Telephone   *string `json:"telephone" validate:"omitempty,min=1"`

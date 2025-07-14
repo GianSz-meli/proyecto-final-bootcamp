@@ -4,10 +4,10 @@ import (
 	"ProyectoFinal/internal/handler"
 	repository "ProyectoFinal/internal/repository/seller"
 	service "ProyectoFinal/internal/service/seller"
-	"ProyectoFinal/pkg/models"
+	"database/sql"
 )
 
-func GetSellerHandler(db map[int]models.Seller) *handler.SellerHandler {
+func GetSellerHandler(db *sql.DB) *handler.SellerHandler {
 	sellerRepository := repository.NewSellerRepository(db)
 	sellerService := service.NewSellerService(sellerRepository)
 	sellerHandler := handler.NewSellerHandler(sellerService)

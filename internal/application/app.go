@@ -2,6 +2,7 @@ package application
 
 import (
 	"ProyectoFinal/docs/db"
+	"ProyectoFinal/internal/application/config"
 	"ProyectoFinal/internal/application/di"
 	"ProyectoFinal/internal/application/router"
 	"net/http"
@@ -45,10 +46,10 @@ func (a *ServerChi) Run() (err error) {
 
 	database := db.LoadDB(a.loaderFilePath)
 	//TODO: Replace LoadDB to InitDB
-	//d:= db.InitDB()
+	d := config.InitDB()
 
 	// Dependency injection
-	sellerHandler := di.GetSellerHandler(database.Seller)
+	sellerHandler := di.GetSellerHandler(d)
 	warehouseHandler := di.GetWarehouseHandler(database.Warehouse)
 	sectionHandler := di.GetSectionHandler(database.Section)
 	buyerHandler := di.GetBuyerHandler(database.Buyer)
