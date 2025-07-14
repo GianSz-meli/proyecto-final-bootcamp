@@ -10,3 +10,12 @@ type SellerRepository interface {
 	GetAll() ([]models.Seller, error)
 	Delete(id int) error
 }
+
+type SellerRepositoryMap interface {
+	Create(seller *models.Seller)
+	GetById(id int) (models.Seller, bool)
+	ExistsByCid(cid string) bool
+	Update(seller *models.Seller)
+	GetAll() []models.Seller
+	Delete(id int)
+}

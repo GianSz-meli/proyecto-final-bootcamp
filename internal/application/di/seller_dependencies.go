@@ -8,7 +8,7 @@ import (
 )
 
 func GetSellerHandler(db *sql.DB) *handler.SellerHandler {
-	sellerRepository := repository.NewSellerRepository(db)
+	sellerRepository := repository.NewSellerMysqlRepository(db)
 	sellerService := service.NewSellerService(sellerRepository)
 	sellerHandler := handler.NewSellerHandler(sellerService)
 	return sellerHandler

@@ -6,14 +6,13 @@ import (
 	"ProyectoFinal/pkg/models"
 	"database/sql"
 	"errors"
-	"fmt"
 )
 
 type SellerMysql struct {
 	db *sql.DB
 }
 
-func NewSellerRepository(db *sql.DB) SellerRepository {
+func NewSellerMysqlRepository(db *sql.DB) SellerRepository {
 	return &SellerMysql{
 		db: db,
 	}
@@ -92,7 +91,6 @@ func (r *SellerMysql) Delete(id int) error {
 }
 
 func (r *SellerMysql) Update(seller *models.Seller) (models.Seller, error) {
-
 	_, err := r.db.Exec(SQL_UPDATE, seller.Cid, seller.CompanyName, seller.Address, seller.Telephone, seller.LocalityId, seller.Id)
 	if err != nil {
 		return models.Seller{}, err
