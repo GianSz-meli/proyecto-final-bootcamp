@@ -84,7 +84,6 @@ func (r *buyerMySql) Update(buyer *models.Buyer) (*models.Buyer, error) {
 		return nil, execErr
 	}
 
-	//fixed
 	updated, err := r.GetById(buyer.Id)
 	if err != nil {
 		return nil, err
@@ -104,22 +103,8 @@ func (r *buyerMySql) Delete(id int) error {
 	}
 
 	if rowsAffected == 0 {
-		return nil
+		return pkgErrors.WrapErrNotFound("buyer", "id", id)
 	}
 
 	return nil
-}
-
-func (r *buyerMySql) ExistsByCardNumberId(id string) (bool, error) {
-	var exists int
-	err := r.db.QueryRow(EXISTS_BY_CARD_NUMBER, id).Scan(&exists)
-
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return false, nil
-		}
-		return false, err
-	}
-
-	return true, nil
 }
