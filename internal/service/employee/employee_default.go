@@ -40,7 +40,7 @@ func (s *service) Create(employee models.Employee) (models.Employee, error) {
 		return models.Employee{}, err
 	}
 	if exists {
-		newError := errors.WrapErrAlreadyExist("employee", "card_number_id", employee.CardNumberID)
+		newError := errors.WrapErrConflict("employee", "card_number_id", employee.CardNumberID)
 		return models.Employee{}, newError
 	}
 
@@ -63,7 +63,7 @@ func (s *service) Update(id int, employee models.Employee) (models.Employee, err
 			return models.Employee{}, err
 		}
 		if exists {
-			newError := errors.WrapErrAlreadyExist("employee", "card_number_id", employee.CardNumberID)
+			newError := errors.WrapErrConflict("employee", "card_number_id", employee.CardNumberID)
 			return models.Employee{}, newError
 		}
 	}

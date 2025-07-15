@@ -7,9 +7,8 @@ import (
 	"ProyectoFinal/internal/application/router"
 	"net/http"
 
-	"github.com/go-chi/chi/v5/middleware"
-
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 )
 
 type ConfigServerChi struct {
@@ -45,16 +44,14 @@ func (a *ServerChi) Run() (err error) {
 	rt := chi.NewRouter()
 
 	database := db.LoadDB(a.loaderFilePath)
-
-	// Initialize MySQL connection
-	mysqlDB := config.InitDB()
+	newDB := config.InitDB()
 
 	// Dependency injection
 	sellerHandler := di.GetSellerHandler(database.Seller)
 	warehouseHandler := di.GetWarehouseHandler(database.Warehouse)
-	sectionHandler := di.GetSectionHandler(database.Section)
-	buyerHandler := di.GetBuyerHandler(database.Buyer)
-	employeeHandler := di.GetEmployeeHandler(mysqlDB)
+	sectionHandler := di.GetSectionHandler(newDB)
+	buyerHandler := di.GetBuyerHandler(newDB)
+	employeeHandler := di.GetEmployeeHandler(newDB)
 	productHandler := di.GetProductsHandler(database.Product)
 
 	//Middlewares

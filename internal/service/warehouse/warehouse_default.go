@@ -30,7 +30,7 @@ func (s *WarehouseServiceImpl) GetWarehouseById(id int) (models.Warehouse, error
 
 func (s *WarehouseServiceImpl) CreateWarehouse(warehouse models.Warehouse) (models.Warehouse, error) {
 	if s.warehouseRepo.ExistsByCode(warehouse.WarehouseCode) {
-		return models.Warehouse{}, errors.WrapErrAlreadyExist("warehouse", "code", warehouse.WarehouseCode)
+		return models.Warehouse{}, errors.WrapErrConflict("warehouse", "code", warehouse.WarehouseCode)
 	}
 
 	wh := s.warehouseRepo.Create(warehouse)
@@ -45,7 +45,7 @@ func (s *WarehouseServiceImpl) UpdateWarehouse(id int, warehouse models.Warehous
 
 	if warehouse.WarehouseCode != existingWarehouse.WarehouseCode {
 		if s.warehouseRepo.ExistsByCode(warehouse.WarehouseCode) {
-			return models.Warehouse{}, errors.WrapErrAlreadyExist("warehouse", "code", warehouse.WarehouseCode)
+			return models.Warehouse{}, errors.WrapErrConflict("warehouse", "code", warehouse.WarehouseCode)
 		}
 	}
 
