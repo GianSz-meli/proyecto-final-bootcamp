@@ -15,12 +15,17 @@ func NewSellerService(repository seller.SellerRepository) SellerService {
 }
 
 func (s *SellerDefault) Create(seller models.Seller) (models.Seller, error) {
+<<<<<<< HEAD
 	exists, err := s.repository.ExistsByCid(seller.Cid)
 	if err != nil {
 		return models.Seller{}, err
 	}
 	if exists {
 		newError := errors.WrapErrAlreadyExist("seller", "cid", seller.Cid)
+=======
+	if s.repository.ExistsByCid(seller.Cid) {
+		newError := errors.WrapErrConflict("seller", "cid", seller.Cid)
+>>>>>>> develop
 		return models.Seller{}, newError
 	}
 
@@ -67,12 +72,17 @@ func (s *SellerDefault) Update(id int, seller models.Seller) (models.Seller, err
 	}
 
 	if current.Cid != seller.Cid {
+<<<<<<< HEAD
 		exists, err := s.repository.ExistsByCid(seller.Cid)
 		if err != nil {
 			return models.Seller{}, err
 		}
 		if exists {
 			newError := errors.WrapErrAlreadyExist("seller", "cid", seller.Cid)
+=======
+		if s.repository.ExistsByCid(seller.Cid) {
+			newError := errors.WrapErrConflict("seller", "cid", seller.Cid)
+>>>>>>> develop
 			return models.Seller{}, newError
 		}
 	}

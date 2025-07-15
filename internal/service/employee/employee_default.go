@@ -38,7 +38,7 @@ func (s *service) GetById(id int) (models.Employee, error) {
 
 func (s *service) Create(employee models.Employee) (models.Employee, error) {
 	if s.repository.ExistsByCardNumberId(employee.CardNumberID) {
-		newError := errors.WrapErrAlreadyExist("employee", "card_number_id", employee.CardNumberID)
+		newError := errors.WrapErrConflict("employee", "card_number_id", employee.CardNumberID)
 		return models.Employee{}, newError
 	}
 
@@ -59,7 +59,7 @@ func (s *service) Update(id int, employee models.Employee) (models.Employee, err
 
 	if current.CardNumberID != employee.CardNumberID {
 		if s.repository.ExistsByCardNumberId(employee.CardNumberID) {
-			newError := errors.WrapErrAlreadyExist("employee", "card_number_id", employee.CardNumberID)
+			newError := errors.WrapErrConflict("employee", "card_number_id", employee.CardNumberID)
 			return models.Employee{}, newError
 		}
 	}

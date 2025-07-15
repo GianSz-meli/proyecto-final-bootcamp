@@ -16,46 +16,74 @@ func NewBuyerService(newRepository buyer.Repository) Service {
 	}
 }
 
-func (s *buyerService) Create(buyer models.Buyer) (models.Buyer, error) {
-	if s.repository.ExistsByCardNumberId(buyer.CardNumberId) {
-		return models.Buyer{}, errors.WrapErrAlreadyExist("buyer", "card number id", buyer.CardNumberId)
+func (s *buyerService) GetById(id int) (*models.Buyer, error) {
+	foundBuyer, err := s.repository.GetById(id)
+	if err != nil {
+		return nil, err
 	}
 
-	return s.repository.Create(buyer), nil
+	return foundBuyer, nil
 }
 
-func (s *buyerService) GetById(id int) (models.Buyer, error) {
-	existingBuyer, ok := s.repository.GetById(id)
-	if !ok {
-		return models.Buyer{}, errors.WrapErrNotFound("buyer", "id", id)
+func (s *buyerService) GetAll() ([]*models.Buyer, error) {
+	buyers, err := s.repository.GetAll()
+	if err != nil {
+		return nil, err
 	}
 
-	return existingBuyer, nil
+	return buyers, nil
 }
 
-func (s *buyerService) GetAll() []models.Buyer {
-	return s.repository.GetAll()
+func (s *buyerService) Create(buyer *models.Buyer) (*models.Buyer, error) {
+	exists, err := s.repository.ExistsByCardNumberId(buyer.CardNumberId)
+	if err != nil {
+		return nil, err
+	}
+
+	if exists {
+		return nil, errors.WrapErrConflict("buyer", "card number id", buyer.CardNumberId)
+	}
+
+	newBuyer, createErr := s.repository.Create(buyer)
+	if createErr != nil {
+		return nil, createErr
+	}
+
+	return newBuyer, nil
 }
 
-func (s *buyerService) Update(id int, buyer models.Buyer) (models.Buyer, error) {
-	existingBuyer, ok := s.repository.GetById(id)
-	if !ok {
-		return models.Buyer{}, errors.WrapErrNotFound("buyer", "id", id)
+func (s *buyerService) Update(id int, buyer *models.Buyer) (*models.Buyer, error) {
+	existingBuyer, alreadyExistsErr := s.repository.GetById(id)
+	if alreadyExistsErr != nil {
+		return nil, alreadyExistsErr
 	}
 
-	if buyer.CardNumberId != existingBuyer.CardNumberId && s.repository.ExistsByCardNumberId(buyer.CardNumberId) {
-		return models.Buyer{}, errors.WrapErrAlreadyExist("buyer", "card number id", buyer.CardNumberId)
+	if buyer.CardNumberId != existingBuyer.CardNumberId {
+		exists, err := s.repository.ExistsByCardNumberId(buyer.CardNumberId)
+		if err != nil {
+			return nil, err
+		}
+		if exists {
+			return nil, errors.WrapErrConflict("buyer", "card number id", buyer.CardNumberId)
+		}
 	}
 
-	return s.repository.Update(buyer), nil
+	updatedBuyer, updateErr := s.repository.Update(buyer)
+	if updateErr != nil {
+		return nil, updateErr
+	}
+
+	return updatedBuyer, nil
 }
 
 func (s *buyerService) Delete(id int) error {
-	_, ok := s.repository.GetById(id)
-	if !ok {
-		return errors.WrapErrNotFound("buyer", "id", id)
+	if _, err := s.repository.GetById(id); err != nil {
+		return err
 	}
 
-	s.repository.Delete(id)
+	if deleteErr := s.repository.Delete(id); deleteErr != nil {
+		return deleteErr
+	}
+
 	return nil
 }

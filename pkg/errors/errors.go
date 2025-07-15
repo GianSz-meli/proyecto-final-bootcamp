@@ -14,14 +14,13 @@ type ApiError struct {
 var (
 	ErrGeneral             = errors.New("internal server error")
 	ErrNotFound            = errors.New("not found")
-	ErrAlreadyExists       = errors.New("resource already exists")
+	ErrConflict            = errors.New("conflict")
 	ErrBadRequest          = errors.New("bad request")
 	ErrUnprocessableEntity = errors.New("unprocessable entity")
-
-	mapErr = map[error]ApiError{
+	mapErr                 = map[error]ApiError{
 		ErrGeneral:             NewErrInternalServer(),
 		ErrNotFound:            NewErrNotFound(),
-		ErrAlreadyExists:       NewErrAlreadyExists(),
+		ErrConflict:            NewErrConflict(),
 		ErrBadRequest:          NewErrBadRequest(),
 		ErrUnprocessableEntity: NewErrUnprocessableEntity(),
 	}
@@ -39,7 +38,7 @@ func NewErrNotFound() ApiError {
 	}
 }
 
-func NewErrAlreadyExists() ApiError {
+func NewErrConflict() ApiError {
 	return ApiError{
 		StatusCode: http.StatusConflict,
 	}
@@ -66,6 +65,7 @@ func getMappedError(err error) *ApiError {
 	return nil
 }
 func HandleError(w http.ResponseWriter, err error) {
+	err = HandleMysqlError(err)
 	if mappedError := getMappedError(err); mappedError != nil {
 		response.Error(w, mappedError.StatusCode, err.Error())
 		return
@@ -73,8 +73,8 @@ func HandleError(w http.ResponseWriter, err error) {
 	response.Error(w, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 }
 
-func WrapErrAlreadyExist(domain, property string, value any) error {
-	return fmt.Errorf("%w : %s with %s %v already exists", ErrAlreadyExists, domain, property, value)
+func WrapErrConflict(domain, property string, value any) error {
+	return fmt.Errorf("%w : %s with %s %v already exists", ErrConflict, domain, property, value)
 }
 
 func WrapErrBadRequest(err error) error {
