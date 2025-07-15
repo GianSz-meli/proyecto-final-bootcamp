@@ -16,13 +16,8 @@ func NewPurchaseOrderMySqlRepository(newDB *sql.DB) Repository {
 	}
 }
 
-func (r *purchaseOrderMySql) Create(purchaseOrder *models.PurchaseOrder) (*models.PurchaseOrder, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
 func (r *purchaseOrderMySql) GetByBuyerId(buyerId int) ([]*models.PurchaseOrderWithAllFields, error) {
-	rows, err := r.db.Query(GetByBuyerId, buyerId)
+	rows, err := r.db.Query(GetPurchaseOrdersByBuyerId, buyerId)
 	if err != nil {
 		return nil, fmt.Errorf("error querying purchase orders by buyer ID %d: %w", buyerId, err)
 	}
@@ -61,4 +56,28 @@ func (r *purchaseOrderMySql) GetByBuyerId(buyerId int) ([]*models.PurchaseOrderW
 	}
 
 	return purchaseOrders, nil
+}
+
+func (r *purchaseOrderMySql) Create(purchaseOrder *models.PurchaseOrder) (*models.PurchaseOrder, error) {
+	result, execErr := r.db.Exec(
+		CreatePurchaseOrder,
+		purchaseOrder.OrderNumber,
+		purchaseOrder.OrderDate,
+		purchaseOrder.TrackingCode,
+		purchaseOrder.BuyerId,
+		purchaseOrder.CarrierId,
+		purchaseOrder.OrderStatusId,
+		purchaseOrder.WarehouseId,
+	)
+	if execErr != nil {
+		return nil, fmt.Errorf("error creating purchase order: %w", execErr)
+	}
+
+	lastInsertId, idErr := result.LastInsertId()
+	if idErr != nil {
+		return nil, fmt.Errorf("error getting last insert id: %w", idErr)
+	}
+
+	purchaseOrder.Id = int(lastInsertId)
+	return purchaseOrder, nil
 }
