@@ -54,7 +54,6 @@ func (i InboundOrder) ModelToDoc() InboundOrderDoc {
 	}
 }
 
-// EmployeeInboundOrdersReport represents the report structure for employee inbound orders
 type EmployeeInboundOrdersReport struct {
 	ID                 int    `json:"id"`
 	CardNumberID       string `json:"card_number_id"`

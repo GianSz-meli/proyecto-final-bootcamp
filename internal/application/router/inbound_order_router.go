@@ -11,9 +11,3 @@ func InboundOrderRoutes(ctr *handler.InboundOrderHandler) chi.Router {
 	r.Post("/", ctr.Create())
 	return r
 }
-
-func EmployeeInboundOrderReportRoutes(ctr *handler.InboundOrderHandler) chi.Router {
-	r := chi.NewRouter()
-	r.Get("/reportInboundOrders", ctr.GetEmployeeInboundOrdersReport())
-	return r
-}

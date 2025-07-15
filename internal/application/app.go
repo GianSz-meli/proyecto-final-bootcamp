@@ -61,8 +61,7 @@ func (a *ServerChi) Run() (err error) {
 	rt.Route("/api/v1", func(r chi.Router) {
 		r.Mount("/sections", router.GetSectionRouter(sectionHandler))
 		r.Mount("/sellers", router.GetSellerRouter(sellerHandler))
-		r.Mount("/employees", router.EmployeeRoutes(employeeHandler))
-		r.Mount("/employees", router.EmployeeInboundOrderReportRoutes(inboundOrderHandler))
+		r.Mount("/employees", router.EmployeeRoutes(employeeHandler, inboundOrderHandler))
 		r.Mount("/warehouses", router.GetWarehouseRouter(warehouseHandler))
 		r.Mount("/products", router.ProductRoutes(productHandler))
 		r.Mount("/buyers", router.GetBuyerRouter(buyerHandler))
