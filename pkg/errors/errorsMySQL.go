@@ -60,7 +60,7 @@ func HandleParentRowError(err error) error {
 	matches := re.FindStringSubmatch(err.Error())
 
 	if len(matches) == 5 {
-		fkColumn := matches[2]
+		fkColumn := matches[4]
 		referencedTable := matches[3]
 
 		return fmt.Errorf("%w: cannot delete or update record: %s is referenced by existing %s records", ErrConflict, referencedTable, fkColumn)
