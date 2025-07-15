@@ -25,18 +25,27 @@ func UpdateFields(target interface{}, source interface{}) bool {
 		field := sourceValue.Field(i)
 		fieldName := sourceType.Field(i).Name
 
-		if field.Kind() == reflect.Ptr && !field.IsNil() {
+		if field.Kind() == reflect.Ptr {
 			targetField := targetValue.FieldByName(fieldName)
 			if targetField.IsValid() && targetField.CanSet() {
-				//When target is also a pointer value assign the pointer value
-				if targetField.Kind() == reflect.Ptr {
-					targetField.Set(field)
+				if field.IsNil() {
+					if targetField.Kind() == reflect.Ptr && !targetField.IsNil() {
+						// Only update if the current target is not nil
+						targetField.Set(reflect.Zero(targetField.Type())) // Update field to nill
+					}
 					updated = true
-				} else if targetField.Type() == field.Elem().Type() {
-					// When target is a value, but source is pointer
-					targetField.Set(field.Elem())
-					updated = true
+				} else {
+					//When target is also a pointer value assign the pointer value
+					if targetField.Kind() == reflect.Ptr {
+						targetField.Set(field)
+						updated = true
+					} else if targetField.Type() == field.Elem().Type() {
+						// When target is a value, but source is pointer
+						targetField.Set(field.Elem())
+						updated = true
+					}
 				}
+
 			}
 		}
 	}
