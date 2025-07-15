@@ -53,7 +53,7 @@ func (r *SectionMap) Delete(id int) error {
 	return nil
 }
 
-func (r *SectionMap) ExistBySectionNumber(sectionNumber int) bool {
+func (r *SectionMap) ExistBySectionNumber(sectionNumber string) bool {
 	for _, section := range r.db {
 		if section.SectionNumber == sectionNumber {
 			return true

@@ -53,12 +53,14 @@ func (a *ServerChi) Run() (err error) {
 	buyerHandler := di.GetBuyerHandler(newDB)
 	employeeHandler := di.GetEmployeeHandler(database.Employee)
 	productHandler := di.GetProductsHandler(database.Product)
+	productBatchHandler := di.GetProductBatchHandler(newDB)
 
 	//Middlewares
 	rt.Use(middleware.Logger)
 
 	rt.Route("/api/v1", func(r chi.Router) {
-		r.Mount("/sections", router.GetSectionRouter(sectionHandler))
+		r.Mount("/sections", router.GetSectionRouter(sectionHandler, productBatchHandler))
+		r.Mount("/productBatches", router.GetProductBatchRouter(productBatchHandler))
 		r.Mount("/sellers", router.GetSellerRouter(sellerHandler))
 		r.Mount("/employees", router.EmployeeRoutes(employeeHandler))
 		r.Mount("/warehouses", router.GetWarehouseRouter(warehouseHandler))
