@@ -123,7 +123,7 @@ func (r *SectionMySQL) Delete(id int) error {
 	return tx.Commit()
 }
 
-func (r *SectionMySQL) ExistBySectionNumber(sectionNumber int) bool {
+func (r *SectionMySQL) ExistBySectionNumber(sectionNumber string) bool {
 	var exists bool
 	err := r.db.QueryRow(SectionExistsByNumber, sectionNumber).Scan(&exists)
 	return err == nil && exists

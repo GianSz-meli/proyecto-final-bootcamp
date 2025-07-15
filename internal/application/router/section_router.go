@@ -6,12 +6,17 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-func GetSectionRouter(handler *handler.SectionDefault) chi.Router {
+func GetSectionRouter(handler *handler.SectionDefault, productBatchHandler *handler.ProductBatchHandler) chi.Router {
 	r := chi.NewRouter()
 	r.Post("/", handler.Create())
 	r.Get("/", handler.GetAll())
+
+	// Report endpoint - debe ir ANTES de las rutas con parámetros
+	r.Get("/reportProducts", productBatchHandler.GetProductCountBySection())
+
 	r.Get("/{id}", handler.GetById())
 	r.Delete("/{id}", handler.Delete())
 	r.Patch("/{id}", handler.Update())
+
 	return r
 }
