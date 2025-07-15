@@ -31,16 +31,10 @@ func (r *mysqlRepository) GetAll() ([]models.Employee, error) {
 	var employees []models.Employee
 	for rows.Next() {
 		var employee models.Employee
-		var warehouseID sql.NullInt64
 
-		err := rows.Scan(&employee.ID, &employee.CardNumberID, &employee.FirstName, &employee.LastName, &warehouseID)
+		err := rows.Scan(&employee.ID, &employee.CardNumberID, &employee.FirstName, &employee.LastName, &employee.WarehouseID)
 		if err != nil {
 			return nil, err
-		}
-
-		if warehouseID.Valid {
-			warehouseValue := int(warehouseID.Int64)
-			employee.WarehouseID = &warehouseValue
 		}
 
 		employees = append(employees, employee)
@@ -53,9 +47,8 @@ func (r *mysqlRepository) GetById(id int) (models.Employee, error) {
 	row := r.db.QueryRow(QueryGetEmployeeById, id)
 
 	var employee models.Employee
-	var warehouseID sql.NullInt64
 
-	err := row.Scan(&employee.ID, &employee.CardNumberID, &employee.FirstName, &employee.LastName, &warehouseID)
+	err := row.Scan(&employee.ID, &employee.CardNumberID, &employee.FirstName, &employee.LastName, &employee.WarehouseID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return models.Employee{}, pkgErrors.WrapErrNotFound("employee", "id", id)
@@ -63,21 +56,11 @@ func (r *mysqlRepository) GetById(id int) (models.Employee, error) {
 		return models.Employee{}, err
 	}
 
-	if warehouseID.Valid {
-		warehouseValue := int(warehouseID.Int64)
-		employee.WarehouseID = &warehouseValue
-	}
-
 	return employee, nil
 }
 
 func (r *mysqlRepository) Create(employee *models.Employee) error {
-	var warehouseID sql.NullInt64
-	if employee.WarehouseID != nil {
-		warehouseID = sql.NullInt64{Int64: int64(*employee.WarehouseID), Valid: true}
-	}
-
-	result, err := r.db.Exec(QueryCreateEmployee, employee.CardNumberID, employee.FirstName, employee.LastName, warehouseID)
+	result, err := r.db.Exec(QueryCreateEmployee, employee.CardNumberID, employee.FirstName, employee.LastName, employee.WarehouseID)
 	if err != nil {
 		return err
 	}
@@ -103,12 +86,7 @@ func (r *mysqlRepository) ExistsByCardNumberId(cardNumberId string) (bool, error
 }
 
 func (r *mysqlRepository) Update(id int, employee models.Employee) error {
-	var warehouseID sql.NullInt64
-	if employee.WarehouseID != nil {
-		warehouseID = sql.NullInt64{Int64: int64(*employee.WarehouseID), Valid: true}
-	}
-
-	result, err := r.db.Exec(QueryUpdateEmployee, employee.CardNumberID, employee.FirstName, employee.LastName, warehouseID, id)
+	result, err := r.db.Exec(QueryUpdateEmployee, employee.CardNumberID, employee.FirstName, employee.LastName, employee.WarehouseID, id)
 	if err != nil {
 		return err
 	}
