@@ -17,7 +17,7 @@ func NewSellerService(repository seller.SellerRepository) SellerService {
 
 func (s *SellerDefault) Create(seller models.Seller) (models.Seller, error) {
 	if s.repository.ExistsByCid(seller.Cid) {
-		newError := errors.WrapErrAlreadyExist("seller", "cid", seller.Cid)
+		newError := errors.WrapErrConflict("seller", "cid", seller.Cid)
 		return models.Seller{}, newError
 	}
 
@@ -62,7 +62,7 @@ func (s *SellerDefault) Update(id int, seller models.Seller) (models.Seller, err
 
 	if current.Cid != seller.Cid {
 		if s.repository.ExistsByCid(seller.Cid) {
-			newError := errors.WrapErrAlreadyExist("seller", "cid", seller.Cid)
+			newError := errors.WrapErrConflict("seller", "cid", seller.Cid)
 			return models.Seller{}, newError
 		}
 	}

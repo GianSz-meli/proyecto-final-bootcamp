@@ -33,18 +33,18 @@ func HandleDuplicatedEntryError(err error) error {
 		value := matches[1]    // "66557"
 		domain := matches[2]   // Seller, warehouse, etc
 		property := matches[3] // "cid"
-		return WrapErrAlreadyExist(domain, property, value)
+		return WrapErrConflict(domain, property, value)
 	}
-	return fmt.Errorf("%w: %s", ErrAlreadyExists, "Duplicate entry")
+	return fmt.Errorf("%w: %s", ErrConflict, "Duplicate entry")
 }
 func HandleViolationFkError(err error) error {
 	re := regexp.MustCompile("FOREIGN KEY \\(`([^`]*)`\\)")
 	matches := re.FindStringSubmatch(err.Error())
 	if len(matches) > 1 {
 		fkField := matches[1]
-		return fmt.Errorf("%w: invalid value: %s refers to a non-existent or deleted record", ErrBadRequest, fkField)
+		return fmt.Errorf("%w: invalid value: %s refers to a non-existent or deleted record", ErrConflict, fkField)
 	}
-	return fmt.Errorf("%w: invalid reference: one of the linked objects was not found", ErrBadRequest)
+	return fmt.Errorf("%w: invalid reference: one of the linked objects was not found", ErrConflict)
 }
 
 func HandleColumnRequired(err error) error {
