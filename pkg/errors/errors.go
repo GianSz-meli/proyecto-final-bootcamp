@@ -16,14 +16,13 @@ type ApiError struct {
 var (
 	ErrGeneral             = errors.New("internal server error")
 	ErrNotFound            = errors.New("not found")
-	ErrAlreadyExists       = errors.New("resource already exists")
+	ErrConflict            = errors.New("conflict")
 	ErrBadRequest          = errors.New("bad request")
 	ErrUnprocessableEntity = errors.New("unprocessable entity")
-
-	mapErr = map[error]ApiError{
+	mapErr                 = map[error]ApiError{
 		ErrGeneral:             NewErrInternalServer(),
 		ErrNotFound:            NewErrNotFound(),
-		ErrAlreadyExists:       NewErrAlreadyExists(),
+		ErrConflict:            NewErrConflict(),
 		ErrBadRequest:          NewErrBadRequest(),
 		ErrUnprocessableEntity: NewErrUnprocessableEntity(),
 	}
@@ -41,7 +40,7 @@ func NewErrNotFound() ApiError {
 	}
 }
 
-func NewErrAlreadyExists() ApiError {
+func NewErrConflict() ApiError {
 	return ApiError{
 		StatusCode: http.StatusConflict,
 	}
@@ -69,37 +68,17 @@ func getMappedError(err error) *ApiError {
 }
 
 func HandleError(w http.ResponseWriter, err error) {
+	err = HandleMysqlError(err)
 	if mappedError := getMappedError(err); mappedError != nil {
 		response.Error(w, mappedError.StatusCode, err.Error())
-		return
-	}
-
-	var mysqlErr *mysql.MySQLError
-	if errors.As(err, &mysqlErr) {
-		handleMySQLError(w, mysqlErr)
 		return
 	}
 
 	response.Error(w, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 }
 
-func handleMySQLError(w http.ResponseWriter, mysqlErr *mysql.MySQLError) {
-	switch mysqlErr.Number {
-	case 1062: // Duplicate entry for key
-		response.Error(w, http.StatusConflict, "Resource already exists. The given data violates a unique constraint")
-	case 1452: // Foreign key constraint fails
-		response.Error(w, http.StatusBadRequest, "Invalid reference. The given data references an invalid or missing record")
-	case 1048: // Column cannot be null
-		response.Error(w, http.StatusBadRequest, "Required field cannot be empty")
-	case 1366: // Incorrect data type
-		response.Error(w, http.StatusBadRequest, "Invalid data type")
-	default:
-		response.Error(w, http.StatusInternalServerError, "Technical error when connecting to the database")
-	}
-}
-
-func WrapErrAlreadyExist(domain, property string, value any) error {
-	return fmt.Errorf("%w : %s with %s %v already exists", ErrAlreadyExists, domain, property, value)
+func WrapErrConflict(domain, property string, value any) error {
+	return fmt.Errorf("%w : %s with %s %v already exists", ErrConflict, domain, property, value)
 }
 
 func WrapErrBadRequest(err error) error {
