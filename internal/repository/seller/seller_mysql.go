@@ -49,15 +49,6 @@ func (r *SellerMysql) GetById(id int) (*models.Seller, error) {
 	return &seller, nil
 }
 
-func (r *SellerMysql) ExistsByCid(cid string) (bool, error) {
-	var exists bool
-
-	if err := r.db.QueryRow(SQL_EXIST_BY_CID, cid).Scan(&exists); err != nil {
-		return false, err
-	}
-	return exists, nil
-}
-
 func (r *SellerMysql) GetAll() ([]models.Seller, error) {
 	rows, err := r.db.Query(SQL_GET_ALL)
 
