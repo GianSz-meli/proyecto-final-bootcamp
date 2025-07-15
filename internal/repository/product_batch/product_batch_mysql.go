@@ -91,6 +91,10 @@ func (r *ProductBatchMySQL) GetProductCountBySection(sectionID *int) ([]models.S
 	var err error
 
 	if sectionID != nil {
+		// Verificar si la sección existe antes de hacer la consulta
+		if !r.SectionExists(*sectionID) {
+			return nil, fmt.Errorf("section with id %d not found", *sectionID)
+		}
 		rows, err = r.db.Query(ProductBatchCountBySectionId, *sectionID)
 	} else {
 		rows, err = r.db.Query(ProductBatchCountBySection)

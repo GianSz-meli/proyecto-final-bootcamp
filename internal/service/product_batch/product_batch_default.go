@@ -2,7 +2,6 @@ package product_batch
 
 import (
 	productbatchrepo "ProyectoFinal/internal/repository/product_batch"
-	"ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
 )
 
@@ -29,10 +28,6 @@ func (s *productBatchService) GetProductCountBySection(sectionID *int) ([]models
 	reports, err := s.repository.GetProductCountBySection(sectionID)
 	if err != nil {
 		return nil, err
-	}
-
-	if sectionID != nil && len(reports) == 0 {
-		return nil, errors.WrapErrNotFound("section", "id", *sectionID)
 	}
 
 	return reports, nil
