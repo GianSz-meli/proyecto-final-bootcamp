@@ -3,9 +3,10 @@ package config
 import (
 	"database/sql"
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
 	"log"
 	"os"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 func InitDB() *sql.DB {
@@ -21,7 +22,7 @@ func ConnectDB() (*sql.DB, error) {
 
 	dns := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s",
 		os.Getenv("DB_USERNAME"),
-		os.Getenv("DB_ PASSWORD"),
+		os.Getenv("DB_PASSWORD"),
 		os.Getenv("DB_HOST"),
 		os.Getenv("DB_PORT"),
 		os.Getenv("DB_NAME"),
