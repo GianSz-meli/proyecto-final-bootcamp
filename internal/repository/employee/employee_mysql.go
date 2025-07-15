@@ -86,18 +86,14 @@ func (r *mysqlRepository) ExistsByCardNumberId(cardNumberId string) (bool, error
 }
 
 func (r *mysqlRepository) Update(id int, employee models.Employee) error {
-	result, err := r.db.Exec(QueryUpdateEmployee, employee.CardNumberID, employee.FirstName, employee.LastName, employee.WarehouseID, id)
+	_, err := r.GetById(id)
 	if err != nil {
-		return pkgErrors.HandleMysqlError(err)
+		return err
 	}
 
-	rowsAffected, err := result.RowsAffected()
+	_, err = r.db.Exec(QueryUpdateEmployee, employee.CardNumberID, employee.FirstName, employee.LastName, employee.WarehouseID, id)
 	if err != nil {
 		return pkgErrors.HandleMysqlError(err)
-	}
-
-	if rowsAffected == 0 {
-		return pkgErrors.WrapErrNotFound("employee", "id", id)
 	}
 
 	return nil
