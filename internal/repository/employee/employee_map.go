@@ -43,15 +43,6 @@ func (r *repository) Create(employee *models.Employee) error {
 	return nil
 }
 
-func (r *repository) ExistsByCardNumberId(cardNumberId string) (bool, error) {
-	for _, employee := range r.employees {
-		if employee.CardNumberID == cardNumberId {
-			return true, nil
-		}
-	}
-	return false, nil
-}
-
 func (r *repository) Update(id int, employee models.Employee) error {
 	if _, exists := r.employees[id]; !exists {
 		return fmt.Errorf("employee with id %d not found", id)

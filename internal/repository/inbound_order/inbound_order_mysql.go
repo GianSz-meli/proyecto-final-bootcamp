@@ -40,19 +40,6 @@ func (r *mysqlRepository) Create(inboundOrder *models.InboundOrder) error {
 	return nil
 }
 
-// ExistsByOrderNumber performs a database lookup to verify if an inbound order
-// with the specified order number already exists.
-func (r *mysqlRepository) ExistsByOrderNumber(orderNumber string) (bool, error) {
-	var exists bool
-
-	err := r.db.QueryRow(QueryExistsByOrderNumber, orderNumber).Scan(&exists)
-	if err != nil {
-		return false, pkgErrors.HandleMysqlError(err)
-	}
-
-	return exists, nil
-}
-
 // GetEmployeeInboundOrdersReportByEmployeeId executes a  query that joins
 // employee and inbound_orders tables to generate a comprehensive report for a
 // specific employee, including their personal details and total inbound orders count.

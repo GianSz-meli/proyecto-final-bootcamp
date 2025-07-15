@@ -6,10 +6,6 @@ const (
 		VALUES (?, ?, ?, ?, ?)
 	`
 
-	QueryExistsByOrderNumber = `
-		SELECT EXISTS(SELECT 1 FROM inbound_orders WHERE order_number = ?)
-	`
-
 	QueryGetEmployeeInboundOrdersReportByEmployeeId = `
 		SELECT 
 			e.id,

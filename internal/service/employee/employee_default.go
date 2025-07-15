@@ -2,7 +2,6 @@ package employee
 
 import (
 	employeeRepository "ProyectoFinal/internal/repository/employee"
-	"ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
 )
 
@@ -35,15 +34,6 @@ func (s *service) GetById(id int) (models.Employee, error) {
 }
 
 func (s *service) Create(employee models.Employee) (models.Employee, error) {
-	exists, err := s.repository.ExistsByCardNumberId(employee.CardNumberID)
-	if err != nil {
-		return models.Employee{}, err
-	}
-	if exists {
-		newError := errors.WrapErrConflict("employee", "card_number_id", employee.CardNumberID)
-		return models.Employee{}, newError
-	}
-
 	if err := s.repository.Create(&employee); err != nil {
 		return models.Employee{}, err
 	}
@@ -52,20 +42,9 @@ func (s *service) Create(employee models.Employee) (models.Employee, error) {
 }
 
 func (s *service) Update(id int, employee models.Employee) (models.Employee, error) {
-	current, err := s.repository.GetById(id)
+	_, err := s.repository.GetById(id)
 	if err != nil {
 		return models.Employee{}, err
-	}
-
-	if current.CardNumberID != employee.CardNumberID {
-		exists, err := s.repository.ExistsByCardNumberId(employee.CardNumberID)
-		if err != nil {
-			return models.Employee{}, err
-		}
-		if exists {
-			newError := errors.WrapErrConflict("employee", "card_number_id", employee.CardNumberID)
-			return models.Employee{}, newError
-		}
 	}
 
 	if err := s.repository.Update(id, employee); err != nil {

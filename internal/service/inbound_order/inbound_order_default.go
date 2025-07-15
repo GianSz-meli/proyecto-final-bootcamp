@@ -3,7 +3,6 @@ package inbound_order
 import (
 	employeeRepository "ProyectoFinal/internal/repository/employee"
 	inboundOrderRepository "ProyectoFinal/internal/repository/inbound_order"
-	"ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
 )
 
@@ -20,16 +19,7 @@ func NewService(inboundOrderRepository inboundOrderRepository.Repository, employ
 }
 
 func (s *service) Create(inboundOrder models.InboundOrder) (models.InboundOrder, error) {
-	exists, err := s.inboundOrderRepository.ExistsByOrderNumber(inboundOrder.OrderNumber)
-	if err != nil {
-		return models.InboundOrder{}, err
-	}
-	if exists {
-		newError := errors.WrapErrConflict("inbound_order", "order_number", inboundOrder.OrderNumber)
-		return models.InboundOrder{}, newError
-	}
-
-	_, err = s.employeeRepository.GetById(inboundOrder.EmployeeID)
+	_, err := s.employeeRepository.GetById(inboundOrder.EmployeeID)
 	if err != nil {
 		return models.InboundOrder{}, err
 	}

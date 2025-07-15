@@ -21,7 +21,7 @@ func NewMySQLRepository(db *sql.DB) Repository {
 // scanning each row into Employee structs and returning them as a slice.
 // Returns an error if the query fails or if there's an issue scanning the results.
 func (r *mysqlRepository) GetAll() ([]models.Employee, error) {
-	rows, err := r.db.Query(QueryGetAllEmployees)
+	rows, err := r.db.Query(QueryGetAll)
 	if err != nil {
 		return nil, pkgErrors.HandleMysqlError(err)
 	}
@@ -49,7 +49,7 @@ func (r *mysqlRepository) GetAll() ([]models.Employee, error) {
 // GetById performs a database lookup to find an employee by their unique identifier.
 // Returns the employee record if found, or a not found error if the ID doesn't exist.
 func (r *mysqlRepository) GetById(id int) (models.Employee, error) {
-	row := r.db.QueryRow(QueryGetEmployeeById, id)
+	row := r.db.QueryRow(QueryGetById, id)
 
 	var employee models.Employee
 
@@ -67,7 +67,7 @@ func (r *mysqlRepository) GetById(id int) (models.Employee, error) {
 // Create inserts a new employee record into the database and automatically assigns
 // the generated primary key ID back to the employee object.
 func (r *mysqlRepository) Create(employee *models.Employee) error {
-	result, err := r.db.Exec(QueryCreateEmployee, employee.CardNumberID, employee.FirstName, employee.LastName, employee.WarehouseID)
+	result, err := r.db.Exec(QueryCreate, employee.CardNumberID, employee.FirstName, employee.LastName, employee.WarehouseID)
 	if err != nil {
 		return pkgErrors.HandleMysqlError(err)
 	}
@@ -81,19 +81,6 @@ func (r *mysqlRepository) Create(employee *models.Employee) error {
 	return nil
 }
 
-// ExistsByCardNumberId performs a database query to check if an employee with the
-// specified card number ID already exists.
-func (r *mysqlRepository) ExistsByCardNumberId(cardNumberId string) (bool, error) {
-	var exists bool
-
-	err := r.db.QueryRow(QueryExistsByCardNumberId, cardNumberId).Scan(&exists)
-	if err != nil {
-		return false, pkgErrors.HandleMysqlError(err)
-	}
-
-	return exists, nil
-}
-
 // Update modifies an existing employee record in the database after verifying
 // that the employee exists.
 func (r *mysqlRepository) Update(id int, employee models.Employee) error {
@@ -102,7 +89,7 @@ func (r *mysqlRepository) Update(id int, employee models.Employee) error {
 		return err
 	}
 
-	_, err = r.db.Exec(QueryUpdateEmployee, employee.CardNumberID, employee.FirstName, employee.LastName, employee.WarehouseID, id)
+	_, err = r.db.Exec(QueryUpdate, employee.CardNumberID, employee.FirstName, employee.LastName, employee.WarehouseID, id)
 	if err != nil {
 		return pkgErrors.HandleMysqlError(err)
 	}
@@ -114,7 +101,7 @@ func (r *mysqlRepository) Update(id int, employee models.Employee) error {
 // the deletion was successful by checking the affected rows count. Returns a
 // not found error if no employee exists with the given ID.
 func (r *mysqlRepository) Delete(id int) error {
-	result, err := r.db.Exec(QueryDeleteEmployee, id)
+	result, err := r.db.Exec(QueryDelete, id)
 	if err != nil {
 		return pkgErrors.HandleMysqlError(err)
 	}

@@ -1,15 +1,9 @@
 package employee
 
 const (
-	QueryGetAllEmployees = "SELECT id, card_number_id, first_name, last_name, warehouse_id FROM employees"
-
-	QueryGetEmployeeById = "SELECT id, card_number_id, first_name, last_name, warehouse_id FROM employees WHERE id = ?"
-
-	QueryCreateEmployee = "INSERT INTO employees (card_number_id, first_name, last_name, warehouse_id) VALUES (?, ?, ?, ?)"
-
-	QueryExistsByCardNumberId = "SELECT EXISTS(SELECT 1 FROM employees WHERE card_number_id = ?)"
-
-	QueryUpdateEmployee = "UPDATE employees SET card_number_id = ?, first_name = ?, last_name = ?, warehouse_id = ? WHERE id = ?"
-
-	QueryDeleteEmployee = "DELETE FROM employees WHERE id = ?"
+	QueryGetAll  = "SELECT id, card_number_id, first_name, last_name, warehouse_id FROM employees"
+	QueryGetById = "SELECT id, card_number_id, first_name, last_name, warehouse_id FROM employees WHERE id = ?"
+	QueryCreate  = "INSERT INTO employees (card_number_id, first_name, last_name, warehouse_id) VALUES (?, ?, ?, ?)"
+	QueryUpdate  = "UPDATE employees SET card_number_id = ?, first_name = ?, last_name = ?, warehouse_id = ? WHERE id = ?"
+	QueryDelete  = "DELETE FROM employees WHERE id = ?"
 )
