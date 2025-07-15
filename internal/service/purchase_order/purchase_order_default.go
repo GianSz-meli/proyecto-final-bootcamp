@@ -9,7 +9,7 @@ type purchaseOrderService struct {
 	repository purchase_order.Repository
 }
 
-func NewBuyerService(newRepository purchase_order.Repository) Service {
+func NewPurchaseOrderService(newRepository purchase_order.Repository) Service {
 	return &purchaseOrderService{
 		repository: newRepository,
 	}
