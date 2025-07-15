@@ -99,11 +99,7 @@ func (r *SellerMysql) Delete(id int) error {
 }
 
 func (r *SellerMysql) Update(seller *models.Seller) (models.Seller, error) {
-	result, err := r.db.Exec(SQL_UPDATE, seller.Cid, seller.CompanyName, seller.Address, seller.Telephone, seller.LocalityId, seller.Id)
-	if err != nil {
-		return models.Seller{}, err
-	}
-	_, err = result.RowsAffected()
+	_, err := r.db.Exec(SQL_UPDATE, seller.Cid, seller.CompanyName, seller.Address, seller.Telephone, seller.LocalityId, seller.Id)
 	if err != nil {
 		return models.Seller{}, err
 	}

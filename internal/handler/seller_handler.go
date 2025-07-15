@@ -82,9 +82,8 @@ func (h *SellerHandler) Update() http.HandlerFunc {
 		sellerToUpdate, err := h.service.GetById(id)
 
 		if err != nil {
-			newError := errors.WrapErrNotFound("seller", "id", id)
-			log.Println(newError)
-			errors.HandleError(w, newError)
+			log.Println(err)
+			errors.HandleError(w, err)
 			return
 		}
 
