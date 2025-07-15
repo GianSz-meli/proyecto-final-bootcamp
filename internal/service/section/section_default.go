@@ -33,7 +33,7 @@ func (s *SectionDefault) GetById(id int) (section models.Section, err error) {
 func (s *SectionDefault) Create(section models.Section) (createdSection models.Section, err error) {
 	createdSection, err = s.rp.Create(section)
 	if err != nil {
-		return models.Section{}, errors.HandleMysqlError(err)
+		return models.Section{}, err
 	}
 	return createdSection, nil
 }
@@ -47,7 +47,7 @@ func (s *SectionDefault) Update(id int, section models.Section) (updatedSection 
 	section.ID = id
 	updatedSection, err = s.rp.Update(id, section)
 	if err != nil {
-		return models.Section{}, errors.HandleMysqlError(err)
+		return models.Section{}, err
 	}
 	return updatedSection, nil
 }
@@ -60,7 +60,7 @@ func (s *SectionDefault) Delete(id int) (err error) {
 
 	err = s.rp.Delete(id)
 	if err != nil {
-		return errors.HandleMysqlError(err)
+		return err
 	}
 	return nil
 }

@@ -19,7 +19,7 @@ func NewProductBatchService(repository productbatchrepo.ProductBatchRepository) 
 func (s *productBatchService) Create(productBatch models.ProductBatch) (models.ProductBatch, error) {
 	createdProductBatch, err := s.repository.Create(productBatch)
 	if err != nil {
-		return models.ProductBatch{}, errors.HandleMysqlError(err)
+		return models.ProductBatch{}, err
 	}
 
 	return createdProductBatch, nil
