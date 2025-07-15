@@ -7,7 +7,6 @@ import (
 	"ProyectoFinal/pkg/models"
 	"log"
 	"net/http"
-	"strconv"
 
 	"github.com/bootcamp-go/web/request"
 	"github.com/bootcamp-go/web/response"
@@ -23,7 +22,6 @@ func NewProductBatchHandler(service product_batch.ProductBatchService) *ProductB
 	}
 }
 
-// POST /api/v1/productBatches
 func (h *ProductBatchHandler) Create() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var reqBody models.ProductBatchCreateRequest
@@ -56,24 +54,16 @@ func (h *ProductBatchHandler) Create() http.HandlerFunc {
 	}
 }
 
-// GET /api/v1/sections/reportProducts?id=1
 func (h *ProductBatchHandler) GetProductCountBySection() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// Obtener el parámetro id de la query string
-		sectionIDStr := r.URL.Query().Get("id")
-
-		var sectionID *int
-		if sectionIDStr != "" {
-			id, err := strconv.Atoi(sectionIDStr)
-			if err != nil {
-				log.Println(err)
-				errors.HandleError(w, errors.WrapErrBadRequest(err))
-				return
-			}
-			sectionID = &id
+		sectionID, err := utils.GetParamInt(r, "id")
+		if err != nil {
+			log.Println(err)
+			errors.HandleError(w, err)
+			return
 		}
 
-		reports, err := h.service.GetProductCountBySection(sectionID)
+		reports, err := h.service.GetProductCountBySection(&sectionID)
 		if err != nil {
 			log.Printf("[ProductBatchHandler][GetProductCountBySection] error: %v", err)
 			errors.HandleError(w, err)
