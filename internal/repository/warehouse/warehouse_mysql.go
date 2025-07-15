@@ -180,6 +180,17 @@ func (r *SqlWarehouseRepository) Update(id int, warehouse models.Warehouse) (mod
 }
 
 func (r *SqlWarehouseRepository) Delete(id int) error {
-	_, err := r.db.Exec(DeleteWarehouseByIdQuery, id)
-	return err
+	result, err := r.db.Exec(DeleteWarehouseByIdQuery, id)
+	if err != nil {
+		return err
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rowsAffected == 0 {
+		return errors.WrapErrNotFound("warehouse", "id", id)
+	}
+
+	return nil
 }

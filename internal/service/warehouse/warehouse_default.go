@@ -54,12 +54,7 @@ func (s *WarehouseServiceImpl) UpdateWarehouse(id int, warehouse models.Warehous
 }
 
 func (s *WarehouseServiceImpl) DeleteWarehouse(id int) error {
-	_, err := s.warehouseRepo.GetById(id)
-	if err != nil {
-		return err
-	}
-
-	err = s.warehouseRepo.Delete(id)
+	err := s.warehouseRepo.Delete(id)
 	if err != nil {
 		return err
 	}
