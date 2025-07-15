@@ -44,27 +44,32 @@ func (a *ServerChi) Run() (err error) {
 	rt := chi.NewRouter()
 
 	database := db.LoadDB(a.loaderFilePath)
-	newDB := config.InitDB()
+	//TODO: Replace LoadDB to InitDB
+	sqlDB := config.InitDB()
 
 	// Dependency injection
 	sellerHandler := di.GetSellerHandler(database.Seller)
-	warehouseHandler := di.GetWarehouseHandler(database.Warehouse)
-	sectionHandler := di.GetSectionHandler(newDB)
-	buyerHandler := di.GetBuyerHandler(newDB)
-	employeeHandler := di.GetEmployeeHandler(newDB)
+	warehouseHandler := di.GetWarehouseHandler(sqlDB)
+	sectionHandler := di.GetSectionHandler(sqlDB)
+	buyerHandler := di.GetBuyerHandler(sqlDB)
+	employeeHandler := di.GetEmployeeHandler(sqlDB)
 	productHandler := di.GetProductsHandler(database.Product)
-	inboundOrderHandler := di.GetInboundOrderHandler(newDB)
+	productBatchHandler := di.GetProductBatchHandler(sqlDB)
+	carrierHandler := di.GetCarrierHandler(sqlDB)
+	inboundOrderHandler := di.GetInboundOrderHandler(sqlDB)
 
 	//Middlewares
 	rt.Use(middleware.Logger)
 
 	rt.Route("/api/v1", func(r chi.Router) {
-		r.Mount("/sections", router.GetSectionRouter(sectionHandler))
+		r.Mount("/sections", router.GetSectionRouter(sectionHandler, productBatchHandler))
+		r.Mount("/productBatches", router.GetProductBatchRouter(productBatchHandler))
 		r.Mount("/sellers", router.GetSellerRouter(sellerHandler))
 		r.Mount("/employees", router.EmployeeRoutes(employeeHandler, inboundOrderHandler))
 		r.Mount("/warehouses", router.GetWarehouseRouter(warehouseHandler))
 		r.Mount("/products", router.ProductRoutes(productHandler))
 		r.Mount("/buyers", router.GetBuyerRouter(buyerHandler))
+		r.Mount("/carriers", router.GetCarrierRouter(carrierHandler))
 		r.Mount("/inboundOrders", router.InboundOrderRoutes(inboundOrderHandler))
 	})
 

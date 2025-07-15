@@ -1,5 +1,6 @@
 package models
 
+// Domain Model
 type Warehouse struct {
 	ID                 int
 	WarehouseCode      string
@@ -8,14 +9,49 @@ type Warehouse struct {
 	MinimumCapacity    int
 	MinimumTemperature float64
 	LocalityId         *int
+	Locality           *Locality
 }
 
-func (w Warehouse) ModelToDoc() WarehouseDocument {
-	return WarehouseDocument(w)
+// Request DTOs
+type CreateWarehouseRequest struct {
+	WarehouseCode      string   `json:"warehouse_code" validate:"required,min=1"`
+	Address            string   `json:"address" validate:"required,min=1"`
+	Telephone          string   `json:"telephone" validate:"required,numeric,min=7"`
+	MinimumCapacity    *int     `json:"minimum_capacity" validate:"required,min=0"`
+	MinimumTemperature *float64 `json:"minimum_temperature" validate:"required"`
+	LocalityId         *int     `json:"locality_id" validate:"omitempty,gt=0"`
 }
 
+type UpdateWarehouseRequest struct {
+	WarehouseCode      *string  `json:"warehouse_code" validate:"omitempty,min=1"`
+	Address            *string  `json:"address" validate:"omitempty,min=1"`
+	Telephone          *string  `json:"telephone" validate:"omitempty,numeric,min=7"`
+	MinimumCapacity    *int     `json:"minimum_capacity" validate:"omitempty,min=0"`
+	MinimumTemperature *float64 `json:"minimum_temperature"`
+	LocalityId         *int     `json:"locality_id" validate:"omitempty,gt=0"`
+}
+
+// Response DTOs
 type WarehouseDocument struct {
-	ID                 int     `json:"id"`
+	ID                 int       `json:"id"`
+	WarehouseCode      string    `json:"warehouse_code"`
+	Address            string    `json:"address"`
+	Telephone          string    `json:"telephone"`
+	MinimumCapacity    int       `json:"minimum_capacity"`
+	MinimumTemperature float64   `json:"minimum_temperature"`
+	Locality           *Locality `json:"locality"`
+}
+
+type WarehouseCreateDocument struct {
+	WarehouseCode      string   `json:"warehouse_code"`
+	Address            string   `json:"address"`
+	Telephone          string   `json:"telephone"`
+	MinimumCapacity    int     `json:"minimum_capacity"`
+	MinimumTemperature float64 `json:"minimum_temperature"`
+	LocalityId         *int     `json:"locality_id"`
+}
+
+type WarehouseUpdateDocument struct {
 	WarehouseCode      string  `json:"warehouse_code"`
 	Address            string  `json:"address"`
 	Telephone          string  `json:"telephone"`
@@ -24,17 +60,18 @@ type WarehouseDocument struct {
 	LocalityId         *int     `json:"locality_id"`
 }
 
+// Mapping functions
 func (w WarehouseDocument) DocToModel() Warehouse {
-	return Warehouse(w)
-}
-
-type CreateWarehouseRequest struct {
-	WarehouseCode      string   `json:"warehouse_code" validate:"required,min=1"`
-	Address            string   `json:"address" validate:"required,min=1"`
-	Telephone          string   `json:"telephone" validate:"required,numeric,min=7"`
-	MinimumCapacity    *int     `json:"minimum_capacity" validate:"required,min=0"`
-	MinimumTemperature *float64 `json:"minimum_temperature" validate:"required"`
-	LocalityId         *int     `json:"locality_id" validate:"omitempty,gt=0"`
+	wh := Warehouse{
+		ID:                 w.ID,
+		WarehouseCode:      w.WarehouseCode,
+		Address:            w.Address,
+		Telephone:          w.Telephone,
+		MinimumCapacity:    w.MinimumCapacity,
+		MinimumTemperature: w.MinimumTemperature,
+		Locality:           w.Locality,
+	}
+	return wh
 }
 
 func (c CreateWarehouseRequest) DocToModel() Warehouse {
@@ -48,15 +85,6 @@ func (c CreateWarehouseRequest) DocToModel() Warehouse {
 	}
 }
 
-type UpdateWarehouseRequest struct {
-	WarehouseCode      *string  `json:"warehouse_code" validate:"omitempty,min=1"`
-	Address            *string  `json:"address" validate:"omitempty,min=1"`
-	Telephone          *string  `json:"telephone" validate:"omitempty,numeric,min=7"`
-	MinimumCapacity    *int     `json:"minimum_capacity" validate:"omitempty,min=0"`
-	MinimumTemperature *float64 `json:"minimum_temperature"`
-	LocalityId         *int     `json:"locality_id" validate:"omitempty,gt=0"`
-}
-
 func (u UpdateWarehouseRequest) DocToModel() Warehouse {
 	return Warehouse{
 		WarehouseCode:      *u.WarehouseCode,
@@ -67,3 +95,39 @@ func (u UpdateWarehouseRequest) DocToModel() Warehouse {
 		LocalityId:         u.LocalityId,
 	}
 }
+
+func (w Warehouse) ModelToDoc() WarehouseDocument {
+	return WarehouseDocument{
+		ID:                 w.ID,
+		WarehouseCode:      w.WarehouseCode,
+		Address:            w.Address,
+		Telephone:          w.Telephone,
+		MinimumCapacity:    w.MinimumCapacity,
+		MinimumTemperature: w.MinimumTemperature,
+		Locality:           w.Locality,
+	}
+}
+
+
+func (w Warehouse) ModelToCreateDoc() WarehouseCreateDocument {
+	return WarehouseCreateDocument{
+		WarehouseCode:      w.WarehouseCode,
+		Address:            w.Address,
+		Telephone:          w.Telephone,
+		MinimumCapacity:    w.MinimumCapacity,
+		MinimumTemperature: w.MinimumTemperature,
+		LocalityId:         w.LocalityId,
+	}
+}
+
+func (w Warehouse) ModelToUpdateDoc() WarehouseUpdateDocument {
+	return WarehouseUpdateDocument{
+		WarehouseCode:      w.WarehouseCode,
+		Address:            w.Address,
+		Telephone:          w.Telephone,
+		MinimumCapacity:    w.MinimumCapacity,
+		MinimumTemperature: w.MinimumTemperature,
+		LocalityId:         w.LocalityId,
+	}
+}
+
