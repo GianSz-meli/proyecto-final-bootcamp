@@ -84,11 +84,7 @@ func (r *buyerMySql) Update(buyer *models.Buyer) (*models.Buyer, error) {
 		return nil, execErr
 	}
 
-	updated, err := r.GetById(buyer.Id)
-	if err != nil {
-		return nil, err
-	}
-	return updated, nil
+	return buyer, nil
 }
 
 func (r *buyerMySql) Delete(id int) error {
