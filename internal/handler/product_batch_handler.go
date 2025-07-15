@@ -45,7 +45,7 @@ func (h *ProductBatchHandler) Create() http.HandlerFunc {
 
 		createdProductBatch, err := h.service.Create(model)
 		if err != nil {
-			log.Println(err)
+			log.Printf("[ProductBatchHandler][Create] error: %v", err)
 			errors.HandleError(w, err)
 			return
 		}
@@ -75,7 +75,7 @@ func (h *ProductBatchHandler) GetProductCountBySection() http.HandlerFunc {
 
 		reports, err := h.service.GetProductCountBySection(sectionID)
 		if err != nil {
-			log.Println(err)
+			log.Printf("[ProductBatchHandler][GetProductCountBySection] error: %v", err)
 			errors.HandleError(w, err)
 			return
 		}

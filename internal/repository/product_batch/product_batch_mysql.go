@@ -39,6 +39,7 @@ func (r *ProductBatchMySQL) Create(productBatch models.ProductBatch) (models.Pro
 	}
 	defer func() {
 		if err != nil {
+			log.Println("[ProductBatchMySQL][Create] rolling back transaction due to error:", err)
 			tx.Rollback()
 		}
 	}()
@@ -76,19 +77,31 @@ func (r *ProductBatchMySQL) Create(productBatch models.ProductBatch) (models.Pro
 func (r *ProductBatchMySQL) ExistsByBatchNumber(batchNumber string) bool {
 	var exists bool
 	err := r.db.QueryRow(ProductBatchExistsByNumber, batchNumber).Scan(&exists)
-	return err == nil && exists
+	if err != nil {
+		log.Println("[ProductBatchMySQL][ExistsByBatchNumber] error:", err)
+		return false
+	}
+	return exists
 }
 
 func (r *ProductBatchMySQL) ProductExists(productID int) bool {
 	var exists bool
 	err := r.db.QueryRow(ProductExistsById, productID).Scan(&exists)
-	return err == nil && exists
+	if err != nil {
+		log.Println("[ProductBatchMySQL][ProductExists] error:", err)
+		return false
+	}
+	return exists
 }
 
 func (r *ProductBatchMySQL) SectionExists(sectionID int) bool {
 	var exists bool
 	err := r.db.QueryRow(SectionExistsById, sectionID).Scan(&exists)
-	return err == nil && exists
+	if err != nil {
+		log.Println("[ProductBatchMySQL][SectionExists] error:", err)
+		return false
+	}
+	return exists
 }
 
 // Report methods

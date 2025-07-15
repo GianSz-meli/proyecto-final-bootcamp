@@ -10,12 +10,13 @@ func GetSectionRouter(handler *handler.SectionDefault, productBatchHandler *hand
 	r := chi.NewRouter()
 	r.Post("/", handler.Create())
 	r.Get("/", handler.GetAll())
+
+	// Report endpoint - debe ir ANTES de las rutas con parámetros
+	r.Get("/reportProducts", productBatchHandler.GetProductCountBySection())
+
 	r.Get("/{id}", handler.GetById())
 	r.Delete("/{id}", handler.Delete())
 	r.Patch("/{id}", handler.Update())
-
-	// Report endpoint
-	r.Get("/reportProducts", productBatchHandler.GetProductCountBySection())
 
 	return r
 }

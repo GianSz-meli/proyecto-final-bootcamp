@@ -49,7 +49,7 @@ func (s *SectionDefault) Update(id int, section models.Section) (updatedSection 
 		return models.Section{}, errors.WrapErrNotFound("section", "id", id)
 	}
 
-	if section.SectionNumber != 0 && section.SectionNumber != existingSection.SectionNumber {
+	if section.SectionNumber != "" && section.SectionNumber != existingSection.SectionNumber {
 		exists := s.rp.ExistBySectionNumber(section.SectionNumber)
 		if exists {
 			return models.Section{}, errors.WrapErrAlreadyExist("Section", "section_number", section.SectionNumber)

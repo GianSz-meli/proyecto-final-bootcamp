@@ -8,7 +8,7 @@ type Section struct {
 }
 
 type SectionAttributes struct {
-	SectionNumber      int            `json:"section_number" validate:"required,gt=0"`
+	SectionNumber      string         `json:"section_number" validate:"required"`
 	CurrentTemperature float64        `json:"current_temperature" validate:"gte=-50,lte=50,gtefield=MinimumTemperature"`
 	MinimumTemperature float64        `json:"minimum_temperature" validate:"gte=-50,lte=50"`
 	CurrentCapacity    int            `json:"current_capacity" validate:"gte=0,gtefield=MinimumCapacity,ltefield=MaximumCapacity"`
@@ -35,7 +35,7 @@ func (s Section) ModelToDoc() SectionDoc {
 
 type SectionDoc struct {
 	ID                 int     `json:"id"`
-	SectionNumber      int     `json:"section_number"`
+	SectionNumber      string  `json:"section_number"`
 	CurrentTemperature float64 `json:"current_temperature"`
 	MinimumTemperature float64 `json:"minimum_temperature"`
 	CurrentCapacity    int     `json:"current_capacity"`
@@ -103,13 +103,13 @@ type ProductBatchDoc struct {
 }
 
 type SectionProductReport struct {
-	SectionID     int `json:"section_id"`
-	SectionNumber int `json:"section_number"`
-	ProductsCount int `json:"products_count"`
+	SectionID     int    `json:"section_id"`
+	SectionNumber string `json:"section_number"`
+	ProductsCount int    `json:"products_count"`
 }
 
 type CreateSectionRequest struct {
-	SectionNumber      int     `json:"section_number" validate:"required,gt=0"`
+	SectionNumber      string  `json:"section_number" validate:"required"`
 	CurrentTemperature float64 `json:"current_temperature" validate:"gte=-50,lte=50,gtefield=MinimumTemperature"`
 	MinimumTemperature float64 `json:"minimum_temperature" validate:"gte=-50,lte=50"`
 	CurrentCapacity    int     `json:"current_capacity" validate:"gte=0,gtefield=MinimumCapacity,ltefield=MaximumCapacity"`
@@ -182,7 +182,7 @@ func (pbr ProductBatchCreateRequest) CreateRequestToModel() ProductBatch {
 }
 
 type UpdateSectionRequest struct {
-	SectionNumber      *int     `json:"section_number" validate:"omitempty,gt=0"`
+	SectionNumber      *string  `json:"section_number" validate:"omitempty"`
 	CurrentTemperature *float64 `json:"current_temperature" validate:"omitempty,gte=-50,lte=50"`
 	MinimumTemperature *float64 `json:"minimum_temperature" validate:"omitempty,gte=-50,lte=50"`
 	CurrentCapacity    *int     `json:"current_capacity" validate:"omitempty,gte=0"`
