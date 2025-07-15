@@ -20,8 +20,10 @@ func LocalityScan(rowScanner RowScanner, locality *models.Locality) error {
 	if err := rowScanner.Scan(
 		&locality.Id,
 		&locality.LocalityName,
-		&locality.ProvinceName,
-		&locality.CountryName,
+		&locality.Province.Id,
+		&locality.Province.ProvinceName,
+		&locality.Province.Country.Id,
+		&locality.Province.Country.CountryName,
 	); err != nil {
 		return err
 	}

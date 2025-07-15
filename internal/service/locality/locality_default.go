@@ -2,9 +2,7 @@ package locality
 
 import (
 	"ProyectoFinal/internal/repository/locality"
-	pkgErrors "ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
-	"errors"
 )
 
 type LocalityDefault struct {
@@ -16,19 +14,6 @@ func NewLocalityService(repository locality.LocalityRepository) LocalityService 
 }
 
 func (s *LocalityDefault) Create(locality models.Locality) (models.Locality, error) {
-	if locality.Id > 0 {
-		exist, err := s.repository.GetById(locality.Id)
-		if err != nil {
-			if !errors.Is(err, pkgErrors.ErrNotFound) {
-				return models.Locality{}, err
-			}
-		}
-		if exist != nil {
-			newError := pkgErrors.WrapErrAlreadyExist("locality", "id", locality.Id)
-			return models.Locality{}, newError
-		}
-	}
-
 	newlocality, err := s.repository.Create(locality)
 
 	if err != nil {

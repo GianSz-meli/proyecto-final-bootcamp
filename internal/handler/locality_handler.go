@@ -21,7 +21,7 @@ func NewLocalityHandler(service locality.LocalityService) *LocalityHandler {
 
 func (h *LocalityHandler) Create() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var reqBody models.LocalityDoc
+		var reqBody models.LocalityCreateRequest
 
 		if err := request.JSON(r, &reqBody); err != nil {
 			newErr := errors.WrapErrBadRequest(err)
@@ -45,7 +45,7 @@ func (h *LocalityHandler) Create() http.HandlerFunc {
 			errors.HandleError(w, err)
 			return
 		}
-		body := models.SuccessResponse{Data: []models.LocalityDoc{locality.ModelToDoc()}}
+		body := models.SuccessResponse{Data: []models.LocalityCreateRequest{locality.ModelToDoc()}}
 		response.JSON(w, http.StatusCreated, body)
 
 	}
@@ -70,7 +70,7 @@ func (h *LocalityHandler) GetById() http.HandlerFunc {
 		}
 
 		body := models.SuccessResponse{
-			Data: []models.LocalityDoc{locality.ModelToDoc()},
+			Data: []models.Locality{locality},
 		}
 		response.JSON(w, http.StatusOK, body)
 	}

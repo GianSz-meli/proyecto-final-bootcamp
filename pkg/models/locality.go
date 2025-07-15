@@ -1,43 +1,47 @@
 package models
 
+type Country struct {
+	Id          int
+	CountryName string
+}
+
+type Province struct {
+	Id           int
+	ProvinceName string
+	Country      Country
+}
+
 type Locality struct {
 	Id           int
 	LocalityName string
-	ProvinceName string
-	CountryName  string
+	Province     Province
 }
 
-func (m *Locality) ModelToDoc() LocalityDoc {
-	return LocalityDoc{
-		Id:           m.Id,
-		LocalityName: m.LocalityName,
-		ProvinceName: m.ProvinceName,
-		CountryName:  m.CountryName,
-	}
-}
-
-type LocalityDoc struct {
+type LocalityCreateRequest struct {
 	Id           int    `json:"id" validate:"omitempty,gt=0"`
 	LocalityName string `json:"locality_name" validate:"required,min=1"`
 	ProvinceName string `json:"province_name" validate:"required,min=1"`
 	CountryName  string `json:"country_name" validate:"required,min=1"`
 }
 
-func (l *LocalityDoc) DocToModel() Locality {
+func (m *LocalityCreateRequest) DocToModel() Locality {
 	return Locality{
-		Id:           l.Id,
-		LocalityName: l.LocalityName,
-		ProvinceName: l.ProvinceName,
-		CountryName:  l.CountryName,
+		Id:           m.Id,
+		LocalityName: m.LocalityName,
+		Province: Province{
+			ProvinceName: m.ProvinceName,
+			Country: Country{
+				CountryName: m.CountryName,
+			},
+		},
 	}
 }
 
-type Country struct {
-	id          int
-	countryName string
-}
-type Province struct {
-	id           int
-	provinceName string
-	idCountry    int
+func (l *Locality) ModelToDoc() LocalityCreateRequest {
+	return LocalityCreateRequest{
+		Id:           l.Id,
+		LocalityName: l.LocalityName,
+		ProvinceName: l.Province.ProvinceName,
+		CountryName:  l.Province.Country.CountryName,
+	}
 }
