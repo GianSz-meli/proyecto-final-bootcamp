@@ -53,9 +53,7 @@ func (s *SellerDefault) GetById(id int) (models.Seller, error) {
 
 func (s *SellerDefault) Delete(id int) error {
 
-	err := s.repository.Delete(id)
-
-	if err != nil {
+	if err := s.repository.Delete(id); err != nil {
 		return err
 	}
 

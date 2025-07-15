@@ -99,9 +99,17 @@ func (r *SellerMysql) Delete(id int) error {
 }
 
 func (r *SellerMysql) Update(seller *models.Seller) (models.Seller, error) {
-	_, err := r.db.Exec(SQL_UPDATE, seller.Cid, seller.CompanyName, seller.Address, seller.Telephone, seller.LocalityId, seller.Id)
+	result, err := r.db.Exec(SQL_UPDATE, seller.Cid, seller.CompanyName, seller.Address, seller.Telephone, seller.LocalityId, seller.Id)
 	if err != nil {
 		return models.Seller{}, err
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return models.Seller{}, err
+	}
+	if rowsAffected == 0 {
+		newError := pkgErrors.WrapErrAlreadyExist("Seller", "id", seller.Id)
+		return models.Seller{}, newError
 	}
 	return *seller, nil
 }
