@@ -31,35 +31,23 @@ func (s *SectionDefault) GetById(id int) (section models.Section, err error) {
 }
 
 func (s *SectionDefault) Create(section models.Section) (createdSection models.Section, err error) {
-	exists := s.rp.ExistBySectionNumber(section.SectionNumber)
-	if exists {
-		return models.Section{}, errors.WrapErrAlreadyExist("Section", "section_number", section.SectionNumber)
-	}
-
 	createdSection, err = s.rp.Create(section)
 	if err != nil {
-		return models.Section{}, err
+		return models.Section{}, errors.HandleMysqlError(err)
 	}
 	return createdSection, nil
 }
 
 func (s *SectionDefault) Update(id int, section models.Section) (updatedSection models.Section, err error) {
-	existingSection, exists := s.rp.GetById(id)
+	_, exists := s.rp.GetById(id)
 	if !exists {
 		return models.Section{}, errors.WrapErrNotFound("section", "id", id)
-	}
-
-	if section.SectionNumber != "" && section.SectionNumber != existingSection.SectionNumber {
-		exists := s.rp.ExistBySectionNumber(section.SectionNumber)
-		if exists {
-			return models.Section{}, errors.WrapErrAlreadyExist("Section", "section_number", section.SectionNumber)
-		}
 	}
 
 	section.ID = id
 	updatedSection, err = s.rp.Update(id, section)
 	if err != nil {
-		return models.Section{}, err
+		return models.Section{}, errors.HandleMysqlError(err)
 	}
 	return updatedSection, nil
 }
@@ -72,7 +60,7 @@ func (s *SectionDefault) Delete(id int) (err error) {
 
 	err = s.rp.Delete(id)
 	if err != nil {
-		return err
+		return errors.HandleMysqlError(err)
 	}
 	return nil
 }

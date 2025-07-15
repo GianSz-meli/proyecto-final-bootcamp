@@ -19,17 +19,7 @@ func NewProductBatchService(repository productbatchrepo.ProductBatchRepository) 
 func (s *productBatchService) Create(productBatch models.ProductBatch) (models.ProductBatch, error) {
 	createdProductBatch, err := s.repository.Create(productBatch)
 	if err != nil {
-		// Manejar errores específicos del repositorio
-		if err.Error() == "batch_number already exists" {
-			return models.ProductBatch{}, errors.WrapErrAlreadyExist("product batch", "batch_number", productBatch.BatchNumber)
-		}
-		if err.Error() == "product_id does not exist" {
-			return models.ProductBatch{}, errors.WrapErrNotFound("product", "id", productBatch.ProductID)
-		}
-		if err.Error() == "section_id does not exist" {
-			return models.ProductBatch{}, errors.WrapErrNotFound("section", "id", productBatch.SectionID)
-		}
-		return models.ProductBatch{}, err
+		return models.ProductBatch{}, errors.HandleMysqlError(err)
 	}
 
 	return createdProductBatch, nil
@@ -41,7 +31,6 @@ func (s *productBatchService) GetProductCountBySection(sectionID *int) ([]models
 		return nil, err
 	}
 
-	// Si se especificó una sección y no se encontró ningún reporte, devolver 404
 	if sectionID != nil && len(reports) == 0 {
 		return nil, errors.WrapErrNotFound("section", "id", *sectionID)
 	}

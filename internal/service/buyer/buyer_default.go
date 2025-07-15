@@ -41,7 +41,7 @@ func (s *buyerService) Create(buyer *models.Buyer) (*models.Buyer, error) {
 	}
 
 	if exists {
-		return nil, errors.WrapErrAlreadyExist("buyer", "card number id", buyer.CardNumberId)
+		return nil, errors.WrapErrConflict("buyer", "card number id", buyer.CardNumberId)
 	}
 
 	newBuyer, createErr := s.repository.Create(buyer)
@@ -64,7 +64,7 @@ func (s *buyerService) Update(id int, buyer *models.Buyer) (*models.Buyer, error
 			return nil, err
 		}
 		if exists {
-			return nil, errors.WrapErrAlreadyExist("buyer", "card number id", buyer.CardNumberId)
+			return nil, errors.WrapErrConflict("buyer", "card number id", buyer.CardNumberId)
 		}
 	}
 

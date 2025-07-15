@@ -18,7 +18,7 @@ type ProductDefault struct {
 
 func (s *ProductDefault) CreateProduct(newProd models.Product) (models.Product, error) {
 	if s.rp.ExistsProdCode(newProd.ProductCode) {
-		newError := pkgErrors.WrapErrAlreadyExist("product", "product code", newProd.ProductCode)
+		newError := pkgErrors.WrapErrConflict("product", "product code", newProd.ProductCode)
 		return models.Product{}, newError
 	}
 	prodReturn, err := s.rp.CreateProduct(newProd)
@@ -49,7 +49,7 @@ func (s *ProductDefault) UpdateProduct(id int, prod models.Product) (models.Prod
 	}
 	if currentProd.ProductCode != prod.ProductCode {
 		if s.rp.ExistsProdCode(prod.ProductCode) {
-			newError := pkgErrors.WrapErrAlreadyExist("product", "product code", prod.ProductCode)
+			newError := pkgErrors.WrapErrConflict("product", "product code", prod.ProductCode)
 			return models.Product{}, newError
 		}
 	}

@@ -3,7 +3,6 @@ package repository
 import (
 	"ProyectoFinal/pkg/models"
 	"database/sql"
-	"errors"
 	"fmt"
 	"log"
 )
@@ -17,21 +16,6 @@ func NewProductBatchMySQL(db *sql.DB) *ProductBatchMySQL {
 }
 
 func (r *ProductBatchMySQL) Create(productBatch models.ProductBatch) (models.ProductBatch, error) {
-	// Verificar que batch_number no exista
-	if r.ExistsByBatchNumber(productBatch.BatchNumber) {
-		return productBatch, errors.New("batch_number already exists")
-	}
-
-	// Verificar que product_id existe
-	if !r.ProductExists(productBatch.ProductID) {
-		return productBatch, errors.New("product_id does not exist")
-	}
-
-	// Verificar que section_id existe
-	if !r.SectionExists(productBatch.SectionID) {
-		return productBatch, errors.New("section_id does not exist")
-	}
-
 	tx, err := r.db.Begin()
 	if err != nil {
 		log.Println("[ProductBatchMySQL][Create] error en Begin:", err)
@@ -44,7 +28,6 @@ func (r *ProductBatchMySQL) Create(productBatch models.ProductBatch) (models.Pro
 		}
 	}()
 
-	// Convertir manufacturing_hour de int a formato TIME (HH:MM:SS)
 	manufacturingHourStr := fmt.Sprintf("%02d:00:00", productBatch.ManufacturingHour)
 
 	res, err := tx.Exec(ProductBatchInsert,
@@ -73,7 +56,6 @@ func (r *ProductBatchMySQL) Create(productBatch models.ProductBatch) (models.Pro
 	return productBatch, nil
 }
 
-// Validation methods
 func (r *ProductBatchMySQL) ExistsByBatchNumber(batchNumber string) bool {
 	var exists bool
 	err := r.db.QueryRow(ProductBatchExistsByNumber, batchNumber).Scan(&exists)
@@ -104,7 +86,6 @@ func (r *ProductBatchMySQL) SectionExists(sectionID int) bool {
 	return exists
 }
 
-// Report methods
 func (r *ProductBatchMySQL) GetProductCountBySection(sectionID *int) ([]models.SectionProductReport, error) {
 	var rows *sql.Rows
 	var err error
