@@ -95,7 +95,7 @@ func (h *SellerHandler) Update() http.HandlerFunc {
 			return
 		}
 
-		sellerUpdated, err := h.service.Update(id, sellerToUpdate)
+		sellerUpdated, err := h.service.Update(sellerToUpdate)
 
 		if err != nil {
 			log.Println(err)

@@ -103,13 +103,9 @@ func (r *SellerMysql) Update(seller *models.Seller) (models.Seller, error) {
 	if err != nil {
 		return models.Seller{}, err
 	}
-	rowsAffected, err := result.RowsAffected()
+	_, err = result.RowsAffected()
 	if err != nil {
 		return models.Seller{}, err
-	}
-	if rowsAffected == 0 {
-		newError := pkgErrors.WrapErrAlreadyExist("Seller", "id", seller.Id)
-		return models.Seller{}, newError
 	}
 	return *seller, nil
 }

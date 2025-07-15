@@ -10,6 +10,7 @@ import (
 func HandleMysqlError(err error) error {
 	var mysqlError *mysql.MySQLError
 	if errors.As(err, &mysqlError) {
+		fmt.Println(err)
 		switch mysqlError.Number {
 		case 1062:
 			return HandleDuplicatedEntryError(err)
