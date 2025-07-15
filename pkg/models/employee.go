@@ -5,14 +5,14 @@ type Employee struct {
 	CardNumberID string
 	FirstName    string
 	LastName     string
-	WarehouseID  int
+	WarehouseID  *int
 }
 
 type EmployeeRequest struct {
 	CardNumberID string `json:"card_number_id" validate:"required"`
 	FirstName    string `json:"first_name" validate:"required"`
 	LastName     string `json:"last_name" validate:"required"`
-	WarehouseID  int    `json:"warehouse_id" validate:"required,gt=0"`
+	WarehouseID  *int   `json:"warehouse_id,omitempty" validate:"omitempty,gt=0"`
 }
 
 func (r EmployeeRequest) DocToModel() Employee {
@@ -36,13 +36,25 @@ type EmployeeDoc struct {
 	CardNumberID string `json:"card_number_id"`
 	FirstName    string `json:"first_name"`
 	LastName     string `json:"last_name"`
-	WarehouseID  int    `json:"warehouse_id"`
+	WarehouseID  *int   `json:"warehouse_id,omitempty"`
 }
 
 func (e Employee) ModelToDoc() EmployeeDoc {
-	return EmployeeDoc(e)
+	return EmployeeDoc{
+		ID:           e.ID,
+		CardNumberID: e.CardNumberID,
+		FirstName:    e.FirstName,
+		LastName:     e.LastName,
+		WarehouseID:  e.WarehouseID,
+	}
 }
 
 func (e EmployeeDoc) DocToModel() Employee {
-	return Employee(e)
+	return Employee{
+		ID:           e.ID,
+		CardNumberID: e.CardNumberID,
+		FirstName:    e.FirstName,
+		LastName:     e.LastName,
+		WarehouseID:  e.WarehouseID,
+	}
 }

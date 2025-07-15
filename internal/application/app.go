@@ -48,7 +48,6 @@ func (a *ServerChi) Run() (err error) {
 
 	// Initialize MySQL connection
 	mysqlDB := config.InitDB()
-	defer mysqlDB.Close()
 
 	// Dependency injection
 	sellerHandler := di.GetSellerHandler(database.Seller)
