@@ -56,14 +56,16 @@ func HandleColumnRequired(err error) error {
 }
 
 func HandleParentRowError(err error) error {
-	re := regexp.MustCompile("CONSTRAINT\\s+`([^`]*)`\\s+FOREIGN KEY\\s+\\(`([^`]*)`\\)\\s+REFERENCES\\s+`([^`]*)`\\s+\\(`([^`]*)`\\)")
+	re := regexp.MustCompile(
+		"fails \\(`[^`]+`\\.`([^`]*)`, CONSTRAINT `([^`]*)` FOREIGN KEY \\(`([^`]*)`\\) REFERENCES `([^`]*)` \\(`([^`]*)`\\)",
+	)
 	matches := re.FindStringSubmatch(err.Error())
 
-	if len(matches) == 5 {
-		fkColumn := matches[4]
-		referencedTable := matches[3]
-
-		return fmt.Errorf("%w: cannot delete or update record: %s is referenced by existing %s records", ErrConflict, referencedTable, fkColumn)
+	if len(matches) == 6 {
+		fkColumn := matches[5]
+		referencedTable := matches[4]
+		affectedTable := matches[1]
+		return fmt.Errorf("%w: cannot delete or update record: %s is referenced by existing %s records in %s", ErrConflict, referencedTable, fkColumn, affectedTable)
 	}
 	return fmt.Errorf("%w: cannot delete or update record: it is referenced by other records", ErrConflict)
 }
