@@ -83,10 +83,18 @@ func (r *SellerMysql) GetAll() ([]models.Seller, error) {
 }
 
 func (r *SellerMysql) Delete(id int) error {
-	_, err := r.db.Exec(SQL_DELETE, id)
+	result, err := r.db.Exec(SQL_DELETE, id)
 	if err != nil {
 		return err
 	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rowsAffected == 0 {
+		return pkgErrors.WrapErrNotFound("Seller", "id", id)
+	}
+
 	return nil
 }
 
