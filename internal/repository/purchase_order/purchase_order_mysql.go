@@ -4,7 +4,6 @@ import (
 	pkgErrors "ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
 	"database/sql"
-	"fmt"
 )
 
 type purchaseOrderMySql struct {
@@ -18,19 +17,9 @@ func NewPurchaseOrderMySqlRepository(newDB *sql.DB) Repository {
 }
 
 func (r *purchaseOrderMySql) GetByBuyerId(buyerId int) ([]*models.PurchaseOrderWithAllFields, error) {
-	var exists bool
-	checkErr := r.db.QueryRow(CheckBuyer, buyerId).Scan(&exists)
-	if checkErr != nil {
-		return nil, fmt.Errorf("error checking buyer existence: %w", checkErr)
-	}
-
-	if !exists {
-		return nil, pkgErrors.WrapErrNotFound("buyer", "id", buyerId)
-	}
-
 	rows, rowsErr := r.db.Query(GetPurchaseOrdersByBuyerId, buyerId)
 	if rowsErr != nil {
-		return nil, fmt.Errorf("error querying purchase orders by buyer ID %d: %w", buyerId, rowsErr)
+		return nil, rowsErr
 	}
 	defer rows.Close()
 
@@ -49,7 +38,7 @@ func (r *purchaseOrderMySql) GetByBuyerId(buyerId int) ([]*models.PurchaseOrderW
 		)
 
 		if scanErr != nil {
-			return nil, fmt.Errorf("error scanning purchase order row: %w", scanErr)
+			return nil, scanErr
 		}
 
 		if localityID.Valid {
@@ -62,8 +51,12 @@ func (r *purchaseOrderMySql) GetByBuyerId(buyerId int) ([]*models.PurchaseOrderW
 		purchaseOrders = append(purchaseOrders, po)
 	}
 
-	if rowsErr := rows.Err(); rowsErr != nil {
-		return nil, fmt.Errorf("error iterating over rows: %w", rowsErr)
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	if len(purchaseOrders) == 0 {
+		return nil, pkgErrors.WrapErrNotFound("buyer", "id", buyerId)
 	}
 
 	return purchaseOrders, nil
@@ -81,12 +74,12 @@ func (r *purchaseOrderMySql) Create(purchaseOrder *models.PurchaseOrder) (*model
 		purchaseOrder.WarehouseId,
 	)
 	if execErr != nil {
-		return nil, fmt.Errorf("error creating purchase order: %w", execErr)
+		return nil, execErr
 	}
 
 	lastInsertId, idErr := result.LastInsertId()
 	if idErr != nil {
-		return nil, fmt.Errorf("error getting last insert id: %w", idErr)
+		return nil, idErr
 	}
 
 	purchaseOrder.Id = int(lastInsertId)
