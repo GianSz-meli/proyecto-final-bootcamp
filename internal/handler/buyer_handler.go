@@ -5,9 +5,10 @@ import (
 	"ProyectoFinal/internal/service/buyer"
 	"ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
-	"encoding/json"
 	"fmt"
+	"github.com/bootcamp-go/web/request"
 	"github.com/bootcamp-go/web/response"
+	"log"
 	"net/http"
 )
 
@@ -21,14 +22,41 @@ func NewBuyerHandler(newService buyer.Service) *BuyerHandler {
 	}
 }
 
+func (h *BuyerHandler) GetById() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id, idErr := utils.GetParamInt(r, "id")
+		if idErr != nil {
+			log.Println(idErr)
+			errors.HandleError(w, idErr)
+			return
+		}
+
+		resp, respErr := h.service.GetById(id)
+		if respErr != nil {
+			log.Println(respErr)
+			errors.HandleError(w, respErr)
+			return
+		}
+
+		response.JSON(w, http.StatusOK, models.SuccessResponse{Data: resp.ModelToDoc()})
+	}
+}
+
 func (h *BuyerHandler) GetAll() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		resp := h.service.GetAll()
+		resp, err := h.service.GetAll()
+		if err != nil {
+			log.Println(err)
+			errors.HandleError(w, err)
+			return
+		}
 
 		docs := make([]models.BuyerDoc, 0, len(resp))
+
 		for _, b := range resp {
 			docs = append(docs, b.ModelToDoc())
 		}
+
 		response.JSON(w, http.StatusOK, models.SuccessResponse{Data: docs})
 	}
 }
@@ -36,101 +64,99 @@ func (h *BuyerHandler) GetAll() http.HandlerFunc {
 func (h *BuyerHandler) Create() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var dto models.BuyerCreateDTO
-		if err := json.NewDecoder(r.Body).Decode(&dto); err != nil {
-			errors.HandleError(w, errors.WrapErrBadRequest(err))
+
+		if err := request.JSON(r, &dto); err != nil {
+			wrappedErr := errors.WrapErrBadRequest(err)
+			log.Println(wrappedErr)
+			errors.HandleError(w, wrappedErr)
 			return
 		}
 
-		if err := utils.ValidateRequestData(dto); err != nil {
-			errors.HandleError(w, err)
+		if validateDtoErr := utils.ValidateRequestData(dto); validateDtoErr != nil {
+			log.Println(validateDtoErr)
+			errors.HandleError(w, validateDtoErr)
 			return
 		}
 
-		resp, err := h.service.Create(dto.CreateDtoToModel())
-		if err != nil {
-			errors.HandleError(w, err)
+		resp, respErr := h.service.Create(dto.CreateDtoToModel())
+		if respErr != nil {
+			log.Println(respErr)
+			errors.HandleError(w, respErr)
 			return
 		}
 
-		doc := resp.ModelToDoc()
-		response.JSON(w, http.StatusCreated, models.SuccessResponse{Data: doc})
-	}
-}
-
-func (h *BuyerHandler) GetById() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		id, err := utils.GetParamInt(r, "id")
-		if err != nil {
-			errors.HandleError(w, err)
-			return
-		}
-
-		resp, err := h.service.GetById(id)
-		if err != nil {
-			errors.HandleError(w, err)
-			return
-		}
-
-		doc := resp.ModelToDoc()
-		response.JSON(w, http.StatusOK, models.SuccessResponse{Data: doc})
-	}
-}
-
-func (h *BuyerHandler) Delete() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		id, err := utils.GetParamInt(r, "id")
-		if err != nil {
-			errors.HandleError(w, err)
-			return
-		}
-
-		if err := h.service.Delete(id); err != nil {
-			errors.HandleError(w, err)
-			return
-		}
-
-		w.WriteHeader(http.StatusNoContent)
+		response.JSON(w, http.StatusCreated, models.SuccessResponse{Data: resp.ModelToDoc()})
 	}
 }
 
 func (h *BuyerHandler) Update() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		id, err := utils.GetParamInt(r, "id")
-		if err != nil {
-			errors.HandleError(w, err)
+		id, idErr := utils.GetParamInt(r, "id")
+		if idErr != nil {
+			log.Println(idErr)
+			errors.HandleError(w, idErr)
 			return
 		}
 
 		var dto models.BuyerUpdateDTO
-		if err := json.NewDecoder(r.Body).Decode(&dto); err != nil {
-			errors.HandleError(w, errors.WrapErrBadRequest(err))
+
+		if err := request.JSON(r, &dto); err != nil {
+			wrappedErr := errors.WrapErrBadRequest(err)
+			log.Println(wrappedErr)
+			errors.HandleError(w, wrappedErr)
 			return
 		}
 
-		if err := utils.ValidateRequestData(dto); err != nil {
-			errors.HandleError(w, errors.WrapErrUnprocessableEntity(err))
+		fmt.Printf("DTO después de deserializar: %+v\n", dto)
+
+		if validateDtoErr := utils.ValidateRequestData(dto); validateDtoErr != nil {
+			log.Println(validateDtoErr)
+			errors.HandleError(w, validateDtoErr)
 			return
 		}
 
-		existingBuyer, err := h.service.GetById(id)
-		if err != nil {
-			errors.HandleError(w, err)
+		buyerToUpdate, existsErr := h.service.GetById(id)
+		if existsErr != nil {
+			log.Println(existsErr)
+			errors.HandleError(w, existsErr)
 			return
 		}
 
-		if updated := utils.UpdateFields(&existingBuyer, &dto); !updated {
+		if updated := utils.UpdateFields(buyerToUpdate, &dto); !updated {
 			newError := fmt.Errorf("%w : no fields provided for update", errors.ErrUnprocessableEntity)
+			log.Println(newError)
 			errors.HandleError(w, newError)
 			return
 		}
 
-		resp, err := h.service.Update(id, existingBuyer)
-		if err != nil {
+		fmt.Printf("Voy a actualizar: %+v\n", buyerToUpdate)
+
+		resp, updateErr := h.service.Update(id, buyerToUpdate)
+		if updateErr != nil {
+			log.Println(updateErr)
+			errors.HandleError(w, updateErr)
+			return
+		}
+
+		response.JSON(w, http.StatusOK, models.SuccessResponse{Data: resp.ModelToDoc()})
+	}
+}
+
+func (h *BuyerHandler) Delete() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id, idErr := utils.GetParamInt(r, "id")
+		if idErr != nil {
+			log.Println(idErr)
+			errors.HandleError(w, idErr)
+			return
+		}
+
+		if err := h.service.Delete(id); err != nil {
+			log.Println(err)
 			errors.HandleError(w, err)
 			return
 		}
 
-		doc := resp.ModelToDoc()
-		response.JSON(w, http.StatusOK, models.SuccessResponse{Data: doc})
+		w.WriteHeader(http.StatusNoContent)
 	}
 }
