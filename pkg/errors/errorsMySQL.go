@@ -15,6 +15,8 @@ func HandleMysqlError(err error) error {
 			return HandleDuplicatedEntryError(err)
 		case 1452:
 			return HandleViolationFkError(err)
+		case 1048:
+			return HandleColumnRequired(err)
 		case 1451:
 			//TODO: Cannot delete or update parent row (viola FK padre) 409 CONFLICT
 			return err
@@ -40,7 +42,16 @@ func HandleViolationFkError(err error) error {
 	matches := re.FindStringSubmatch(err.Error())
 	if len(matches) > 1 {
 		fkField := matches[1]
-		return fmt.Errorf("%w: foreign key constraint failed on field '%s'", ErrBadRequest, fkField)
+		return fmt.Errorf("%w: invalid value: %s refers to a non-existent or deleted record", ErrBadRequest, fkField)
 	}
-	return fmt.Errorf("%w: foreign key constraint failed (unknown field)", ErrBadRequest)
+	return fmt.Errorf("%w: invalid reference: one of the linked objects was not found", ErrBadRequest)
+}
+
+func HandleColumnRequired(err error) error {
+	re := regexp.MustCompile(`Column '([^']*)'`)
+	matches := re.FindStringSubmatch(err.Error())
+	if len(matches) > 1 {
+		return fmt.Errorf("%w: %s cannot be null", ErrBadRequest, matches[1])
+	}
+	return fmt.Errorf("%w: a required field is missing or null", ErrBadRequest)
 }
