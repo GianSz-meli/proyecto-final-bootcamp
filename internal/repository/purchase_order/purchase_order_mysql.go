@@ -1,6 +1,7 @@
 package purchase_order
 
 import (
+	pkgErrors "ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
 	"database/sql"
 	"fmt"
@@ -17,9 +18,19 @@ func NewPurchaseOrderMySqlRepository(newDB *sql.DB) Repository {
 }
 
 func (r *purchaseOrderMySql) GetByBuyerId(buyerId int) ([]*models.PurchaseOrderWithAllFields, error) {
-	rows, err := r.db.Query(GetPurchaseOrdersByBuyerId, buyerId)
-	if err != nil {
-		return nil, fmt.Errorf("error querying purchase orders by buyer ID %d: %w", buyerId, err)
+	var exists bool
+	checkErr := r.db.QueryRow(CheckBuyer, buyerId).Scan(&exists)
+	if checkErr != nil {
+		return nil, fmt.Errorf("error checking buyer existence: %w", checkErr)
+	}
+
+	if !exists {
+		return nil, pkgErrors.WrapErrNotFound("buyer", "id", buyerId)
+	}
+
+	rows, rowsErr := r.db.Query(GetPurchaseOrdersByBuyerId, buyerId)
+	if rowsErr != nil {
+		return nil, fmt.Errorf("error querying purchase orders by buyer ID %d: %w", buyerId, rowsErr)
 	}
 	defer rows.Close()
 
