@@ -28,12 +28,12 @@ func (r *mysqlRepository) Create(inboundOrder *models.InboundOrder) error {
 		inboundOrder.ProductBatchID,
 		inboundOrder.WarehouseID)
 	if err != nil {
-		return pkgErrors.HandleMysqlError(err)
+		return err
 	}
 
 	lastInsertID, err := result.LastInsertId()
 	if err != nil {
-		return pkgErrors.HandleMysqlError(err)
+		return err
 	}
 
 	inboundOrder.ID = int(lastInsertID)
@@ -53,7 +53,7 @@ func (r *mysqlRepository) GetEmployeeInboundOrdersReportByEmployeeId(employeeId 
 		if errors.Is(err, sql.ErrNoRows) {
 			return models.EmployeeInboundOrdersReport{}, pkgErrors.WrapErrNotFound("employee", "id", employeeId)
 		}
-		return models.EmployeeInboundOrdersReport{}, pkgErrors.HandleMysqlError(err)
+		return models.EmployeeInboundOrdersReport{}, err
 	}
 
 	return report, nil
@@ -65,12 +65,12 @@ func (r *mysqlRepository) GetEmployeeInboundOrdersReportByEmployeeId(employeeId 
 func (r *mysqlRepository) GetEmployeeInboundOrdersReportAll() ([]models.EmployeeInboundOrdersReport, error) {
 	rows, err := r.db.Query(QueryGetEmployeeInboundOrdersReportAll)
 	if err != nil {
-		return nil, pkgErrors.HandleMysqlError(err)
+		return nil, err
 	}
 	defer rows.Close()
 
 	if err = rows.Err(); err != nil {
-		return nil, pkgErrors.HandleMysqlError(err)
+		return nil, err
 	}
 
 	var reports []models.EmployeeInboundOrdersReport
@@ -79,7 +79,7 @@ func (r *mysqlRepository) GetEmployeeInboundOrdersReportAll() ([]models.Employee
 
 		err := rows.Scan(&report.ID, &report.CardNumberID, &report.FirstName, &report.LastName, &report.WarehouseID, &report.InboundOrdersCount)
 		if err != nil {
-			return nil, pkgErrors.HandleMysqlError(err)
+			return nil, err
 		}
 
 		reports = append(reports, report)

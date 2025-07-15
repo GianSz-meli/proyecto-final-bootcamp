@@ -23,12 +23,12 @@ func NewMySQLRepository(db *sql.DB) Repository {
 func (r *mysqlRepository) GetAll() ([]models.Employee, error) {
 	rows, err := r.db.Query(QueryGetAll)
 	if err != nil {
-		return nil, pkgErrors.HandleMysqlError(err)
+		return nil, err
 	}
 	defer rows.Close()
 
 	if err = rows.Err(); err != nil {
-		return nil, pkgErrors.HandleMysqlError(err)
+		return nil, err
 	}
 
 	var employees []models.Employee
@@ -37,7 +37,7 @@ func (r *mysqlRepository) GetAll() ([]models.Employee, error) {
 
 		err := rows.Scan(&employee.ID, &employee.CardNumberID, &employee.FirstName, &employee.LastName, &employee.WarehouseID)
 		if err != nil {
-			return nil, pkgErrors.HandleMysqlError(err)
+			return nil, err
 		}
 
 		employees = append(employees, employee)
@@ -58,7 +58,7 @@ func (r *mysqlRepository) GetById(id int) (models.Employee, error) {
 		if errors.Is(err, sql.ErrNoRows) {
 			return models.Employee{}, pkgErrors.WrapErrNotFound("employee", "id", id)
 		}
-		return models.Employee{}, pkgErrors.HandleMysqlError(err)
+		return models.Employee{}, err
 	}
 
 	return employee, nil
@@ -69,12 +69,12 @@ func (r *mysqlRepository) GetById(id int) (models.Employee, error) {
 func (r *mysqlRepository) Create(employee *models.Employee) error {
 	result, err := r.db.Exec(QueryCreate, employee.CardNumberID, employee.FirstName, employee.LastName, employee.WarehouseID)
 	if err != nil {
-		return pkgErrors.HandleMysqlError(err)
+		return err
 	}
 
 	lastInsertID, err := result.LastInsertId()
 	if err != nil {
-		return pkgErrors.HandleMysqlError(err)
+		return err
 	}
 
 	employee.ID = int(lastInsertID)
@@ -91,7 +91,7 @@ func (r *mysqlRepository) Update(id int, employee models.Employee) error {
 
 	_, err = r.db.Exec(QueryUpdate, employee.CardNumberID, employee.FirstName, employee.LastName, employee.WarehouseID, id)
 	if err != nil {
-		return pkgErrors.HandleMysqlError(err)
+		return err
 	}
 
 	return nil
@@ -103,12 +103,12 @@ func (r *mysqlRepository) Update(id int, employee models.Employee) error {
 func (r *mysqlRepository) Delete(id int) error {
 	result, err := r.db.Exec(QueryDelete, id)
 	if err != nil {
-		return pkgErrors.HandleMysqlError(err)
+		return err
 	}
 
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
-		return pkgErrors.HandleMysqlError(err)
+		return err
 	}
 
 	if rowsAffected == 0 {
