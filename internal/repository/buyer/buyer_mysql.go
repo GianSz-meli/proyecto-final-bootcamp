@@ -32,6 +32,9 @@ func (r *buyerMySql) GetById(id int) (*models.Buyer, error) {
 	}
 
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, pkgErrors.WrapErrNotFound("buyer", "id", id)
+		}
 		return nil, err
 	}
 

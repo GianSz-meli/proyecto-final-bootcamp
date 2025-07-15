@@ -55,6 +55,7 @@ func (a *ServerChi) Run() (err error) {
 	employeeHandler := di.GetEmployeeHandler(database.Employee)
 	productHandler := di.GetProductsHandler(database.Product)
 	productBatchHandler := di.GetProductBatchHandler(sqlDB)
+	carrierHandler := di.GetCarrierHandler(sqlDB)
 
 	//Middlewares
 	rt.Use(middleware.Logger)
@@ -67,6 +68,7 @@ func (a *ServerChi) Run() (err error) {
 		r.Mount("/warehouses", router.GetWarehouseRouter(warehouseHandler))
 		r.Mount("/products", router.ProductRoutes(productHandler))
 		r.Mount("/buyers", router.GetBuyerRouter(buyerHandler))
+		r.Mount("/carriers", router.GetCarrierRouter(carrierHandler))
 	})
 
 	err = http.ListenAndServe(a.serverAddress, rt)
