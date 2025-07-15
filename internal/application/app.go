@@ -44,13 +44,14 @@ func (a *ServerChi) Run() (err error) {
 	rt := chi.NewRouter()
 
 	database := db.LoadDB(a.loaderFilePath)
-	newDB := config.InitDB()
+	//TODO: Replace LoadDB to InitDB
+	sqlDB := config.InitDB()
 
 	// Dependency injection
 	sellerHandler := di.GetSellerHandler(database.Seller)
-	warehouseHandler := di.GetWarehouseHandler(database.Warehouse)
-	sectionHandler := di.GetSectionHandler(newDB)
-	buyerHandler := di.GetBuyerHandler(newDB)
+	warehouseHandler := di.GetWarehouseHandler(sqlDB)
+	sectionHandler := di.GetSectionHandler(sqlDB)
+	buyerHandler := di.GetBuyerHandler(sqlDB)
 	employeeHandler := di.GetEmployeeHandler(database.Employee)
 	productHandler := di.GetProductsHandler(database.Product)
 	productBatchHandler := di.GetProductBatchHandler(newDB)
