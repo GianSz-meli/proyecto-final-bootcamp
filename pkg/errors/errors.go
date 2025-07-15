@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/bootcamp-go/web/response"
-	"github.com/go-sql-driver/mysql"
 )
 
 type ApiError struct {

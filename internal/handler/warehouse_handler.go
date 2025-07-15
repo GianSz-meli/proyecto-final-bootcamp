@@ -80,7 +80,7 @@ func (h *WarehouseHandler) CreateWarehouse(w http.ResponseWriter, r *http.Reques
 	}
 
 	responseBody := models.SuccessResponse{
-		Data: createdWarehouse.ModelToDoc(),
+		Data: createdWarehouse.ModelToCreateDoc(),
 	}
 	response.JSON(w, http.StatusCreated, responseBody)
 }
@@ -122,7 +122,7 @@ func (h *WarehouseHandler) UpdateWarehouse(w http.ResponseWriter, r *http.Reques
 	}
 
 	responseBody := models.SuccessResponse{
-		Data: updatedWarehouse.ModelToDoc(),
+		Data: updatedWarehouse.ModelToUpdateDoc(),
 	}
 	response.JSON(w, http.StatusOK, responseBody)
 }

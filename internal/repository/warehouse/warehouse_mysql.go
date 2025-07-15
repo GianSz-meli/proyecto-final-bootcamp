@@ -138,12 +138,6 @@ func (r *SqlWarehouseRepository) GetById(id int) (*models.Warehouse, error) {
 	return &warehouse, nil
 }
 
-func (r *SqlWarehouseRepository) ExistsByCode(code string) (bool, error) {
-	var exists bool
-	err := r.db.QueryRow(ExistsByCodeQuery, code).Scan(&exists)
-	return exists, err
-}
-
 func (r *SqlWarehouseRepository) Create(warehouse models.Warehouse) (models.Warehouse, error) {
 	result, err := r.db.Exec(CreateWarehouseQuery,
 		warehouse.WarehouseCode,
