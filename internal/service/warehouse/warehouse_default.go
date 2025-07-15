@@ -33,9 +33,6 @@ func (s *WarehouseServiceImpl) GetWarehouseById(id int) (models.Warehouse, error
 	if err != nil {
 		return models.Warehouse{}, err
 	}
-	if wh == nil {
-		return models.Warehouse{}, errors.WrapErrNotFound("warehouse", "id", id)
-	}
 	return *wh, nil
 }
 

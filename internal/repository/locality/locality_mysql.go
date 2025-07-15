@@ -48,8 +48,8 @@ func (r *SqlLocalityRepository) GetById(id int) (*models.Locality, error) {
 		return nil, err
 	}
 
-	province.Country = &country
-	locality.Province = &province
+	province.Country = country
+	locality.Province = province
 
 	return &locality, nil
 }

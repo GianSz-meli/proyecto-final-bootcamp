@@ -1,6 +1,7 @@
 package warehouse
 
 import (
+	"ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
 	"database/sql"
 )
@@ -16,20 +17,7 @@ func NewSqlWarehouseRepository(db *sql.DB) WarehouseRepository {
 }
 
 func (r *SqlWarehouseRepository) GetAll() ([]models.Warehouse, error) {
-	query := `
-		SELECT 
-			w.id, w.warehouse_code, w.address, w.telephone, w.minimum_capacity, w.minimum_temperature, w.locality_id,
-			l.id, l.locality_name,
-			p.id, p.province_name,
-			c.id, c.country_name
-		FROM warehouses w
-		LEFT JOIN localities l ON w.locality_id = l.id
-		LEFT JOIN provinces p ON l.province_id = p.id
-		LEFT JOIN countries c ON p.country_id = c.id
-		ORDER BY w.id
-	`
-
-	rows, err := r.db.Query(query)
+	rows, err := r.db.Query(GetAllWarehousesQuery)
 	if err != nil {
 		return nil, err
 	}
@@ -38,9 +26,15 @@ func (r *SqlWarehouseRepository) GetAll() ([]models.Warehouse, error) {
 	var warehouses []models.Warehouse
 	for rows.Next() {
 		var warehouse models.Warehouse
-		var locality models.Locality
-		var province models.Province
-		var country models.Country
+
+		var ( 
+			localityId *int
+			localityName *string
+			provinceId *int
+			provinceName *string
+			countryId *int
+			countryName *string
+		)
 
 		err := rows.Scan(
 			&warehouse.ID,
@@ -50,20 +44,33 @@ func (r *SqlWarehouseRepository) GetAll() ([]models.Warehouse, error) {
 			&warehouse.MinimumCapacity,
 			&warehouse.MinimumTemperature,
 			&warehouse.LocalityId,
-			&locality.Id,
-			&locality.LocalityName,
-			&province.Id,
-			&province.ProvinceName,
-			&country.Id,
-			&country.CountryName,
+			&localityId,
+			&localityName,
+			&provinceId,
+			&provinceName,
+			&countryId,
+			&countryName,
 		)
 		if err != nil {
 			return nil, err
 		}
 
-		if locality.Id != nil {
-			province.Country = &country
-			locality.Province = &province
+		if localityId != nil {
+			country := models.Country{
+				Id: *countryId,
+				CountryName: *countryName,
+			}
+
+			province := models.Province{
+				Id: *countryId,
+				ProvinceName: *provinceName,
+				Country: country,
+			}
+			locality := models.Locality{
+				Id: *provinceId,
+				LocalityName: *localityName,
+				Province: province,
+			}
 			warehouse.Locality = &locality
 		}
 
@@ -78,25 +85,17 @@ func (r *SqlWarehouseRepository) GetAll() ([]models.Warehouse, error) {
 }
 
 func (r *SqlWarehouseRepository) GetById(id int) (*models.Warehouse, error) {
-	query := `
-		SELECT 
-			w.id, w.warehouse_code, w.address, w.telephone, w.minimum_capacity, w.minimum_temperature, w.locality_id,
-			l.id, l.locality_name,
-			p.id, p.province_name,
-			c.id, c.country_name
-		FROM warehouses w
-		LEFT JOIN localities l ON w.locality_id = l.id
-		LEFT JOIN provinces p ON l.province_id = p.id
-		LEFT JOIN countries c ON p.country_id = c.id
-		WHERE w.id = ?
-	`
-
 	var warehouse models.Warehouse
-	var locality models.Locality
-	var province models.Province
-	var country models.Country
+	var ( 
+		localityId *int
+		localityName *string
+		provinceId *int
+		provinceName *string
+		countryId *int
+		countryName *string
+	)
 
-	err := r.db.QueryRow(query, id).Scan(
+	err := r.db.QueryRow(GetWarehouseByIdQuery, id).Scan(
 		&warehouse.ID,
 		&warehouse.WarehouseCode,
 		&warehouse.Address,
@@ -104,23 +103,35 @@ func (r *SqlWarehouseRepository) GetById(id int) (*models.Warehouse, error) {
 		&warehouse.MinimumCapacity,
 		&warehouse.MinimumTemperature,
 		&warehouse.LocalityId,
-		&locality.Id,
-		&locality.LocalityName,
-		&province.Id,
-		&province.ProvinceName,
-		&country.Id,
-		&country.CountryName,
+		&localityId,
+		&localityName,
+		&provinceId,
+		&provinceName,
+		&countryId,
+		&countryName,
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, nil
+			return nil, errors.WrapErrNotFound("warehouse", "id", id)
 		}
 		return nil, err
 	}
 
-	if locality.Id != nil {
-		province.Country = &country
-		locality.Province = &province
+	if localityId != nil {
+		country := models.Country{
+			Id: *countryId,
+			CountryName: *countryName,
+		}
+		province := models.Province{
+			Id: *provinceId,
+			ProvinceName: *provinceName,
+			Country: country,
+		}
+		locality := models.Locality{
+			Id: *localityId,
+			LocalityName: *localityName,
+			Province: province,
+		}
 		warehouse.Locality = &locality
 	}
 
@@ -128,17 +139,13 @@ func (r *SqlWarehouseRepository) GetById(id int) (*models.Warehouse, error) {
 }
 
 func (r *SqlWarehouseRepository) ExistsByCode(code string) (bool, error) {
-	query := `SELECT EXISTS(SELECT 1 FROM warehouses WHERE warehouse_code = ?)`
 	var exists bool
-	err := r.db.QueryRow(query, code).Scan(&exists)
+	err := r.db.QueryRow(ExistsByCodeQuery, code).Scan(&exists)
 	return exists, err
 }
 
 func (r *SqlWarehouseRepository) Create(warehouse models.Warehouse) (models.Warehouse, error) {
-	query := `INSERT INTO warehouses (warehouse_code, address, telephone, minimum_capacity, minimum_temperature, locality_id) 
-			  VALUES (?, ?, ?, ?, ?, ?)`
-
-	result, err := r.db.Exec(query,
+	result, err := r.db.Exec(CreateWarehouseQuery,
 		warehouse.WarehouseCode,
 		warehouse.Address,
 		warehouse.Telephone,
@@ -161,11 +168,7 @@ func (r *SqlWarehouseRepository) Create(warehouse models.Warehouse) (models.Ware
 }
 
 func (r *SqlWarehouseRepository) Update(id int, warehouse models.Warehouse) (models.Warehouse, error) {
-	query := `UPDATE warehouses 
-			  SET warehouse_code = ?, address = ?, telephone = ?, minimum_capacity = ?, minimum_temperature = ?, locality_id = ? 
-			  WHERE id = ?`
-
-	_, err := r.db.Exec(query,
+	_, err := r.db.Exec(UpdateWarehouseQuery,
 		warehouse.WarehouseCode,
 		warehouse.Address,
 		warehouse.Telephone,
@@ -183,7 +186,6 @@ func (r *SqlWarehouseRepository) Update(id int, warehouse models.Warehouse) (mod
 }
 
 func (r *SqlWarehouseRepository) Delete(id int) error {
-	query := `DELETE FROM warehouses WHERE id = ?`
-	_, err := r.db.Exec(query, id)
+	_, err := r.db.Exec(DeleteWarehouseByIdQuery, id)
 	return err
 }

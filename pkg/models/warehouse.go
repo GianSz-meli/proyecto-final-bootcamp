@@ -61,7 +61,7 @@ type CreateWarehouseRequest struct {
 func (c CreateWarehouseRequest) DocToModel() Warehouse {
 	var locality *Locality
 	if c.LocalityId != nil {
-		locality = &Locality{Id: c.LocalityId}
+		locality = &Locality{Id: *c.LocalityId}
 	}
 	return Warehouse{
 		WarehouseCode:      c.WarehouseCode,
@@ -86,7 +86,7 @@ type UpdateWarehouseRequest struct {
 func (u UpdateWarehouseRequest) DocToModel() Warehouse {
 	var locality *Locality
 	if u.LocalityId != nil {
-		locality = &Locality{Id: u.LocalityId}
+		locality = &Locality{Id: *u.LocalityId}
 	}
 	return Warehouse{
 		WarehouseCode:      *u.WarehouseCode,
