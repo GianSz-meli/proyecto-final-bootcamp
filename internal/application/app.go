@@ -7,9 +7,8 @@ import (
 	"ProyectoFinal/internal/application/router"
 	"net/http"
 
-	"github.com/go-chi/chi/v5/middleware"
-
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 )
 
 type ConfigServerChi struct {
@@ -51,8 +50,8 @@ func (a *ServerChi) Run() (err error) {
 	// Dependency injection
 	sellerHandler := di.GetSellerHandler(database.Seller)
 	warehouseHandler := di.GetWarehouseHandler(sqlDB)
-	sectionHandler := di.GetSectionHandler(database.Section)
-	buyerHandler := di.GetBuyerHandler(database.Buyer)
+	sectionHandler := di.GetSectionHandler(sqlDB)
+	buyerHandler := di.GetBuyerHandler(sqlDB)
 	employeeHandler := di.GetEmployeeHandler(database.Employee)
 	productHandler := di.GetProductsHandler(database.Product)
 
