@@ -61,6 +61,7 @@ func HandleParentRowError(err error) error {
 	)
 	matches := re.FindStringSubmatch(err.Error())
 
+	//fixed
 	if len(matches) == 6 {
 		fkColumn := matches[5]
 		referencedTable := matches[4]
