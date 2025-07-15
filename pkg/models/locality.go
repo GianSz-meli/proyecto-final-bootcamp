@@ -17,7 +17,7 @@ func (m *Locality) ModelToDoc() LocalityDoc {
 }
 
 type LocalityDoc struct {
-	Id           int    `json:"id"`
+	Id           int    `json:"id" validate:"omitempty,gt=0"`
 	LocalityName string `json:"locality_name" validate:"required,min=1"`
 	ProvinceName string `json:"province_name" validate:"required,min=1"`
 	CountryName  string `json:"country_name" validate:"required,min=1"`
