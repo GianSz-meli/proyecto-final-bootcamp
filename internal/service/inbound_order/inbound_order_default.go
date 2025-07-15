@@ -20,7 +20,6 @@ func NewService(inboundOrderRepository inboundOrderRepository.Repository, employ
 }
 
 func (s *service) Create(inboundOrder models.InboundOrder) (models.InboundOrder, error) {
-	// Validar que el order_number sea único
 	exists, err := s.inboundOrderRepository.ExistsByOrderNumber(inboundOrder.OrderNumber)
 	if err != nil {
 		return models.InboundOrder{}, err
@@ -30,13 +29,11 @@ func (s *service) Create(inboundOrder models.InboundOrder) (models.InboundOrder,
 		return models.InboundOrder{}, newError
 	}
 
-	// Validar que el empleado existe
 	_, err = s.employeeRepository.GetById(inboundOrder.EmployeeID)
 	if err != nil {
 		return models.InboundOrder{}, err
 	}
 
-	// Crear el inbound order
 	if err := s.inboundOrderRepository.Create(&inboundOrder); err != nil {
 		return models.InboundOrder{}, err
 	}

@@ -56,11 +56,9 @@ func (h *InboundOrderHandler) Create() http.HandlerFunc {
 
 func (h *InboundOrderHandler) GetEmployeeInboundOrdersReport() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// Obtener el parámetro id de la query string
 		idParam := r.URL.Query().Get("id")
 
 		if idParam == "" {
-			// Si no hay id, devolver el reporte de todos los empleados
 			reports, err := h.service.GetEmployeeInboundOrdersReportAll()
 			if err != nil {
 				pkgErrors.HandleError(w, err)
@@ -74,7 +72,6 @@ func (h *InboundOrderHandler) GetEmployeeInboundOrdersReport() http.HandlerFunc 
 			return
 		}
 
-		// Si hay id, convertir a int y obtener el reporte específico
 		id, err := strconv.Atoi(idParam)
 		if err != nil {
 			newErr := pkgErrors.WrapErrBadRequest(err)
