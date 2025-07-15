@@ -34,9 +34,8 @@ func (h *ProductHandler) CreateProduct(w http.ResponseWriter, r *http.Request) {
 		pkgErrors.HandleError(w, err)
 		return
 	}
-	println("antes doctomodel")
+
 	model := reqBody.DocToModel()
-	println("despues doctomodel")
 	product, err := h.service.CreateProduct(model)
 	if err != nil {
 		log.Println(err)
