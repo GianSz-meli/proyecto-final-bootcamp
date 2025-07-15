@@ -74,5 +74,3 @@ func (p *ProductDoc) DocToModel() Product {
 		ProductTypeID:  p.ProductTypeID,
 	}
 }
-
-
