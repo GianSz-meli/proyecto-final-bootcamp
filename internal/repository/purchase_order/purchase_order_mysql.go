@@ -63,7 +63,13 @@ func (r *purchaseOrderMySql) GetByBuyerId(buyerId int) ([]*models.PurchaseOrderW
 }
 
 func (r *purchaseOrderMySql) Create(purchaseOrder *models.PurchaseOrder) (*models.PurchaseOrder, error) {
-	result, execErr := r.db.Exec(
+	tx, txErr := r.db.Begin()
+	if txErr != nil {
+		return nil, txErr
+	}
+	defer tx.Rollback()
+
+	result, execErr := tx.Exec(
 		CreatePurchaseOrder,
 		purchaseOrder.OrderNumber,
 		purchaseOrder.OrderDate,
@@ -81,7 +87,39 @@ func (r *purchaseOrderMySql) Create(purchaseOrder *models.PurchaseOrder) (*model
 	if idErr != nil {
 		return nil, idErr
 	}
+	purchaseOrderId := int(lastInsertId)
+	purchaseOrder.Id = purchaseOrderId
 
-	purchaseOrder.Id = int(lastInsertId)
+	stmt, stmtErr := tx.Prepare(CreateOrderDetail)
+	if stmtErr != nil {
+		return nil, stmtErr
+	}
+	defer stmt.Close()
+
+	for i := range purchaseOrder.OrderDetails {
+		detailResult, detailErr := stmt.Exec(
+			purchaseOrder.OrderDetails[i].CleanlinessStatus,
+			purchaseOrder.OrderDetails[i].Quantity,
+			purchaseOrder.OrderDetails[i].Temperature,
+			purchaseOrder.OrderDetails[i].ProductRecordId,
+			purchaseOrderId,
+		)
+		if detailErr != nil {
+			return nil, detailErr
+		}
+
+		detailId, detailIdErr := detailResult.LastInsertId()
+		if detailIdErr != nil {
+			return nil, detailIdErr
+		}
+
+		purchaseOrder.OrderDetails[i].Id = int(detailId)
+		purchaseOrder.OrderDetails[i].PurchaseOrderId = purchaseOrderId
+	}
+
+	if commitErr := tx.Commit(); commitErr != nil {
+		return nil, commitErr
+	}
+
 	return purchaseOrder, nil
 }
