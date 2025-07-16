@@ -158,19 +158,21 @@ func (h *BuyerHandler) Delete() http.HandlerFunc {
 // If 'id' query parameter is provided, returns the specific buyer with their order count.
 func (h *BuyerHandler) GetAllOrByIdWithOrderCount() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		id, hasId, err := utils.GetOptionalQueryParamInt(r, "id")
+		idPtr, err := utils.GetQueryInt(r, "id")
 		if err != nil {
 			log.Println(err)
 			errors.HandleError(w, err)
 			return
 		}
 
-		if !hasId {
+		// Si no hay ID (idPtr es nil), obtener todos
+		if idPtr == nil {
 			h.handleGetAllWithOrderCount(w)
 			return
 		}
 
-		h.handleGetByIdWithOrderCount(w, id)
+		// Si hay ID, obtener específico
+		h.handleGetByIdWithOrderCount(w, *idPtr)
 	}
 }
 
