@@ -50,3 +50,11 @@ func (l *LocalityDefault) GetSellersByIdLocality(idLocality int) (models.Sellers
 	return sellerByLocality, nil
 
 }
+
+func (l *LocalityDefault) ReportCarriersByLocality(id *int) ([]models.CarrierReport, error) {
+	report, err := l.repository.ReportCarriersByLocality(id)
+	if err != nil {
+		return nil, err
+	}
+	return report, nil
+}

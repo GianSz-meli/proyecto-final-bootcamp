@@ -126,3 +126,23 @@ func (h *LocalityHandler) GetSellersByLocalities(w http.ResponseWriter, r *http.
 	}
 	response.JSON(w, http.StatusOK, body)
 }
+
+// ReportCarriersByLocality handles the HTTP request for retrieving carrier info 
+// by locality ID or by all localities if ID sent on the query params is nil.
+func (h *LocalityHandler) ReportCarriersByLocality() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id, err := utilsHandler.GetQueryInt(r, "id")
+		if err != nil {
+			errors.HandleError(w, errors.WrapErrBadRequest(err))
+			return
+		}
+
+		report, serviceErr := h.service.ReportCarriersByLocality(id)
+		if serviceErr != nil {
+			errors.HandleError(w, serviceErr)
+			return
+		}
+
+		response.JSON(w, http.StatusOK, models.SuccessResponse{Data: report})
+	}
+}

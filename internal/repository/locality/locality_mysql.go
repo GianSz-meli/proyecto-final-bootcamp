@@ -89,3 +89,30 @@ func (r *LocalityMysql) GetSellersByLocalities() ([]models.SellersByLocalityRepo
 
 	return sellersByLocality, nil
 }
+
+func (r *LocalityMysql) ReportCarriersByLocality(id *int) ([]models.CarrierReport, error) {
+	var rows *sql.Rows
+	var err error
+	rows, err = r.db.Query(SQL_CARRIERS_BY_LOCALITY, id, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var reports []models.CarrierReport
+	for rows.Next() {
+		var report models.CarrierReport
+		if err := rows.Scan(&report.LocalityId, &report.LocalityName, &report.CarriersCount); err != nil {
+			return nil, err
+		}
+		reports = append(reports, report)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	
+	if len(reports) == 0 {
+		return nil, pkgErrors.WrapErrNotFound("carrier", "id", *id)
+	}
+	return reports, nil
+}
