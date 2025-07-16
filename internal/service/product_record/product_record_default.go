@@ -22,10 +22,18 @@ func (s *ProductRecordDefault) CreateProductRecord(prod models.ProductRecord) (m
 	return newProd, nil
 }
 
-func (s *ProductRecordDefault) GetRecordsProduct(prodID int) (models.ReportProductData, error) {
-	data, err := s.rp.GetRecordsProduct(prodID)
+func (s *ProductRecordDefault) GetRecordsProduct(prodID *int) (models.ReportProductData, error) {
+	data, err := s.rp.GetRecordsProduct(*prodID)
 	if err != nil {
 		return models.ReportProductData{}, err
 	}
 	return data, nil
+}
+
+func (s *ProductRecordDefault) GetRecordsProductAll() ([]models.ReportProductData, error) {
+	products, err := s.rp.GetRecordsProductAll()
+	if err != nil {
+		return []models.ReportProductData{}, err
+	}
+	return products, nil 
 }

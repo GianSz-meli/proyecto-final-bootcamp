@@ -10,6 +10,5 @@ func GetProductRecordRouter(h *handler.ProductRecordHandler) chi.Router {
 	rt := chi.NewRouter()
 
 	rt.Post("/", h.CreateProductRecord)
-	rt.Get("/{id}", h.GetProductRecordsCount)
 	return rt
 }
