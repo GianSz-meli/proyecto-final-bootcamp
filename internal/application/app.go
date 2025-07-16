@@ -52,10 +52,11 @@ func (a *ServerChi) Run() (err error) {
 	warehouseHandler := di.GetWarehouseHandler(sqlDB)
 	sectionHandler := di.GetSectionHandler(sqlDB)
 	buyerHandler := di.GetBuyerHandler(sqlDB)
-	employeeHandler := di.GetEmployeeHandler(database.Employee)
+	employeeHandler := di.GetEmployeeHandler(sqlDB)
 	productHandler := di.GetProductsHandler(database.Product)
 	productBatchHandler := di.GetProductBatchHandler(sqlDB)
 	carrierHandler := di.GetCarrierHandler(sqlDB)
+	inboundOrderHandler := di.GetInboundOrderHandler(sqlDB)
 
 	//Middlewares
 	rt.Use(middleware.Logger)
@@ -64,11 +65,12 @@ func (a *ServerChi) Run() (err error) {
 		r.Mount("/sections", router.GetSectionRouter(sectionHandler, productBatchHandler))
 		r.Mount("/productBatches", router.GetProductBatchRouter(productBatchHandler))
 		r.Mount("/sellers", router.GetSellerRouter(sellerHandler))
-		r.Mount("/employees", router.EmployeeRoutes(employeeHandler))
+		r.Mount("/employees", router.EmployeeRoutes(employeeHandler, inboundOrderHandler))
 		r.Mount("/warehouses", router.GetWarehouseRouter(warehouseHandler))
 		r.Mount("/products", router.ProductRoutes(productHandler))
 		r.Mount("/buyers", router.GetBuyerRouter(buyerHandler))
 		r.Mount("/carriers", router.GetCarrierRouter(carrierHandler))
+		r.Mount("/inboundOrders", router.InboundOrderRoutes(inboundOrderHandler))
 	})
 
 	err = http.ListenAndServe(a.serverAddress, rt)
