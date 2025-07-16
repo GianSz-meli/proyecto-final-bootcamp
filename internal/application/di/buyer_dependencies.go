@@ -7,6 +7,7 @@ import (
 	"database/sql"
 )
 
+// GetBuyerHandler creates and configures a complete buyer handler with all its dependencies.
 func GetBuyerHandler(db *sql.DB) *handler.BuyerHandler {
 	buyerRepository := repository.NewBuyerMySqlRepository(db)
 	buyerService := service.NewBuyerService(buyerRepository)

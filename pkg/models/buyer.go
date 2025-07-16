@@ -51,3 +51,45 @@ func (b BuyerDoc) DocToModel() Buyer {
 		LastName:     b.LastName,
 	}
 }
+
+type BuyerWithOrderCount struct {
+	Id                  int    `json:"id"`
+	CardNumberId        string `json:"card_number_id"`
+	FirstName           string `json:"first_name"`
+	LastName            string `json:"last_name"`
+	PurchaseOrdersCount int    `json:"purchase_orders_count"`
+}
+
+func (b BuyerWithOrderCount) ModelToDoc() BuyerWithOrderCountDoc {
+	return BuyerWithOrderCountDoc{
+		Id:                  b.Id,
+		CardNumberId:        b.CardNumberId,
+		FirstName:           b.FirstName,
+		LastName:            b.LastName,
+		PurchaseOrdersCount: b.PurchaseOrdersCount,
+	}
+}
+
+type BuyerWithOrderCountDoc struct {
+	Id                  int    `json:"id"`
+	CardNumberId        string `json:"card_number_id"`
+	FirstName           string `json:"first_name"`
+	LastName            string `json:"last_name"`
+	PurchaseOrdersCount int    `json:"purchase_orders_count"`
+}
+
+func (b BuyerUpdateDTO) DtoToMap() map[string]interface{} {
+	updates := make(map[string]interface{})
+
+	if b.CardNumberId != nil {
+		updates["card_number_id"] = *b.CardNumberId
+	}
+	if b.FirstName != nil {
+		updates["first_name"] = *b.FirstName
+	}
+	if b.LastName != nil {
+		updates["last_name"] = *b.LastName
+	}
+
+	return updates
+}

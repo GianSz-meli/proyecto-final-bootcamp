@@ -2,7 +2,6 @@ package warehouse
 
 import (
 	"ProyectoFinal/internal/repository/warehouse"
-	"ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
 )
 
@@ -16,50 +15,48 @@ func NewWarehouseService(warehouseRepo warehouse.WarehouseRepository) WarehouseS
 	}
 }
 
-func (s *WarehouseServiceImpl) GetAllWarehouses() []models.Warehouse {
-	return s.warehouseRepo.GetAll()
+func (s *WarehouseServiceImpl) GetAllWarehouses() ([]models.Warehouse, error) {
+	warehouses, err := s.warehouseRepo.GetAll()
+	if err != nil {
+		return []models.Warehouse{}, err
+	}
+	return warehouses, nil
 }
 
 func (s *WarehouseServiceImpl) GetWarehouseById(id int) (models.Warehouse, error) {
-	wh := s.warehouseRepo.GetById(id)
-	if wh == nil {
-		return models.Warehouse{}, errors.WrapErrNotFound("warehouse", "id", id)
+	wh, err := s.warehouseRepo.GetById(id)
+	if err != nil {
+		return models.Warehouse{}, err
 	}
 	return *wh, nil
 }
 
 func (s *WarehouseServiceImpl) CreateWarehouse(warehouse models.Warehouse) (models.Warehouse, error) {
-	if s.warehouseRepo.ExistsByCode(warehouse.WarehouseCode) {
-		return models.Warehouse{}, errors.WrapErrConflict("warehouse", "code", warehouse.WarehouseCode)
+	wh, err := s.warehouseRepo.Create(warehouse)
+	if err != nil {
+		return models.Warehouse{}, err
 	}
-
-	wh := s.warehouseRepo.Create(warehouse)
 	return wh, nil
 }
 
 func (s *WarehouseServiceImpl) UpdateWarehouse(id int, warehouse models.Warehouse) (models.Warehouse, error) {
-	existingWarehouse := s.warehouseRepo.GetById(id)
-	if existingWarehouse == nil {
-		return models.Warehouse{}, errors.WrapErrNotFound("warehouse", "id", id)
-	}
-
-	if warehouse.WarehouseCode != existingWarehouse.WarehouseCode {
-		if s.warehouseRepo.ExistsByCode(warehouse.WarehouseCode) {
-			return models.Warehouse{}, errors.WrapErrConflict("warehouse", "code", warehouse.WarehouseCode)
-		}
+	_, err := s.warehouseRepo.GetById(id)
+	if err != nil {
+		return models.Warehouse{}, err
 	}
 
 	warehouse.ID = id
-	updatedWarehouse := s.warehouseRepo.Update(id, warehouse)
+	updatedWarehouse, err := s.warehouseRepo.Update(id, warehouse)
+	if err != nil {
+		return models.Warehouse{}, err
+	}
 	return updatedWarehouse, nil
 }
 
 func (s *WarehouseServiceImpl) DeleteWarehouse(id int) error {
-	existingWarehouse := s.warehouseRepo.GetById(id)
-	if existingWarehouse == nil {
-		return errors.WrapErrNotFound("warehouse", "id", id)
+	err := s.warehouseRepo.Delete(id)
+	if err != nil {
+		return err
 	}
-
-	s.warehouseRepo.Delete(id)
 	return nil
 }

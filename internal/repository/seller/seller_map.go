@@ -10,7 +10,7 @@ type SellerMap struct {
 	lastId int
 }
 
-func NewSellerRepository(db map[int]models.Seller) SellerRepository {
+func NewSellerRepository(db map[int]models.Seller) SellerRepositoryMap {
 	return &SellerMap{
 		db:     db,
 		lastId: utils.GetLastId[models.Seller](db),
@@ -29,7 +29,7 @@ func (r *SellerMap) GetById(id int) (models.Seller, bool) {
 	return s, ok
 }
 
-func (r *SellerMap) ExistsByCid(cid int) bool {
+func (r *SellerMap) ExistsByCid(cid string) bool {
 	sellers := r.db
 	for _, s := range sellers {
 		if s.Cid == cid {

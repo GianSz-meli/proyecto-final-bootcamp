@@ -18,12 +18,10 @@ func HandleMysqlError(err error) error {
 		case 1048:
 			return HandleColumnRequired(err)
 		case 1451:
-			//TODO: Cannot delete or update parent row (viola FK padre) 409 CONFLICT
-			return err
+			return HandleParentRowError(err)
 		}
 	}
 	return err
-
 }
 
 func HandleDuplicatedEntryError(err error) error {
@@ -37,6 +35,7 @@ func HandleDuplicatedEntryError(err error) error {
 	}
 	return fmt.Errorf("%w: %s", ErrConflict, "Duplicate entry")
 }
+
 func HandleViolationFkError(err error) error {
 	re := regexp.MustCompile("FOREIGN KEY \\(`([^`]*)`\\)")
 	matches := re.FindStringSubmatch(err.Error())
@@ -54,4 +53,19 @@ func HandleColumnRequired(err error) error {
 		return fmt.Errorf("%w: %s cannot be null", ErrBadRequest, matches[1])
 	}
 	return fmt.Errorf("%w: a required field is missing or null", ErrBadRequest)
+}
+
+func HandleParentRowError(err error) error {
+	re := regexp.MustCompile(
+		"fails \\(`[^`]+`\\.`([^`]*)`, CONSTRAINT `([^`]*)` FOREIGN KEY \\(`([^`]*)`\\) REFERENCES `([^`]*)` \\(`([^`]*)`\\)",
+	)
+	matches := re.FindStringSubmatch(err.Error())
+
+	if len(matches) == 6 {
+		fkColumn := matches[5]
+		referencedTable := matches[4]
+		affectedTable := matches[1]
+		return fmt.Errorf("%w: cannot delete or update record: %s is referenced by existing %s records in %s", ErrConflict, referencedTable, fkColumn, affectedTable)
+	}
+	return fmt.Errorf("%w: cannot delete or update record: it is referenced by other records", ErrConflict)
 }
