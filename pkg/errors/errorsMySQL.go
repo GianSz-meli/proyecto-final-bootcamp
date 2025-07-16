@@ -31,6 +31,9 @@ func HandleDuplicatedEntryError(err error) error {
 		value := matches[1]    // "66557"
 		domain := matches[2]   // Seller, warehouse, etc
 		property := matches[3] // "cid"
+		if property == "PRIMARY" {
+			property = "id"
+		}
 		return WrapErrConflict(domain, property, value)
 	}
 	return fmt.Errorf("%w: %s", ErrConflict, "Duplicate entry")
