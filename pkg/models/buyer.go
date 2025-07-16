@@ -51,3 +51,19 @@ func (b BuyerDoc) DocToModel() Buyer {
 		LastName:     b.LastName,
 	}
 }
+
+type BuyerWithOrderCount struct {
+	Id                  int    `json:"id"`
+	CardNumberId        string `json:"card_number_id"`
+	FirstName           string `json:"first_name"`
+	LastName            string `json:"last_name"`
+	PurchaseOrdersCount int    `json:"purchase_orders_count"`
+}
+
+type BuyerWithOrderCountDoc struct {
+	Id                  int    `json:"id"`
+	CardNumberId        string `json:"card_number_id"`
+	FirstName           string `json:"first_name"`
+	LastName            string `json:"last_name"`
+	PurchaseOrdersCount int    `json:"purchase_orders_count"`
+}

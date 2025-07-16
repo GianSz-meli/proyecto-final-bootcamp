@@ -10,6 +10,8 @@ type Repository interface {
 	Create(buyer *models.Buyer) (*models.Buyer, error)
 	Update(buyer *models.Buyer) (*models.Buyer, error)
 	Delete(id int) error
+	GetByIdWithOrderCount(id int) (*models.BuyerWithOrderCount, error)
+	GetAllWithOrderCount() ([]*models.BuyerWithOrderCount, error)
 }
 
 type RepositoryMap interface {
