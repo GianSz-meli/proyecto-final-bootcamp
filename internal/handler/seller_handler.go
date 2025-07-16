@@ -20,6 +20,7 @@ func NewSellerHandler(service seller.SellerService) *SellerHandler {
 	return &SellerHandler{service: service}
 }
 
+// Create handles HTTP POST requests for creating a new seller.
 func (h *SellerHandler) Create() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var reqBody models.CreateSellerRequest
@@ -53,6 +54,7 @@ func (h *SellerHandler) Create() http.HandlerFunc {
 
 }
 
+// Update handles HTTP PUT/PATCH requests for updating an existing seller.
 func (h *SellerHandler) Update() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
@@ -111,6 +113,7 @@ func (h *SellerHandler) Update() http.HandlerFunc {
 	}
 }
 
+// GetAll handles HTTP GET requests for retrieving all sellers.
 func (h *SellerHandler) GetAll() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
@@ -135,6 +138,7 @@ func (h *SellerHandler) GetAll() http.HandlerFunc {
 	}
 }
 
+// GetById handles HTTP GET requests for retrieving a seller by its ID.
 func (h *SellerHandler) GetById() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id, err := utilsHandler.GetParamInt(r, "id")
@@ -159,6 +163,7 @@ func (h *SellerHandler) GetById() http.HandlerFunc {
 	}
 }
 
+// Delete handles HTTP DELETE requests for deleting a seller by its ID.
 func (h *SellerHandler) Delete() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id, err := utilsHandler.GetParamInt(r, "id")
