@@ -13,14 +13,18 @@ import (
 	"github.com/bootcamp-go/web/response"
 )
 
+// NewSectionDefault creates a new instance of SectionDefault with the provided service
 func NewSectionDefault(sv service.SectionService) *SectionDefault {
 	return &SectionDefault{sv: sv}
 }
 
+// SectionDefault handles HTTP requests for section operations
 type SectionDefault struct {
 	sv service.SectionService
 }
 
+// GetAll handles GET requests to retrieve all sections
+// Returns a JSON response with all sections or an error response
 func (h *SectionDefault) GetAll() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		sections, err := h.sv.GetAll()
@@ -41,6 +45,8 @@ func (h *SectionDefault) GetAll() http.HandlerFunc {
 	}
 }
 
+// GetById handles GET requests to retrieve a section by its ID
+// Extracts the ID from URL parameters and returns the section or an error response
 func (h *SectionDefault) GetById() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		idNum, err := utilsHandler.GetParamInt(r, "id")
@@ -61,6 +67,8 @@ func (h *SectionDefault) GetById() http.HandlerFunc {
 	}
 }
 
+// Create handles POST requests to create a new section
+// Validates the request body and creates the section, returning the created section or an error response
 func (h *SectionDefault) Create() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var reqBody models.CreateSectionRequest
@@ -90,6 +98,9 @@ func (h *SectionDefault) Create() http.HandlerFunc {
 	}
 }
 
+// Update handles PUT requests to update an existing section
+// Extracts the ID from URL parameters, validates the request body, and updates the section
+// Returns the updated section or an error response
 func (h *SectionDefault) Update() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		idNum, err := utilsHandler.GetParamInt(r, "id")
@@ -135,6 +146,8 @@ func (h *SectionDefault) Update() http.HandlerFunc {
 	}
 }
 
+// Delete handles DELETE requests to remove a section by its ID
+// Extracts the ID from URL parameters and deletes the section, returning a 204 No Content response
 func (h *SectionDefault) Delete() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		idNum, err := utilsHandler.GetParamInt(r, "id")

@@ -8,14 +8,17 @@ import (
 	"log"
 )
 
+// SectionMySQL implements SectionRepository interface using MySQL database
 type SectionMySQL struct {
 	db *sql.DB
 }
 
+// NewSectionMySQL creates a new instance of SectionMySQL with the provided database connection
 func NewSectionMySQL(db *sql.DB) *SectionMySQL {
 	return &SectionMySQL{db: db}
 }
 
+// GetAll retrieves all sections from the MySQL database
 func (r *SectionMySQL) GetAll() ([]models.Section, error) {
 	rows, err := r.db.Query(SectionSelectAll)
 	if err != nil {
@@ -37,6 +40,8 @@ func (r *SectionMySQL) GetAll() ([]models.Section, error) {
 	return sections, nil
 }
 
+// GetById retrieves a section by its ID from the MySQL database
+// Returns a not found error if the section doesn't exist
 func (r *SectionMySQL) GetById(id int) (models.Section, error) {
 	var s models.Section
 	err := r.db.QueryRow(SectionSelectById, id).Scan(
@@ -52,6 +57,8 @@ func (r *SectionMySQL) GetById(id int) (models.Section, error) {
 	return s, nil
 }
 
+// Create stores a new section in the MySQL database within a transaction
+// Returns the created section with the generated ID
 func (r *SectionMySQL) Create(section models.Section) (models.Section, error) {
 	tx, err := r.db.Begin()
 	if err != nil {
@@ -84,6 +91,8 @@ func (r *SectionMySQL) Create(section models.Section) (models.Section, error) {
 	return section, nil
 }
 
+// Update modifies an existing section in the MySQL database within a transaction
+// Returns the updated section with the provided ID
 func (r *SectionMySQL) Update(id int, section models.Section) (models.Section, error) {
 	tx, err := r.db.Begin()
 	if err != nil {
@@ -107,6 +116,7 @@ func (r *SectionMySQL) Update(id int, section models.Section) (models.Section, e
 	return section, nil
 }
 
+// Delete removes a section from the MySQL database within a transaction
 func (r *SectionMySQL) Delete(id int) error {
 	tx, err := r.db.Begin()
 	if err != nil {
@@ -125,6 +135,8 @@ func (r *SectionMySQL) Delete(id int) error {
 	return tx.Commit()
 }
 
+// ExistBySectionNumber checks if a section exists with the given section number
+// Returns true if the section exists, false otherwise
 func (r *SectionMySQL) ExistBySectionNumber(sectionNumber string) bool {
 	var exists bool
 	err := r.db.QueryRow(SectionExistsByNumber, sectionNumber).Scan(&exists)

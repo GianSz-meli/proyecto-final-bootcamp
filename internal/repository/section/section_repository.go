@@ -2,6 +2,7 @@ package repository
 
 import "ProyectoFinal/pkg/models"
 
+// SectionRepository defines the contract for section data operations
 type SectionRepository interface {
 	GetAll() (s []models.Section, err error)
 	GetById(id int) (s models.Section, err error)
