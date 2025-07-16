@@ -48,7 +48,7 @@ func (a *ServerChi) Run() (err error) {
 	sqlDB := config.InitDB()
 
 	// Dependency injection
-	sellerHandler := di.GetSellerHandler(database.Seller)
+	sellerHandler := di.GetSellerHandler(sqlDB)
 	warehouseHandler := di.GetWarehouseHandler(sqlDB)
 	sectionHandler := di.GetSectionHandler(sqlDB)
 	buyerHandler := di.GetBuyerHandler(sqlDB)
