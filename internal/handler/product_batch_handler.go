@@ -12,16 +12,20 @@ import (
 	"github.com/bootcamp-go/web/response"
 )
 
+// ProductBatchHandler handles HTTP requests for product batch operations
 type ProductBatchHandler struct {
 	service product_batch.ProductBatchService
 }
 
+// NewProductBatchHandler creates a new instance of ProductBatchHandler with the provided service
 func NewProductBatchHandler(service product_batch.ProductBatchService) *ProductBatchHandler {
 	return &ProductBatchHandler{
 		service: service,
 	}
 }
 
+// Create handles POST requests to create a new product batch
+// Validates the request body and creates the product batch, returning the created batch or an error response
 func (h *ProductBatchHandler) Create() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var reqBody models.ProductBatchCreateRequest
@@ -54,6 +58,9 @@ func (h *ProductBatchHandler) Create() http.HandlerFunc {
 	}
 }
 
+// GetProductCountBySection handles GET requests to retrieve product count reports by section
+// Extracts the section ID from URL parameters and returns a report of product counts for that section
+// Returns a JSON response with the report data or an error response
 func (h *ProductBatchHandler) GetProductCountBySection() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		sectionID, err := utils.GetParamInt(r, "id")
