@@ -27,7 +27,6 @@ func UpdateFields(target interface{}, source interface{}) bool {
 	for i := 0; i < sourceValue.NumField(); i++ {
 		field := sourceValue.Field(i)
 		fieldName := sourceType.Field(i).Name
-
 		if field.Kind() == reflect.Ptr && !field.IsNil() {
 			targetField := targetValue.FieldByName(fieldName)
 			if targetField.IsValid() && targetField.CanSet() {
