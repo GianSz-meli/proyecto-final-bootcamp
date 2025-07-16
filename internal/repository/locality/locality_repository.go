@@ -16,4 +16,7 @@ type LocalityRepository interface {
 
 	// GetSellersByLocalities retrieves seller reports for all localities.
 	GetSellersByLocalities() ([]models.SellersByLocalityReport, error)
+
+	// ReportCarriersByLocality retrieves the carrier report for a specific locality by its ID or all localities if ID is nil.
+	ReportCarriersByLocality(id *int) ([]models.CarrierReport, error)
 }

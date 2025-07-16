@@ -10,6 +10,12 @@ type Carrier struct {
 	LocalityId  int
 }
 
+type CarrierReport struct {
+	LocalityId    int
+	LocalityName  string
+	CarriersCount int
+}
+
 // Request DTO
 type CarrierCreateDTO struct {
 	Cid         string `json:"cid" validate:"required"`

@@ -15,4 +15,7 @@ type LocalityService interface {
 
 	// GetSellersByIdLocality returns the seller report for a specific locality by its ID.
 	GetSellersByIdLocality(idLocality int) (models.SellersByLocalityReport, error)
+
+	// ReportCarriersByLocality retrieves a list of carrier report by locality ID or all localities if ID is nil.
+	ReportCarriersByLocality(id *int) ([]models.CarrierReport, error)
 }

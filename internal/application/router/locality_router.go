@@ -11,5 +11,6 @@ func GetLocalityRouter(handler *handler.LocalityHandler) chi.Router {
 	r.Post("/", handler.Create())
 	r.Get("/{id}", handler.GetById())
 	r.Get("/reportSellers", handler.GetSellersByLocality())
+	r.Get("/reportCarriers", handler.ReportCarriersByLocality())
 	return r
 }
