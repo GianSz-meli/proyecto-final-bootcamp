@@ -1,8 +1,11 @@
 package buyer
 
 import (
+	"ProyectoFinal/internal/handler/utils"
 	"ProyectoFinal/internal/repository/buyer"
+	"ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
+	"fmt"
 )
 
 type buyerService struct {
@@ -49,4 +52,19 @@ func (s *buyerService) GetByIdWithOrderCount(id int) (*models.BuyerWithOrderCoun
 // GetAllWithOrderCount retrieves all buyers along with their respective purchase orders count.
 func (s *buyerService) GetAllWithOrderCount() ([]*models.BuyerWithOrderCount, error) {
 	return s.repository.GetAllWithOrderCount()
+}
+
+// PatchUpdate applies partial updates to a buyer, only modifying fields that are
+// provided (non-nil) in the updateDTO. Returns error if no fields are provided.
+func (s *buyerService) PatchUpdate(id int, updateDTO *models.BuyerUpdateDTO) (*models.Buyer, error) {
+	buyerToUpdate, err := s.GetById(id)
+	if err != nil {
+		return nil, err
+	}
+
+	if !utils.UpdateFields(buyerToUpdate, updateDTO) {
+		return nil, fmt.Errorf("%w : no fields provided for update", errors.ErrUnprocessableEntity)
+	}
+
+	return s.Update(id, buyerToUpdate)
 }

@@ -77,3 +77,19 @@ type BuyerWithOrderCountDoc struct {
 	LastName            string `json:"last_name"`
 	PurchaseOrdersCount int    `json:"purchase_orders_count"`
 }
+
+func (b BuyerUpdateDTO) DtoToMap() map[string]interface{} {
+	updates := make(map[string]interface{})
+
+	if b.CardNumberId != nil {
+		updates["card_number_id"] = *b.CardNumberId
+	}
+	if b.FirstName != nil {
+		updates["first_name"] = *b.FirstName
+	}
+	if b.LastName != nil {
+		updates["last_name"] = *b.LastName
+	}
+
+	return updates
+}

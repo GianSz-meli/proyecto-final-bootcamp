@@ -9,7 +9,6 @@ import (
 func GetPurchaseOrderRouter(h *handler.PurchaseOrderHandler) chi.Router {
 	rt := chi.NewRouter()
 
-	rt.Get("/getByBuyerId/{id}", h.GetByBuyerId())
 	rt.Post("/", h.Create())
 
 	return rt

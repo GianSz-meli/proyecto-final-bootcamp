@@ -11,4 +11,5 @@ type Service interface {
 	Delete(id int) error
 	GetByIdWithOrderCount(id int) (*models.BuyerWithOrderCount, error)
 	GetAllWithOrderCount() ([]*models.BuyerWithOrderCount, error)
+	PatchUpdate(id int, updateDTO *models.BuyerUpdateDTO) (*models.Buyer, error)
 }

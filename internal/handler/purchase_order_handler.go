@@ -21,32 +21,6 @@ func NewpPurchaseOrderHandler(newService purchase_order.Service) *PurchaseOrderH
 	}
 }
 
-func (h *PurchaseOrderHandler) GetByBuyerId() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		id, idErr := utils.GetParamInt(r, "id")
-		if idErr != nil {
-			log.Println(idErr)
-			errors.HandleError(w, idErr)
-			return
-		}
-
-		resp, respErr := h.service.GetByBuyerId(id)
-		if respErr != nil {
-			log.Println(respErr)
-			errors.HandleError(w, respErr)
-			return
-		}
-
-		purchaseOrders := make([]models.PurchaseOrderWithAllFieldsDoc, 0, len(resp))
-
-		for _, po := range resp {
-			purchaseOrders = append(purchaseOrders, po.ModelToDoc())
-		}
-
-		response.JSON(w, http.StatusOK, models.SuccessResponse{Data: purchaseOrders})
-	}
-}
-
 func (h *PurchaseOrderHandler) Create() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var dto models.PurchaseOrderCreateDTO
