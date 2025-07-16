@@ -34,3 +34,11 @@ func (s *buyerService) Update(id int, buyer *models.Buyer) (*models.Buyer, error
 func (s *buyerService) Delete(id int) error {
 	return s.repository.Delete(id)
 }
+
+func (s *buyerService) GetByIdWithOrderCount(id int) (*models.BuyerWithOrderCount, error) {
+	return s.repository.GetByIdWithOrderCount(id)
+}
+
+func (s *buyerService) GetAllWithOrderCount() ([]*models.BuyerWithOrderCount, error) {
+	return s.repository.GetAllWithOrderCount()
+}

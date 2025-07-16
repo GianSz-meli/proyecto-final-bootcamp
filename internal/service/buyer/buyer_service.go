@@ -8,4 +8,6 @@ type Service interface {
 	Create(buyer *models.Buyer) (*models.Buyer, error)
 	Update(id int, buyer *models.Buyer) (*models.Buyer, error)
 	Delete(id int) error
+	GetByIdWithOrderCount(id int) (*models.BuyerWithOrderCount, error)
+	GetAllWithOrderCount() ([]*models.BuyerWithOrderCount, error)
 }

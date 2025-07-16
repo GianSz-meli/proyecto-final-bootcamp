@@ -160,3 +160,42 @@ func (h *BuyerHandler) Delete() http.HandlerFunc {
 		w.WriteHeader(http.StatusNoContent)
 	}
 }
+
+func (h *BuyerHandler) GetByIdWithOrderCount() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id, idErr := utils.GetParamInt(r, "id")
+		if idErr != nil {
+			log.Println(idErr)
+			errors.HandleError(w, idErr)
+			return
+		}
+
+		resp, respErr := h.service.GetByIdWithOrderCount(id)
+		if respErr != nil {
+			log.Println(respErr)
+			errors.HandleError(w, respErr)
+			return
+		}
+
+		response.JSON(w, http.StatusOK, models.SuccessResponse{Data: resp.ModelToDoc()})
+	}
+}
+
+func (h *BuyerHandler) GetAllWithOrderCount() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		resp, err := h.service.GetAllWithOrderCount()
+		if err != nil {
+			log.Println(err)
+			errors.HandleError(w, err)
+			return
+		}
+
+		docs := make([]models.BuyerWithOrderCountDoc, 0, len(resp))
+
+		for _, b := range resp {
+			docs = append(docs, b.ModelToDoc())
+		}
+
+		response.JSON(w, http.StatusOK, models.SuccessResponse{Data: docs})
+	}
+}

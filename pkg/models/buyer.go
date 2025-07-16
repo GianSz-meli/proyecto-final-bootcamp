@@ -60,6 +60,16 @@ type BuyerWithOrderCount struct {
 	PurchaseOrdersCount int    `json:"purchase_orders_count"`
 }
 
+func (b BuyerWithOrderCount) ModelToDoc() BuyerWithOrderCountDoc {
+	return BuyerWithOrderCountDoc{
+		Id:                  b.Id,
+		CardNumberId:        b.CardNumberId,
+		FirstName:           b.FirstName,
+		LastName:            b.LastName,
+		PurchaseOrdersCount: b.PurchaseOrdersCount,
+	}
+}
+
 type BuyerWithOrderCountDoc struct {
 	Id                  int    `json:"id"`
 	CardNumberId        string `json:"card_number_id"`
