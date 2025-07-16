@@ -9,6 +9,7 @@ import (
 	"github.com/bootcamp-go/web/response"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 type LocalityHandler struct {
@@ -74,4 +75,49 @@ func (h *LocalityHandler) GetById() http.HandlerFunc {
 		}
 		response.JSON(w, http.StatusOK, body)
 	}
+}
+
+func (h *LocalityHandler) GetSellersByLocality() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		idReq := r.URL.Query().Get("id")
+		if idReq == "" {
+			h.GetSellersByLocalities(w, r)
+			return
+		}
+		id, err := strconv.Atoi(idReq)
+
+		if err != nil {
+			log.Println(err)
+			errors.HandleError(w, err)
+			return
+		}
+
+		sellersByLocality, err := h.service.GetSellersByIdLocality(id)
+
+		if err != nil {
+			log.Println(err)
+			errors.HandleError(w, err)
+			return
+		}
+
+		body := models.SuccessResponse{
+			Data: sellersByLocality,
+		}
+		response.JSON(w, http.StatusOK, body)
+	}
+}
+
+func (h *LocalityHandler) GetSellersByLocalities(w http.ResponseWriter, r *http.Request) {
+	sellersByLocalities, err := h.service.GetSellersByLocalities()
+
+	if err != nil {
+		log.Println(err)
+		errors.HandleError(w, err)
+		return
+	}
+
+	body := models.SuccessResponse{
+		Data: sellersByLocalities,
+	}
+	response.JSON(w, http.StatusOK, body)
 }

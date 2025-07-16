@@ -1,7 +1,6 @@
 package seller
 
 import (
-	"ProyectoFinal/internal/repository/utils"
 	pkgErrors "ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
 	"database/sql"
@@ -38,7 +37,7 @@ func (r *SellerMysql) GetById(id int) (*models.Seller, error) {
 	}
 	var seller models.Seller
 
-	if err := utils.SellerScan(row, &seller); err != nil {
+	if err := SellerScan(row, &seller); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			newError := pkgErrors.WrapErrNotFound("Seller", "id", id)
 			return nil, newError
@@ -64,7 +63,7 @@ func (r *SellerMysql) GetAll() ([]models.Seller, error) {
 
 	for rows.Next() {
 		var seller models.Seller
-		if err = utils.SellerScan(rows, &seller); err != nil {
+		if err = SellerScan(rows, &seller); err != nil {
 			return nil, err
 		}
 		sellers = append(sellers, seller)

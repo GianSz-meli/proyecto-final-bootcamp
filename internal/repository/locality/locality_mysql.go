@@ -1,7 +1,6 @@
 package locality
 
 import (
-	"ProyectoFinal/internal/repository/utils"
 	pkgErrors "ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
 	"database/sql"
@@ -38,7 +37,7 @@ func (r *LocalityMysql) GetById(id int) (*models.Locality, error) {
 	}
 	var locality models.Locality
 
-	if err := utils.LocalityScan(row, &locality); err != nil {
+	if err := LocalityScan(row, &locality); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			newError := pkgErrors.WrapErrNotFound("Locality", "id", id)
 			return nil, newError
@@ -47,4 +46,46 @@ func (r *LocalityMysql) GetById(id int) (*models.Locality, error) {
 	}
 
 	return &locality, nil
+}
+
+func (r *LocalityMysql) GetSellersByIdLocality(idLocality int) (models.SellersByLocalityReport, error) {
+	row := r.db.QueryRow(SQL_SELLERS_BY_ID_LOCALITY, idLocality)
+	if err := row.Err(); err != nil {
+		return models.SellersByLocalityReport{}, err
+	}
+	var sellerByLocality models.SellersByLocalityReport
+
+	if err := SellersByLocalityScan(row, &sellerByLocality); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			newError := pkgErrors.WrapErrNotFound("locality", "id", idLocality)
+			return models.SellersByLocalityReport{}, newError
+		}
+		return models.SellersByLocalityReport{}, err
+	}
+
+	return sellerByLocality, nil
+}
+
+func (r *LocalityMysql) GetSellersByLocalities() ([]models.SellersByLocalityReport, error) {
+	rows, err := r.db.Query(SQL_SELLERS_BY_LOCALITY)
+
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	var sellersByLocality []models.SellersByLocalityReport
+
+	for rows.Next() {
+		var sellerByLocality models.SellersByLocalityReport
+		if err = SellersByLocalityScan(rows, &sellerByLocality); err != nil {
+			return nil, err
+		}
+		sellersByLocality = append(sellersByLocality, sellerByLocality)
+	}
+
+	return sellersByLocality, nil
 }

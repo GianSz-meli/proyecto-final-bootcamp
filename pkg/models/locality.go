@@ -45,3 +45,9 @@ func (l *Locality) ModelToDoc() LocalityCreateRequest {
 		CountryName:  l.Province.Country.CountryName,
 	}
 }
+
+type SellersByLocalityReport struct {
+	LocalityId   int    `json:"locality_id"`
+	LocalityName string `json:"locality_name"`
+	SellersCount int    `json:"sellers_count"`
+}

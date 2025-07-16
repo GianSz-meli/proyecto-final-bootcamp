@@ -57,7 +57,7 @@ CREATE TABLE sellers (
                          company_name VARCHAR(255) NOT NULL,
                          address VARCHAR(255) NOT NULL,
                          telephone VARCHAR(255) NOT NULL,
-                         locality_id INT NOT NULL UNIQUE,
+                         locality_id INT NOT NULL,
                          FOREIGN KEY (locality_id) REFERENCES localities(id)
 );
 INSERT INTO sellers (cid, company_name, address, telephone, locality_id) VALUES
@@ -68,8 +68,10 @@ INSERT INTO sellers (cid, company_name, address, telephone, locality_id) VALUES
                                                                              ('CID005', 'Rosario Goods', '654 Rosario', '555-5555', 2),
                                                                              ('CID006', 'Paris Gourmet', '987 Paris Rd', '666-6666', 9),
                                                                              ('CID007', 'Lombardy Cheese', '123 Milan Ave', '777-7777', 10),
-                                                                             ('CID008', 'Sao Paulo Foods', '456 Campinas', '999-9999', 5),
-                                                                             ('CID09', 'Madrid Imports', 'XYZ Getafe', '000-0000', 8);
+                                                                             ('CID008', 'Cheese Goss', '123 Milan Ave', '777-7777', 2),
+                                                                             ('CID009', 'Kamil Pot', '123 Milan Ave', '777-7777', 10),
+                                                                             ('CID010', 'Sao Paulo Foods', '456 Campinas', '999-9999', 5),
+                                                                             ('CID011', 'Madrid Imports', 'XYZ Getafe', '000-0000', 8);
 
 
 -- req 2 (carriers y warehouses)
