@@ -189,7 +189,6 @@ func (h *BuyerHandler) handleGetAllWithOrderCount(w http.ResponseWriter) {
 	for _, b := range resp {
 		docs = append(docs, b.ModelToDoc())
 	}
-
 	response.JSON(w, http.StatusOK, models.SuccessResponse{Data: docs})
 }
 
@@ -202,6 +201,5 @@ func (h *BuyerHandler) handleGetByIdWithOrderCount(w http.ResponseWriter, id int
 		errors.HandleError(w, respErr)
 		return
 	}
-
 	response.JSON(w, http.StatusOK, models.SuccessResponse{Data: resp.ModelToDoc()})
 }
