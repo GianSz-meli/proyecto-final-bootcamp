@@ -17,6 +17,7 @@ func NewBuyerMySqlRepository(newDB *sql.DB) Repository {
 	}
 }
 
+// GetById retrieves a single buyer by their unique identifier.
 func (r *buyerMySql) GetById(id int) (*models.Buyer, error) {
 	var buyer models.Buyer
 
@@ -37,6 +38,7 @@ func (r *buyerMySql) GetById(id int) (*models.Buyer, error) {
 	return &buyer, nil
 }
 
+// GetAll retrieves all buyers from the database.
 func (r *buyerMySql) GetAll() ([]*models.Buyer, error) {
 	rows, err := r.db.Query(GetAllBuyers)
 	if err != nil {
@@ -62,6 +64,7 @@ func (r *buyerMySql) GetAll() ([]*models.Buyer, error) {
 	return buyers, nil
 }
 
+// Create inserts a new buyer into the database.
 func (r *buyerMySql) Create(buyer *models.Buyer) (*models.Buyer, error) {
 	result, execErr := r.db.Exec(CreateBuyer, buyer.CardNumberId, buyer.FirstName, buyer.LastName)
 	if execErr != nil {
@@ -77,6 +80,7 @@ func (r *buyerMySql) Create(buyer *models.Buyer) (*models.Buyer, error) {
 	return buyer, nil
 }
 
+// Update modifies an existing buyer's information in the database.
 func (r *buyerMySql) Update(buyer *models.Buyer) (*models.Buyer, error) {
 	_, execErr := r.db.Exec(UpdateBuyer, buyer.CardNumberId, buyer.FirstName, buyer.LastName, buyer.Id)
 	if execErr != nil {
@@ -86,6 +90,7 @@ func (r *buyerMySql) Update(buyer *models.Buyer) (*models.Buyer, error) {
 	return buyer, nil
 }
 
+// Delete removes a buyer from the database by their ID.
 func (r *buyerMySql) Delete(id int) error {
 	result, execErr := r.db.Exec(DeleteBuyer, id)
 	if execErr != nil {
@@ -104,6 +109,8 @@ func (r *buyerMySql) Delete(id int) error {
 	return nil
 }
 
+// GetByIdWithOrderCount retrieves a buyer by ID along with their total purchase orders count.
+// Uses LEFT JOIN to include buyers even if they have zero orders.
 func (r *buyerMySql) GetByIdWithOrderCount(id int) (*models.BuyerWithOrderCount, error) {
 	var buyer models.BuyerWithOrderCount
 
@@ -125,6 +132,8 @@ func (r *buyerMySql) GetByIdWithOrderCount(id int) (*models.BuyerWithOrderCount,
 	return &buyer, nil
 }
 
+// GetAllWithOrderCount retrieves all buyers along with their respective purchase orders count.
+// Uses LEFT JOIN to include all buyers, showing 0 for those without orders.
 func (r *buyerMySql) GetAllWithOrderCount() ([]*models.BuyerWithOrderCount, error) {
 	rows, err := r.db.Query(GetAllBuyersWithPurchaseOrders)
 	if err != nil {

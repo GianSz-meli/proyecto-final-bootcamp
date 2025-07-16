@@ -1,7 +1,6 @@
 package purchase_order
 
 import (
-	pkgErrors "ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
 	"database/sql"
 )
@@ -16,59 +15,42 @@ func NewPurchaseOrderMySqlRepository(newDB *sql.DB) Repository {
 	}
 }
 
-func (r *purchaseOrderMySql) GetByBuyerId(buyerId int) ([]*models.PurchaseOrderWithAllFields, error) {
-	rows, rowsErr := r.db.Query(GetPurchaseOrdersByBuyerId, buyerId)
-	if rowsErr != nil {
-		return nil, rowsErr
-	}
-	defer rows.Close()
-
-	var purchaseOrders []*models.PurchaseOrderWithAllFields
-
-	for rows.Next() {
-		po := &models.PurchaseOrderWithAllFields{}
-		var localityID sql.NullInt32
-
-		scanErr := rows.Scan(
-			&po.Id, &po.OrderNumber, &po.OrderDate, &po.TrackingCode,
-			&po.Buyer.Id, &po.Buyer.CardNumberId, &po.Buyer.FirstName, &po.Buyer.LastName,
-			&po.Carrier.Id, &po.Carrier.CID, &po.Carrier.CompanyName, &po.Carrier.Address, &po.Carrier.Telephone, &po.Carrier.LocalityID,
-			&po.OrderStatus.Id, &po.OrderStatus.Description,
-			&po.Warehouse.ID, &po.Warehouse.WarehouseCode, &po.Warehouse.Address, &po.Warehouse.Telephone, &po.Warehouse.MinimumCapacity, &po.Warehouse.MinimumTemperature, &localityID,
-		)
-
-		if scanErr != nil {
-			return nil, scanErr
-		}
-
-		if localityID.Valid {
-			localityValue := int(localityID.Int32)
-			po.Warehouse.LocalityId = &localityValue
-		} else {
-			po.Warehouse.LocalityId = nil
-		}
-
-		purchaseOrders = append(purchaseOrders, po)
-	}
-
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-
-	if len(purchaseOrders) == 0 {
-		return nil, pkgErrors.WrapErrNotFound("buyer", "id", buyerId)
-	}
-
-	return purchaseOrders, nil
-}
-
+// Create creates a new purchase order with its order details in a single transaction
 func (r *purchaseOrderMySql) Create(purchaseOrder *models.PurchaseOrder) (*models.PurchaseOrder, error) {
-	tx, txErr := r.db.Begin()
+	tx, txErr := r.beginTransaction()
 	if txErr != nil {
 		return nil, txErr
 	}
 	defer tx.Rollback()
 
+	purchaseOrderId, orderErr := r.createPurchaseOrder(tx, purchaseOrder)
+	if orderErr != nil {
+		return nil, orderErr
+	}
+	purchaseOrder.Id = purchaseOrderId
+
+	if detailsErr := r.createOrderDetails(tx, purchaseOrder, purchaseOrderId); detailsErr != nil {
+		return nil, detailsErr
+	}
+
+	if commitErr := tx.Commit(); commitErr != nil {
+		return nil, commitErr
+	}
+
+	return purchaseOrder, nil
+}
+
+// beginTransaction starts a new database transaction
+func (r *purchaseOrderMySql) beginTransaction() (*sql.Tx, error) {
+	tx, err := r.db.Begin()
+	if err != nil {
+		return nil, err
+	}
+	return tx, nil
+}
+
+// createPurchaseOrder inserts the main purchase order record
+func (r *purchaseOrderMySql) createPurchaseOrder(tx *sql.Tx, purchaseOrder *models.PurchaseOrder) (int, error) {
 	result, execErr := tx.Exec(
 		CreatePurchaseOrder,
 		purchaseOrder.OrderNumber,
@@ -80,19 +62,26 @@ func (r *purchaseOrderMySql) Create(purchaseOrder *models.PurchaseOrder) (*model
 		purchaseOrder.WarehouseId,
 	)
 	if execErr != nil {
-		return nil, execErr
+		return 0, execErr
 	}
 
 	lastInsertId, idErr := result.LastInsertId()
 	if idErr != nil {
-		return nil, idErr
+		return 0, idErr
 	}
-	purchaseOrderId := int(lastInsertId)
-	purchaseOrder.Id = purchaseOrderId
+
+	return int(lastInsertId), nil
+}
+
+// createOrderDetails inserts all order details for the purchase order
+func (r *purchaseOrderMySql) createOrderDetails(tx *sql.Tx, purchaseOrder *models.PurchaseOrder, purchaseOrderId int) error {
+	if len(purchaseOrder.OrderDetails) == 0 {
+		return nil
+	}
 
 	stmt, stmtErr := tx.Prepare(CreateOrderDetail)
 	if stmtErr != nil {
-		return nil, stmtErr
+		return stmtErr
 	}
 	defer stmt.Close()
 
@@ -105,21 +94,17 @@ func (r *purchaseOrderMySql) Create(purchaseOrder *models.PurchaseOrder) (*model
 			purchaseOrderId,
 		)
 		if detailErr != nil {
-			return nil, detailErr
+			return detailErr
 		}
 
 		detailId, detailIdErr := detailResult.LastInsertId()
 		if detailIdErr != nil {
-			return nil, detailIdErr
+			return detailIdErr
 		}
 
 		purchaseOrder.OrderDetails[i].Id = int(detailId)
 		purchaseOrder.OrderDetails[i].PurchaseOrderId = purchaseOrderId
 	}
 
-	if commitErr := tx.Commit(); commitErr != nil {
-		return nil, commitErr
-	}
-
-	return purchaseOrder, nil
+	return nil
 }
