@@ -11,6 +11,7 @@ type buyerMySql struct {
 	db *sql.DB
 }
 
+// NewBuyerMySqlRepository creates and returns a new MySQL implementation of the buyer repository.
 func NewBuyerMySqlRepository(newDB *sql.DB) Repository {
 	return &buyerMySql{
 		db: newDB,

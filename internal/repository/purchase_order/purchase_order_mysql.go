@@ -9,6 +9,7 @@ type purchaseOrderMySql struct {
 	db *sql.DB
 }
 
+// NewPurchaseOrderMySqlRepository creates and returns a new MySQL implementation of the purchase order repository.
 func NewPurchaseOrderMySqlRepository(newDB *sql.DB) Repository {
 	return &purchaseOrderMySql{
 		db: newDB,

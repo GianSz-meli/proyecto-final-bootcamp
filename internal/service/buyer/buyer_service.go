@@ -2,6 +2,7 @@ package buyer
 
 import "ProyectoFinal/pkg/models"
 
+// Service defines the business logic contract for buyer operations.
 type Service interface {
 	GetById(id int) (*models.Buyer, error)
 	GetAll() ([]*models.Buyer, error)
