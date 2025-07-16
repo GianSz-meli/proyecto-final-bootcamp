@@ -2,9 +2,7 @@ package seller
 
 import (
 	"ProyectoFinal/internal/repository/seller"
-	"ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
-	"fmt"
 )
 
 type SellerDefault struct {
@@ -16,58 +14,48 @@ func NewSellerService(repository seller.SellerRepository) SellerService {
 }
 
 func (s *SellerDefault) Create(seller models.Seller) (models.Seller, error) {
-	if s.repository.ExistsByCid(seller.Cid) {
-		newError := errors.WrapErrConflict("seller", "cid", seller.Cid)
-		return models.Seller{}, newError
+
+	newSeller, err := s.repository.Create(seller)
+
+	if err != nil {
+		return models.Seller{}, err
 	}
 
-	s.repository.Create(&seller)
-
-	return seller, nil
+	return newSeller, nil
 }
 
-func (s *SellerDefault) GetAll() []models.Seller {
-	sellers := s.repository.GetAll()
-	return sellers
+func (s *SellerDefault) GetAll() ([]models.Seller, error) {
+	sellers, err := s.repository.GetAll()
+
+	if err != nil {
+		return nil, err
+	}
+	return sellers, nil
 
 }
 
 func (s *SellerDefault) GetById(id int) (models.Seller, error) {
-	seller, ok := s.repository.GetById(id)
-	if !ok {
-		newError := fmt.Errorf("%w : seller with id %d not found", errors.ErrNotFound, id)
-		return models.Seller{}, newError
+	seller, err := s.repository.GetById(id)
+	if err != nil {
+		return models.Seller{}, err
 	}
-
-	return seller, nil
+	return *seller, nil
 }
 
 func (s *SellerDefault) Delete(id int) error {
-	if _, ok := s.repository.GetById(id); !ok {
-		newError := fmt.Errorf("%w : seller with id %d not found", errors.ErrNotFound, id)
-		return newError
-	}
 
-	s.repository.Delete(id)
+	if err := s.repository.Delete(id); err != nil {
+		return err
+	}
 
 	return nil
 }
 
-func (s *SellerDefault) Update(id int, seller models.Seller) (models.Seller, error) {
-	current, ok := s.repository.GetById(id)
-	if !ok {
-		newError := fmt.Errorf("%w : seller with id %d not found", errors.ErrNotFound, id)
-		return models.Seller{}, newError
+func (s *SellerDefault) Update(seller models.Seller) (models.Seller, error) {
+	_, err := s.repository.Update(&seller)
+	if err != nil {
+		return models.Seller{}, err
 	}
-
-	if current.Cid != seller.Cid {
-		if s.repository.ExistsByCid(seller.Cid) {
-			newError := errors.WrapErrConflict("seller", "cid", seller.Cid)
-			return models.Seller{}, newError
-		}
-	}
-
-	s.repository.Update(&seller)
 
 	return seller, nil
 }

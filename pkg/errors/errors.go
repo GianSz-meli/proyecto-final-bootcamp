@@ -3,8 +3,9 @@ package errors
 import (
 	"errors"
 	"fmt"
-	"github.com/bootcamp-go/web/response"
 	"net/http"
+
+	"github.com/bootcamp-go/web/response"
 )
 
 type ApiError struct {
@@ -64,12 +65,14 @@ func getMappedError(err error) *ApiError {
 	}
 	return nil
 }
+
 func HandleError(w http.ResponseWriter, err error) {
 	err = HandleMysqlError(err)
 	if mappedError := getMappedError(err); mappedError != nil {
 		response.Error(w, mappedError.StatusCode, err.Error())
 		return
 	}
+
 	response.Error(w, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 }
 
