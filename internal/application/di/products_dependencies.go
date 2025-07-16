@@ -4,6 +4,7 @@ import (
 	handler "ProyectoFinal/internal/handler"
 	repository "ProyectoFinal/internal/repository/products"
 	service "ProyectoFinal/internal/service/products"
+	
 	"database/sql"
 )
 
@@ -13,3 +14,4 @@ func GetProductsHandler(sqlDB *sql.DB) *handler.ProductHandler {
 	productHandler := handler.NewProductHandler(productService)
 	return productHandler
 }
+

@@ -41,25 +41,4 @@ type ReportProductData struct {
 	RecordsCount int
 }
 
-// type ReportProductDataDoc struct {
-// 	ProductID    int    `json:"product_id"`
-// 	Description  string `json:"description"`
-// 	RecordsCount int    `json:"records_count"`
-// }
-
-// func (p *ReportProductData) ModelToDoc() ReportProductDataDoc {
-// 	return ReportProductDataDoc{
-// 		ProductID:    p.ProductID,
-// 		Description:  p.Description,
-// 		RecordsCount: p.RecordsCount,
-// 	}
-// }
-
-// func (p *ReportProductDataDoc) DocToModel() ReportProductData {
-// 	return ReportProductData{
-// 		ProductID:    p.ProductID,
-// 		Description:  p.Description,
-// 		RecordsCount: p.RecordsCount,
-// 	}
-// }
 
