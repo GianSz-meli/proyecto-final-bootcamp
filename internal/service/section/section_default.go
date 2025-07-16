@@ -2,7 +2,6 @@ package service
 
 import (
 	repository "ProyectoFinal/internal/repository/section"
-	"ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
 )
 
@@ -23,9 +22,9 @@ func (s *SectionDefault) GetAll() (sections []models.Section, err error) {
 }
 
 func (s *SectionDefault) GetById(id int) (section models.Section, err error) {
-	section, exists := s.rp.GetById(id)
-	if !exists {
-		return models.Section{}, errors.WrapErrNotFound("section", "id", id)
+	section, err = s.rp.GetById(id)
+	if err != nil {
+		return models.Section{}, err
 	}
 	return section, nil
 }
@@ -39,9 +38,9 @@ func (s *SectionDefault) Create(section models.Section) (createdSection models.S
 }
 
 func (s *SectionDefault) Update(id int, section models.Section) (updatedSection models.Section, err error) {
-	_, exists := s.rp.GetById(id)
-	if !exists {
-		return models.Section{}, errors.WrapErrNotFound("section", "id", id)
+	_, err = s.rp.GetById(id)
+	if err != nil {
+		return models.Section{}, err
 	}
 
 	section.ID = id
@@ -53,9 +52,9 @@ func (s *SectionDefault) Update(id int, section models.Section) (updatedSection 
 }
 
 func (s *SectionDefault) Delete(id int) (err error) {
-	_, exists := s.rp.GetById(id)
-	if !exists {
-		return errors.WrapErrNotFound("section", "id", id)
+	_, err = s.rp.GetById(id)
+	if err != nil {
+		return err
 	}
 
 	err = s.rp.Delete(id)

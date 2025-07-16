@@ -2,6 +2,7 @@ package repository
 
 import (
 	"ProyectoFinal/internal/repository/utils"
+	pkgErrors "ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
 )
 
@@ -30,9 +31,12 @@ func (r *SectionMap) GetAll() (s []models.Section, err error) {
 	return
 }
 
-func (r *SectionMap) GetById(id int) (models.Section, bool) {
+func (r *SectionMap) GetById(id int) (models.Section, error) {
 	section, exists := r.db[id]
-	return section, exists
+	if !exists {
+		return models.Section{}, pkgErrors.WrapErrNotFound("Section", "id", id)
+	}
+	return section, nil
 }
 
 func (r *SectionMap) Create(section models.Section) (s models.Section, err error) {

@@ -113,8 +113,7 @@ func (h *SectionDefault) Update() http.HandlerFunc {
 
 		sectionToUpdate, err := h.sv.GetById(idNum)
 		if err != nil {
-			newError := errors.WrapErrNotFound("section", "id", idNum)
-			errors.HandleError(w, newError)
+			errors.HandleError(w, err)
 			return
 		}
 

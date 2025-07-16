@@ -1,6 +1,7 @@
 package repository
 
 import (
+	pkgErrors "ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
 	"database/sql"
 	"errors"
@@ -36,18 +37,19 @@ func (r *SectionMySQL) GetAll() ([]models.Section, error) {
 	return sections, nil
 }
 
-func (r *SectionMySQL) GetById(id int) (models.Section, bool) {
+func (r *SectionMySQL) GetById(id int) (models.Section, error) {
 	var s models.Section
 	err := r.db.QueryRow(SectionSelectById, id).Scan(
 		&s.ID, &s.SectionNumber, &s.CurrentTemperature, &s.MinimumTemperature, &s.CurrentCapacity, &s.MinimumCapacity, &s.ProductTypeID, &s.WarehouseID, &s.MaximumCapacity,
 	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return s, false
+			newError := pkgErrors.WrapErrNotFound("Section", "id", id)
+			return s, newError
 		}
-		return s, false
+		return s, err
 	}
-	return s, true
+	return s, nil
 }
 
 func (r *SectionMySQL) Create(section models.Section) (models.Section, error) {
