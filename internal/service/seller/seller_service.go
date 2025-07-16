@@ -17,5 +17,5 @@ type SellerService interface {
 	Delete(id int) error
 
 	// Update modifies an existing seller.
-	Update(seller models.Seller) (models.Seller, error)
+	Update(id int, reqBody *models.UpdateSellerRequest) (models.Seller, error)
 }

@@ -5,7 +5,6 @@ import (
 	"ProyectoFinal/internal/service/seller"
 	"ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
-	"fmt"
 	"github.com/bootcamp-go/web/request"
 	"github.com/bootcamp-go/web/response"
 	"log"
@@ -81,22 +80,7 @@ func (h *SellerHandler) Update() http.HandlerFunc {
 			return
 		}
 
-		sellerToUpdate, err := h.service.GetById(id)
-
-		if err != nil {
-			log.Println(err)
-			errors.HandleError(w, err)
-			return
-		}
-
-		if updated := utilsHandler.UpdateFields(&sellerToUpdate, &reqBody); !updated {
-			newError := fmt.Errorf("%w : no fields provided for update", errors.ErrUnprocessableEntity)
-			log.Println(newError)
-			errors.HandleError(w, newError)
-			return
-		}
-
-		sellerUpdated, err := h.service.Update(sellerToUpdate)
+		sellerUpdated, err := h.service.Update(id, &reqBody)
 
 		if err != nil {
 			log.Println(err)
