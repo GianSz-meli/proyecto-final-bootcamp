@@ -9,6 +9,8 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
+// InitDB initializes the MySQL database connection and returns the *sql.DB instance.
+// The application will terminate if the connection cannot be established.
 func InitDB() *sql.DB {
 	db, err := ConnectDB()
 
@@ -18,6 +20,9 @@ func InitDB() *sql.DB {
 	fmt.Println("Mysql database connected")
 	return db
 }
+
+// ConnectDB creates and opens a new MySQL database connection using environment variables.
+// Returns the connection if successful, or an error if the connection fails.
 func ConnectDB() (*sql.DB, error) {
 
 	dns := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s",

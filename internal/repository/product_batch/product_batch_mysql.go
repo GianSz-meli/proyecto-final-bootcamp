@@ -7,14 +7,18 @@ import (
 	"log"
 )
 
+// ProductBatchMySQL implements ProductBatchRepository interface using MySQL database
 type ProductBatchMySQL struct {
 	db *sql.DB
 }
 
+// NewProductBatchMySQL creates a new instance of ProductBatchMySQL with the provided database connection
 func NewProductBatchMySQL(db *sql.DB) *ProductBatchMySQL {
 	return &ProductBatchMySQL{db: db}
 }
 
+// Create stores a new product batch in the MySQL database within a transaction
+// Converts manufacturing hour to proper time format and returns the created batch with generated ID
 func (r *ProductBatchMySQL) Create(productBatch models.ProductBatch) (models.ProductBatch, error) {
 	tx, err := r.db.Begin()
 	if err != nil {
@@ -56,6 +60,8 @@ func (r *ProductBatchMySQL) Create(productBatch models.ProductBatch) (models.Pro
 	return productBatch, nil
 }
 
+// ExistsByBatchNumber checks if a product batch exists with the given batch number
+// Returns true if the batch exists, false otherwise
 func (r *ProductBatchMySQL) ExistsByBatchNumber(batchNumber string) bool {
 	var exists bool
 	err := r.db.QueryRow(ProductBatchExistsByNumber, batchNumber).Scan(&exists)
@@ -66,6 +72,8 @@ func (r *ProductBatchMySQL) ExistsByBatchNumber(batchNumber string) bool {
 	return exists
 }
 
+// ProductExists checks if a product exists with the given product ID
+// Returns true if the product exists, false otherwise
 func (r *ProductBatchMySQL) ProductExists(productID int) bool {
 	var exists bool
 	err := r.db.QueryRow(ProductExistsById, productID).Scan(&exists)
@@ -76,6 +84,8 @@ func (r *ProductBatchMySQL) ProductExists(productID int) bool {
 	return exists
 }
 
+// SectionExists checks if a section exists with the given section ID
+// Returns true if the section exists, false otherwise
 func (r *ProductBatchMySQL) SectionExists(sectionID int) bool {
 	var exists bool
 	err := r.db.QueryRow(SectionExistsById, sectionID).Scan(&exists)
@@ -86,6 +96,10 @@ func (r *ProductBatchMySQL) SectionExists(sectionID int) bool {
 	return exists
 }
 
+// GetProductCountBySection retrieves a report of product counts by section from the MySQL database
+// If sectionID is provided, validates the section exists and returns data for that specific section
+// If sectionID is nil, returns data for all sections
+// Returns a slice of SectionProductReport with section ID, section number, and product count
 func (r *ProductBatchMySQL) GetProductCountBySection(sectionID *int) ([]models.SectionProductReport, error) {
 	var rows *sql.Rows
 	var err error
