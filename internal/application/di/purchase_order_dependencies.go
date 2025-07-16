@@ -7,6 +7,7 @@ import (
 	"database/sql"
 )
 
+// GetPurchaseOrderHandler creates and configures a complete purchase order handler with all its dependencies.
 func GetPurchaseOrderHandler(db *sql.DB) *handler.PurchaseOrderHandler {
 	poRepository := repository.NewPurchaseOrderMySqlRepository(db)
 	poService := service.NewPurchaseOrderService(poRepository)

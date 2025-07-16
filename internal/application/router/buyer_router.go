@@ -5,6 +5,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+// GetBuyerRouter creates and configures a Chi router with all buyer-related HTTP routes.
 func GetBuyerRouter(h *handler.BuyerHandler) chi.Router {
 	rt := chi.NewRouter()
 

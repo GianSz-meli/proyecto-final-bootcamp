@@ -16,12 +16,15 @@ type BuyerHandler struct {
 	service buyer.Service
 }
 
+// NewBuyerHandler creates and returns a new buyer HTTP handler instance.
 func NewBuyerHandler(newService buyer.Service) *BuyerHandler {
 	return &BuyerHandler{
 		service: newService,
 	}
 }
 
+// GetById returns an HTTP handler function that retrieves a specific buyer by ID.
+// This endpoint handles GET requests to fetch individual buyer information.
 func (h *BuyerHandler) GetById() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id, idErr := utils.GetParamInt(r, "id")
@@ -42,6 +45,8 @@ func (h *BuyerHandler) GetById() http.HandlerFunc {
 	}
 }
 
+// GetAll returns an HTTP handler function that retrieves all buyers.
+// This endpoint handles GET requests to fetch the complete list of buyers.
 func (h *BuyerHandler) GetAll() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		resp, err := h.service.GetAll()
@@ -61,6 +66,8 @@ func (h *BuyerHandler) GetAll() http.HandlerFunc {
 	}
 }
 
+// Create returns an HTTP handler function that creates a new buyer.
+// This endpoint handles POST requests to add new buyers to the system.
 func (h *BuyerHandler) Create() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var dto models.BuyerCreateDTO
@@ -89,6 +96,8 @@ func (h *BuyerHandler) Create() http.HandlerFunc {
 	}
 }
 
+// Update returns an HTTP handler function that updates an existing buyer.
+// This endpoint handles PATCH requests to modify buyer information.
 func (h *BuyerHandler) Update() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id, idErr := utils.GetParamInt(r, "id")
@@ -106,8 +115,6 @@ func (h *BuyerHandler) Update() http.HandlerFunc {
 			errors.HandleError(w, wrappedErr)
 			return
 		}
-
-		fmt.Printf("DTO después de deserializar: %+v\n", dto)
 
 		if validateDtoErr := utils.ValidateRequestData(dto); validateDtoErr != nil {
 			log.Println(validateDtoErr)
@@ -129,8 +136,6 @@ func (h *BuyerHandler) Update() http.HandlerFunc {
 			return
 		}
 
-		fmt.Printf("Voy a actualizar: %+v\n", buyerToUpdate)
-
 		resp, updateErr := h.service.Update(id, buyerToUpdate)
 		if updateErr != nil {
 			log.Println(updateErr)
@@ -142,6 +147,8 @@ func (h *BuyerHandler) Update() http.HandlerFunc {
 	}
 }
 
+// Delete returns an HTTP handler function that deletes a buyer by ID.
+// This endpoint handles DELETE requests to remove buyers from the system.
 func (h *BuyerHandler) Delete() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id, idErr := utils.GetParamInt(r, "id")
@@ -161,6 +168,8 @@ func (h *BuyerHandler) Delete() http.HandlerFunc {
 	}
 }
 
+// GetByIdWithOrderCount returns an HTTP handler function that retrieves a buyer with their order count.
+// This endpoint provides business intelligence by combining buyer data with purchase order statistics.
 func (h *BuyerHandler) GetByIdWithOrderCount() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id, idErr := utils.GetParamInt(r, "id")
@@ -181,6 +190,8 @@ func (h *BuyerHandler) GetByIdWithOrderCount() http.HandlerFunc {
 	}
 }
 
+// GetAllWithOrderCount returns an HTTP handler function that retrieves all buyers with their order counts.
+// This endpoint provides comprehensive buyer reporting with purchase order statistics for business analysis.
 func (h *BuyerHandler) GetAllWithOrderCount() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		resp, err := h.service.GetAllWithOrderCount()
