@@ -153,45 +153,55 @@ func (h *BuyerHandler) Delete() http.HandlerFunc {
 	}
 }
 
-// GetByIdWithOrderCount returns an HTTP handler function that retrieves a buyer with their order count.
-// This endpoint provides business intelligence by combining buyer data with purchase order statistics.
-func (h *BuyerHandler) GetByIdWithOrderCount() http.HandlerFunc {
+// GetAllOrByIdWithOrderCount handles requests to get buyers with their purchase order count.
+// If no 'id' query parameter is provided, returns all buyers with their order counts.
+// If 'id' query parameter is provided, returns the specific buyer with their order count.
+func (h *BuyerHandler) GetAllOrByIdWithOrderCount() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		id, idErr := utils.GetParamInt(r, "id")
-		if idErr != nil {
-			log.Println(idErr)
-			errors.HandleError(w, idErr)
-			return
-		}
-
-		resp, respErr := h.service.GetByIdWithOrderCount(id)
-		if respErr != nil {
-			log.Println(respErr)
-			errors.HandleError(w, respErr)
-			return
-		}
-
-		response.JSON(w, http.StatusOK, models.SuccessResponse{Data: resp.ModelToDoc()})
-	}
-}
-
-// GetAllWithOrderCount returns an HTTP handler function that retrieves all buyers with their order counts.
-// This endpoint provides comprehensive buyer reporting with purchase order statistics for business analysis.
-func (h *BuyerHandler) GetAllWithOrderCount() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		resp, err := h.service.GetAllWithOrderCount()
+		idPtr, err := utils.GetQueryInt(r, "id")
 		if err != nil {
 			log.Println(err)
 			errors.HandleError(w, err)
 			return
 		}
 
-		docs := make([]models.BuyerWithOrderCountDoc, 0, len(resp))
-
-		for _, b := range resp {
-			docs = append(docs, b.ModelToDoc())
+		if idPtr == nil {
+			h.handleGetAllWithOrderCount(w)
+			return
 		}
 
-		response.JSON(w, http.StatusOK, models.SuccessResponse{Data: docs})
+		h.handleGetByIdWithOrderCount(w, *idPtr)
 	}
+}
+
+// handleGetAllWithOrderCount returns an HTTP handler function that retrieves all buyers with their order counts.
+// This endpoint provides comprehensive buyer reporting with purchase order statistics for business analysis.
+func (h *BuyerHandler) handleGetAllWithOrderCount(w http.ResponseWriter) {
+	resp, err := h.service.GetAllWithOrderCount()
+	if err != nil {
+		log.Println(err)
+		errors.HandleError(w, err)
+		return
+	}
+
+	docs := make([]models.BuyerWithOrderCountDoc, 0, len(resp))
+
+	for _, b := range resp {
+		docs = append(docs, b.ModelToDoc())
+	}
+
+	response.JSON(w, http.StatusOK, models.SuccessResponse{Data: docs})
+}
+
+// handleGetByIdWithOrderCount returns an HTTP handler function that retrieves a buyer with their order count.
+// This endpoint provides business intelligence by combining buyer data with purchase order statistics.
+func (h *BuyerHandler) handleGetByIdWithOrderCount(w http.ResponseWriter, id int) {
+	resp, respErr := h.service.GetByIdWithOrderCount(id)
+	if respErr != nil {
+		log.Println(respErr)
+		errors.HandleError(w, respErr)
+		return
+	}
+
+	response.JSON(w, http.StatusOK, models.SuccessResponse{Data: resp.ModelToDoc()})
 }

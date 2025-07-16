@@ -33,6 +33,7 @@ func GetParamInt(r *http.Request, paramName string) (int, error) {
 	}
 	return result, nil
 }
+
 // GetQueryInt gets a query parameter from the request, converts it to an integer and returns an error if the conversion fails
 func GetQueryInt(r *http.Request, paramName string) (*int, error) {
 	value := r.URL.Query().Get(paramName)
