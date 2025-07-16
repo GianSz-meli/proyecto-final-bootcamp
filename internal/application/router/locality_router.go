@@ -10,7 +10,6 @@ func GetLocalityRouter(handler *handler.LocalityHandler) chi.Router {
 	r := chi.NewRouter()
 	r.Post("/", handler.Create())
 	r.Get("/{id}", handler.GetById())
-	r.Get("/reportCarries", handler.GetSellersByLocality())
-
+	r.Get("/reportSellers", handler.GetSellersByLocality())
 	return r
 }
