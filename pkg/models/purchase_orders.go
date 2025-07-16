@@ -11,33 +11,6 @@ type PurchaseOrder struct {
 	WarehouseId   int            `json:"warehouse"`
 	OrderDetails  []OrderDetails `json:"order_details"`
 }
-
-type PurchaseOrderWithAllFields struct {
-	Id           int               `json:"id"`
-	OrderNumber  string            `json:"order_number"`
-	OrderDate    string            `json:"order_date"`
-	TrackingCode string            `json:"tracking_code"`
-	Buyer        BuyerDoc          `json:"buyer"`
-	Carrier      CarrierTemp       `json:"carrier"`
-	OrderStatus  OrderStatus       `json:"order_status"`
-	Warehouse    WarehouseDocument `json:"warehouse"`
-	OrderDetails []OrderDetails    `json:"order_details"`
-}
-
-type OrderStatus struct {
-	Id          int    `json:"id"`
-	Description string `json:"description"`
-}
-
-type CarrierTemp struct {
-	Id          int    `json:"id"`
-	CID         string `json:"cid"`
-	CompanyName string `json:"company_name"`
-	Address     string `json:"address"`
-	Telephone   string `json:"telephone"`
-	LocalityID  int    `json:"locality_id"`
-}
-
 type PurchaseOrderCreateDTO struct {
 	OrderNumber   string                  `json:"order_number" validate:"required"`
 	OrderDate     string                  `json:"order_date" validate:"required"`
@@ -95,31 +68,5 @@ func (po PurchaseOrder) ModelToDoc() PurchaseOrderDoc {
 		OrderStatusId: po.OrderStatusId,
 		WarehouseId:   po.WarehouseId,
 		OrderDetails:  po.OrderDetails,
-	}
-}
-
-type PurchaseOrderWithAllFieldsDoc struct {
-	Id           int               `json:"id"`
-	OrderNumber  string            `json:"order_number"`
-	OrderDate    string            `json:"order_date"`
-	TrackingCode string            `json:"tracking_code"`
-	Buyer        BuyerDoc          `json:"buyer"`
-	Carrier      CarrierTemp       `json:"carrier"`
-	OrderStatus  OrderStatus       `json:"order_status"`
-	Warehouse    WarehouseDocument `json:"warehouse"`
-	OrderDetails []OrderDetails    `json:"order_details"`
-}
-
-func (po PurchaseOrderWithAllFields) ModelToDoc() PurchaseOrderWithAllFieldsDoc {
-	return PurchaseOrderWithAllFieldsDoc{
-		Id:           po.Id,
-		OrderNumber:  po.OrderNumber,
-		OrderDate:    po.OrderDate,
-		TrackingCode: po.TrackingCode,
-		Buyer:        po.Buyer,
-		Carrier:      po.Carrier,
-		OrderStatus:  po.OrderStatus,
-		Warehouse:    po.Warehouse,
-		OrderDetails: po.OrderDetails,
 	}
 }
