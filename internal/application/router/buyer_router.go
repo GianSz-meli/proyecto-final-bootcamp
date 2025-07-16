@@ -14,7 +14,6 @@ func GetBuyerRouter(h *handler.BuyerHandler) chi.Router {
 	rt.Post("/", h.Create())
 	rt.Patch("/{id}", h.Update())
 	rt.Delete("/{id}", h.Delete())
-	rt.Get("/reportPurchaseOrders", h.GetAllWithOrderCount())
-	rt.Get("/reportPurchaseOrders/{id}", h.GetByIdWithOrderCount())
+	rt.Get("/reportPurchaseOrders", h.GetAllOrByIdWithOrderCount())
 	return rt
 }

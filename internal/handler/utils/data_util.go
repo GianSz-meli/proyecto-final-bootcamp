@@ -33,3 +33,20 @@ func GetParamInt(r *http.Request, paramName string) (int, error) {
 	}
 	return result, nil
 }
+
+func GetOptionalQueryParamInt(r *http.Request, paramName string) (int, bool, error) {
+	value := r.URL.Query().Get(paramName)
+	if value == "" {
+		return 0, false, nil
+	}
+
+	result, err := strconv.Atoi(value)
+	if err != nil {
+		return 0, false, customErrors.WrapErrBadRequest(errors.New("id must be a number"))
+	}
+
+	if result <= 0 {
+		return 0, false, customErrors.WrapErrBadRequest(errors.New("id must be greater than 0"))
+	}
+	return result, true, nil // Existe y es válido
+}
