@@ -153,6 +153,9 @@ func (h *BuyerHandler) Delete() http.HandlerFunc {
 	}
 }
 
+// GetAllOrByIdWithOrderCount handles requests to get buyers with their purchase order count.
+// If no 'id' query parameter is provided, returns all buyers with their order counts.
+// If 'id' query parameter is provided, returns the specific buyer with their order count.
 func (h *BuyerHandler) GetAllOrByIdWithOrderCount() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id, hasId, err := utils.GetOptionalQueryParamInt(r, "id")
