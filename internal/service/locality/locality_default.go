@@ -15,7 +15,6 @@ func NewLocalityService(repository locality.LocalityRepository) LocalityService 
 
 func (s *LocalityDefault) Create(locality models.Locality) (models.Locality, error) {
 	newlocality, err := s.repository.Create(locality)
-
 	if err != nil {
 		return models.Locality{}, err
 	}

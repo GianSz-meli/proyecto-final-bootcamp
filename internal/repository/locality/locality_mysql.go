@@ -19,7 +19,7 @@ func NewLocalityMysqlRepository(db *sql.DB) LocalityRepository {
 }
 
 func (r *LocalityMysql) Create(locality models.Locality) (models.Locality, error) {
-	result, err := r.db.Exec(SQL_CREATE, locality.LocalityName, locality.Province.ProvinceName, locality.Province.Country.CountryName)
+	result, err := r.db.Exec(SQL_CREATE, locality.Id, locality.LocalityName, locality.Province.ProvinceName, locality.Province.Country.CountryName)
 	if err != nil {
 		return models.Locality{}, err
 	}
