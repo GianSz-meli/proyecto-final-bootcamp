@@ -3,7 +3,7 @@ package loader
 import (
 	"ProyectoFinal/pkg/models"
 	"encoding/json"
-	"fmt"
+	"log"
 	"os"
 )
 
@@ -15,7 +15,7 @@ func (s *SellerLoader) Load() (map[int]models.Seller, error) {
 	file, err := os.Open(s.path)
 
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		return nil, err
 	}
 	defer file.Close()
@@ -23,6 +23,7 @@ func (s *SellerLoader) Load() (map[int]models.Seller, error) {
 	var sellersJSON []models.SellerDoc
 
 	if err = json.NewDecoder(file).Decode(&sellersJSON); err != nil {
+		log.Println(err)
 		return nil, err
 	}
 

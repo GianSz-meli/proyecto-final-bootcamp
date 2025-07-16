@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"github.com/bootcamp-go/web/request"
 	"github.com/bootcamp-go/web/response"
+	"log"
 	"net/http"
 )
 
@@ -25,11 +26,13 @@ func (h *SellerHandler) Create() http.HandlerFunc {
 
 		if err := request.JSON(r, &reqBody); err != nil {
 			newErr := errors.WrapErrBadRequest(err)
+			log.Println(newErr)
 			errors.HandleError(w, newErr)
 			return
 		}
 
 		if err := utilsHandler.ValidateRequestData(reqBody); err != nil {
+			log.Println(err)
 			errors.HandleError(w, err)
 			return
 		}
@@ -39,6 +42,7 @@ func (h *SellerHandler) Create() http.HandlerFunc {
 		seller, err := h.service.Create(model)
 
 		if err != nil {
+			log.Println(err)
 			errors.HandleError(w, err)
 			return
 		}
@@ -55,6 +59,7 @@ func (h *SellerHandler) Update() http.HandlerFunc {
 		id, err := utilsHandler.GetParamInt(r, "id")
 
 		if err != nil {
+			log.Println(err)
 			errors.HandleError(w, err)
 			return
 		}
@@ -63,11 +68,13 @@ func (h *SellerHandler) Update() http.HandlerFunc {
 
 		if err = request.JSON(r, &reqBody); err != nil {
 			newErr := errors.WrapErrBadRequest(err)
+			log.Println(newErr)
 			errors.HandleError(w, newErr)
 			return
 		}
 
-		if err := utilsHandler.ValidateRequestData(reqBody); err != nil {
+		if err = utilsHandler.ValidateRequestData(reqBody); err != nil {
+			log.Println(err)
 			errors.HandleError(w, err)
 			return
 		}
@@ -75,20 +82,22 @@ func (h *SellerHandler) Update() http.HandlerFunc {
 		sellerToUpdate, err := h.service.GetById(id)
 
 		if err != nil {
-			newError := errors.WrapErrNotFound("seller", "id", id)
-			errors.HandleError(w, newError)
+			log.Println(err)
+			errors.HandleError(w, err)
 			return
 		}
 
 		if updated := utilsHandler.UpdateFields(&sellerToUpdate, &reqBody); !updated {
 			newError := fmt.Errorf("%w : no fields provided for update", errors.ErrUnprocessableEntity)
+			log.Println(newError)
 			errors.HandleError(w, newError)
 			return
 		}
 
-		sellerUpdated, err := h.service.Update(id, sellerToUpdate)
+		sellerUpdated, err := h.service.Update(sellerToUpdate)
 
 		if err != nil {
+			log.Println(err)
 			errors.HandleError(w, err)
 			return
 		}
@@ -105,7 +114,13 @@ func (h *SellerHandler) Update() http.HandlerFunc {
 func (h *SellerHandler) GetAll() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		sellers := h.service.GetAll()
+		sellers, err := h.service.GetAll()
+
+		if err != nil {
+			log.Println(err)
+			errors.HandleError(w, err)
+			return
+		}
 
 		var sellersDoc []models.SellerDoc
 
@@ -124,6 +139,7 @@ func (h *SellerHandler) GetById() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id, err := utilsHandler.GetParamInt(r, "id")
 		if err != nil {
+			log.Println(err)
 			errors.HandleError(w, err)
 			return
 		}
@@ -131,6 +147,7 @@ func (h *SellerHandler) GetById() http.HandlerFunc {
 		seller, err := h.service.GetById(id)
 
 		if err != nil {
+			log.Println(err)
 			errors.HandleError(w, err)
 			return
 		}
@@ -146,6 +163,7 @@ func (h *SellerHandler) Delete() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id, err := utilsHandler.GetParamInt(r, "id")
 		if err != nil {
+			log.Println(err)
 			errors.HandleError(w, err)
 			return
 		}
@@ -153,6 +171,7 @@ func (h *SellerHandler) Delete() http.HandlerFunc {
 		err = h.service.Delete(id)
 
 		if err != nil {
+			log.Println(err)
 			errors.HandleError(w, err)
 			return
 		}
