@@ -21,11 +21,8 @@ func (s *ProductDefault) CreateProduct(newProd models.Product) (models.Product, 
 		newError := pkgErrors.WrapErrConflict("product", "product code", newProd.ProductCode)
 		return models.Product{}, newError
 	}
-	prodReturn, err := s.rp.CreateProduct(newProd)
-	if err != nil {
-		return models.Product{}, err
-	}
-	return prodReturn, nil
+	s.rp.CreateProduct(newProd)
+	return newProd, nil
 }
 
 func (s *ProductDefault) FindAllProducts() (p map[int]models.Product, err error) {
@@ -33,8 +30,8 @@ func (s *ProductDefault) FindAllProducts() (p map[int]models.Product, err error)
 }
 
 func (s *ProductDefault) FindProductsById(id int) (models.Product, error) {
-	product, ok := s.rp.FindProductsById(id)
-	if !ok {
+	product, err := s.rp.FindProductsById(id)
+	if err != nil {
 		newError := fmt.Errorf("%w : product with id %d not found", pkgErrors.ErrNotFound, id)
 		return models.Product{}, newError
 	}
@@ -42,8 +39,8 @@ func (s *ProductDefault) FindProductsById(id int) (models.Product, error) {
 }
 
 func (s *ProductDefault) UpdateProduct(id int, prod models.Product) (models.Product, error) {
-	currentProd, ok := s.rp.FindProductsById(id)
-	if !ok {
+	currentProd, err := s.rp.FindProductsById(id)
+	if err != nil {
 		newError := fmt.Errorf("%w : product with id %d not found", pkgErrors.ErrNotFound, id)
 		return models.Product{}, newError
 	}
@@ -57,8 +54,8 @@ func (s *ProductDefault) UpdateProduct(id int, prod models.Product) (models.Prod
 }
 
 func (s *ProductDefault) DeleteProduct(id int) error {
-	_, ok := s.rp.FindProductsById(id)
-	if !ok {
+	_, err := s.rp.FindProductsById(id)
+	if err != nil {
 		newError := fmt.Errorf("%w : product with id %d not found", pkgErrors.ErrNotFound, id)
 		return newError
 	}
