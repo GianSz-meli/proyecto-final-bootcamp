@@ -56,6 +56,7 @@ func (a *ServerChi) Run() (err error) {
 	productHandler := di.GetProductsHandler(database.Product)
 	productBatchHandler := di.GetProductBatchHandler(sqlDB)
 	carrierHandler := di.GetCarrierHandler(sqlDB)
+	localityHandler := di.GetLocalityHandler(sqlDB)
 	inboundOrderHandler := di.GetInboundOrderHandler(sqlDB)
 	purchaseOrderHandler := di.GetPurchaseOrderHandler(sqlDB)
 
@@ -70,6 +71,7 @@ func (a *ServerChi) Run() (err error) {
 		r.Mount("/warehouses", router.GetWarehouseRouter(warehouseHandler))
 		r.Mount("/products", router.ProductRoutes(productHandler))
 		r.Mount("/buyers", router.GetBuyerRouter(buyerHandler))
+		r.Mount("/localities", router.GetLocalityRouter(localityHandler))
 		r.Mount("/carriers", router.GetCarrierRouter(carrierHandler))
 		r.Mount("/inboundOrders", router.InboundOrderRoutes(inboundOrderHandler))
 		r.Mount("/purchaseOrders", router.GetPurchaseOrderRouter(purchaseOrderHandler))
