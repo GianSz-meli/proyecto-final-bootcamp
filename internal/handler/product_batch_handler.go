@@ -82,3 +82,20 @@ func (h *ProductBatchHandler) GetProductCountBySection() http.HandlerFunc {
 		})
 	}
 }
+
+// GetProductCountByAllSections handles GET requests to retrieve product count reports for all sections
+// Returns a JSON response with the report data for all sections or an error response
+func (h *ProductBatchHandler) GetProductCountByAllSections() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		reports, err := h.service.GetProductCountBySection(nil)
+		if err != nil {
+			log.Printf("[ProductBatchHandler][GetProductCountByAllSections] error: %v", err)
+			errors.HandleError(w, err)
+			return
+		}
+
+		response.JSON(w, http.StatusOK, models.SuccessResponse{
+			Data: reports,
+		})
+	}
+}

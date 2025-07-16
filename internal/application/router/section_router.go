@@ -11,8 +11,9 @@ func GetSectionRouter(handler *handler.SectionDefault, productBatchHandler *hand
 	r.Post("/", handler.Create())
 	r.Get("/", handler.GetAll())
 
-	// Report endpoint - debe ir ANTES de las rutas con parámetros
-	r.Get("/reportProducts", productBatchHandler.GetProductCountBySection())
+	// Report endpoints - must go BEFORE routes with parameters
+	r.Get("/reportProducts", productBatchHandler.GetProductCountByAllSections())
+	r.Get("/reportProducts/{id}", productBatchHandler.GetProductCountBySection())
 
 	r.Get("/{id}", handler.GetById())
 	r.Delete("/{id}", handler.Delete())
