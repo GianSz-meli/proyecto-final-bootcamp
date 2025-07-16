@@ -5,6 +5,8 @@ import (
 	"ProyectoFinal/pkg/models"
 )
 
+// LocalityScan scans a database row into a Locality model.
+// The rowScanner parameter must implement the RowScanner interface.
 func LocalityScan(rowScanner utils.RowScanner, locality *models.Locality) error {
 	if err := rowScanner.Scan(
 		&locality.Id,
@@ -19,6 +21,8 @@ func LocalityScan(rowScanner utils.RowScanner, locality *models.Locality) error 
 	return nil
 }
 
+// SellersByLocalityScan scans a database row into a SellersByLocalityReport model.
+// The rowScanner parameter must implement the RowScanner interface.
 func SellersByLocalityScan(rowScanner utils.RowScanner, sellersByLocality *models.SellersByLocalityReport) error {
 	if err := rowScanner.Scan(
 		&sellersByLocality.SellersCount,

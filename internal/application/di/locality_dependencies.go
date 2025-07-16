@@ -7,6 +7,7 @@ import (
 	"database/sql"
 )
 
+// GetLocalityHandler initializes and returns a LocalityHandler with the provided database connection.
 func GetLocalityHandler(db *sql.DB) *handler.LocalityHandler {
 	repo := repository.NewLocalityMysqlRepository(db)
 	localityServce := service.NewLocalityService(repo)

@@ -20,6 +20,7 @@ func NewLocalityHandler(service locality.LocalityService) *LocalityHandler {
 	return &LocalityHandler{service: service}
 }
 
+// Create handles the HTTP request for creating a new locality.
 func (h *LocalityHandler) Create() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var reqBody models.LocalityCreateRequest
@@ -53,6 +54,7 @@ func (h *LocalityHandler) Create() http.HandlerFunc {
 
 }
 
+// GetById handles the HTTP request for retrieving a locality by its ID.
 func (h *LocalityHandler) GetById() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id, err := utilsHandler.GetParamInt(r, "id")
@@ -77,6 +79,8 @@ func (h *LocalityHandler) GetById() http.HandlerFunc {
 	}
 }
 
+// GetSellersByLocality handles the HTTP request for retrieving seller info by locality ID.
+// If the 'id' query parameter is not present, it returns sellers for all localities.
 func (h *LocalityHandler) GetSellersByLocality() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		idReq := r.URL.Query().Get("id")
@@ -107,6 +111,7 @@ func (h *LocalityHandler) GetSellersByLocality() http.HandlerFunc {
 	}
 }
 
+// GetSellersByLocalities handles the HTTP request for retrieving seller info for all localities.
 func (h *LocalityHandler) GetSellersByLocalities(w http.ResponseWriter, r *http.Request) {
 	sellersByLocalities, err := h.service.GetSellersByLocalities()
 
