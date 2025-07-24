@@ -8,5 +8,6 @@ type SectionService interface {
 	GetById(id int) (s models.Section, err error)
 	Create(section models.Section) (createdSection models.Section, err error)
 	Update(id int, section models.Section) (updatedSection models.Section, err error)
+	UpdateWithValidation(id int, updateRequest models.UpdateSectionRequest) (updatedSection models.Section, err error)
 	Delete(id int) (err error)
 }
