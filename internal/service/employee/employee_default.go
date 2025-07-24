@@ -1,8 +1,11 @@
 package employee
 
 import (
+	"ProyectoFinal/internal/handler/utils"
 	employeeRepository "ProyectoFinal/internal/repository/employee"
+	"ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
+	"fmt"
 )
 
 type service struct {
@@ -41,17 +44,24 @@ func (s *service) Create(employee models.Employee) (models.Employee, error) {
 	return employee, nil
 }
 
-func (s *service) Update(id int, employee models.Employee) (models.Employee, error) {
-	_, err := s.repository.GetById(id)
+func (s *service) PatchUpdate(id int, updateRequest *models.EmployeeUpdateRequest) (models.Employee, error) {
+	// Get existing employee
+	employeeToUpdate, err := s.repository.GetById(id)
 	if err != nil {
 		return models.Employee{}, err
 	}
 
-	if err := s.repository.Update(id, employee); err != nil {
+	// Apply partial updates
+	if updated := utils.UpdateFields(&employeeToUpdate, updateRequest); !updated {
+		return models.Employee{}, fmt.Errorf("%w : no fields provided for update", errors.ErrUnprocessableEntity)
+	}
+
+	// Persist changes
+	if err := s.repository.Update(id, employeeToUpdate); err != nil {
 		return models.Employee{}, err
 	}
 
-	return employee, nil
+	return employeeToUpdate, nil
 }
 
 func (s *service) Delete(id int) error {

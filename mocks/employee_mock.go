@@ -26,8 +26,8 @@ func (m *MockEmployeeService) Create(employee models.Employee) (models.Employee,
 	return args.Get(0).(models.Employee), args.Error(1)
 }
 
-func (m *MockEmployeeService) Update(id int, employee models.Employee) (models.Employee, error) {
-	args := m.Called(id, employee)
+func (m *MockEmployeeService) PatchUpdate(id int, updateRequest *models.EmployeeUpdateRequest) (models.Employee, error) {
+	args := m.Called(id, updateRequest)
 	return args.Get(0).(models.Employee), args.Error(1)
 }
 

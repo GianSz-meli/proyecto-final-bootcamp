@@ -1,7 +1,6 @@
 package employee
 
 import (
-	"fmt"
 	"net/http"
 
 	"ProyectoFinal/internal/handler/utils"
@@ -118,19 +117,7 @@ func (h *EmployeeHandler) Update() http.HandlerFunc {
 			return
 		}
 
-		employeeToUpdate, err := h.service.GetById(id)
-		if err != nil {
-			pkgErrors.HandleError(w, err)
-			return
-		}
-
-		if updated := utils.UpdateFields(&employeeToUpdate, &reqBody); !updated {
-			newError := fmt.Errorf("%w : no fields provided for update", pkgErrors.ErrUnprocessableEntity)
-			pkgErrors.HandleError(w, newError)
-			return
-		}
-
-		employeeUpdated, err := h.service.Update(id, employeeToUpdate)
+		employeeUpdated, err := h.service.PatchUpdate(id, &reqBody)
 		if err != nil {
 			pkgErrors.HandleError(w, err)
 			return

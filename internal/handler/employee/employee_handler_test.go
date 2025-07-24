@@ -230,14 +230,6 @@ func TestEmployeeHandler_Update_OK(t *testing.T) {
 	employeeID := 1
 	warehouseID := 1
 
-	existingEmployee := models.Employee{
-		ID:           employeeID,
-		CardNumberID: "12345",
-		FirstName:    "John",
-		LastName:     "Doe",
-		WarehouseID:  &warehouseID,
-	}
-
 	updatedFirstName := "Johnny"
 	updateRequest := models.EmployeeUpdateRequest{
 		FirstName: &updatedFirstName,
@@ -251,8 +243,7 @@ func TestEmployeeHandler_Update_OK(t *testing.T) {
 		WarehouseID:  &warehouseID,
 	}
 
-	mockService.On("GetById", employeeID).Return(existingEmployee, nil)
-	mockService.On("Update", employeeID, mock.AnythingOfType("models.Employee")).Return(expectedUpdatedEmployee, nil)
+	mockService.On("PatchUpdate", employeeID, &updateRequest).Return(expectedUpdatedEmployee, nil)
 
 	reqBody, _ := json.Marshal(updateRequest)
 	req := httptest.NewRequest(http.MethodPatch, "/employees/1", bytes.NewBuffer(reqBody))
@@ -289,7 +280,7 @@ func TestEmployeeHandler_Update_NonExistent(t *testing.T) {
 		FirstName: &updatedFirstName,
 	}
 
-	mockService.On("GetById", employeeID).Return(models.Employee{}, errors.ErrNotFound)
+	mockService.On("PatchUpdate", employeeID, &updateRequest).Return(models.Employee{}, errors.ErrNotFound)
 
 	reqBody, _ := json.Marshal(updateRequest)
 	req := httptest.NewRequest(http.MethodPatch, "/employees/124", bytes.NewBuffer(reqBody))
