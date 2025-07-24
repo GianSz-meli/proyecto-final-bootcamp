@@ -4,6 +4,9 @@ import (
 	"reflect"
 )
 
+// UpdateFields compares the source struct (request body) with the target struct (the existing record).
+// For each non-nil pointer field in the source, the corresponding field in the target is updated in memory.
+// Returns true if any fields are updated, false otherwise.
 func UpdateFields(target interface{}, source interface{}) bool {
 	targetReflect := reflect.ValueOf(target)
 	sourceReflect := reflect.ValueOf(source)
@@ -24,7 +27,6 @@ func UpdateFields(target interface{}, source interface{}) bool {
 	for i := 0; i < sourceValue.NumField(); i++ {
 		field := sourceValue.Field(i)
 		fieldName := sourceType.Field(i).Name
-
 		if field.Kind() == reflect.Ptr && !field.IsNil() {
 			targetField := targetValue.FieldByName(fieldName)
 			if targetField.IsValid() && targetField.CanSet() {

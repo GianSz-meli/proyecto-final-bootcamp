@@ -10,10 +10,7 @@
     "expiration_rate": 15,
     "recommended_freezing_temperature": 4.0,
     "freezing_rate": 0.2,
-    "product_type_id": {
-      "id": 1,
-      "description": "Lácteos"
-    }
+    "product_type_id": 1
   },
   {
     "id": 2,
@@ -26,10 +23,7 @@
     "expiration_rate": 20,
     "recommended_freezing_temperature": 4.0,
     "freezing_rate": 0.18,
-    "product_type_id": {
-      "id": 1,
-      "description": "Lácteos"
-    }
+    "product_type_id": 1
   },
   {
     "id": 3,
@@ -42,10 +36,7 @@
     "expiration_rate": 10,
     "recommended_freezing_temperature": 4.0,
     "freezing_rate": 0.15,
-    "product_type_id": {
-      "id": 1,
-      "description": "Lácteos"
-    }
+    "product_type_id": 1
   },
   {
     "id": 4,
@@ -58,10 +49,7 @@
     "expiration_rate": 7,
     "recommended_freezing_temperature": -18.0,
     "freezing_rate": 1.1,
-    "product_type_id": {
-      "id": 2,
-      "description": "Cárnicos"
-    }
+    "product_type_id": 1
   },
   {
     "id": 5,
@@ -74,9 +62,6 @@
     "expiration_rate": 12,
     "recommended_freezing_temperature": -20.0,
     "freezing_rate": 0.95,
-    "product_type_id": {
-      "id": 3,
-      "description": "Pescados"
-    }
+    "product_type_id": 1
   }
 ]

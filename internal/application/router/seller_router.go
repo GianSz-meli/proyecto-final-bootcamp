@@ -6,6 +6,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+// GetSellerRouter initializes and returns a Chi router with routes for seller resource operations.
 func GetSellerRouter(handler *handler.SellerHandler) chi.Router {
 	r := chi.NewRouter()
 	r.Post("/", handler.Create())

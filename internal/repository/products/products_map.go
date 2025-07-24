@@ -3,6 +3,8 @@ package repository
 import (
 	"ProyectoFinal/internal/repository/utils"
 	"ProyectoFinal/pkg/models"
+	pkgErrors "ProyectoFinal/pkg/errors"
+
 )
 
 func NewProductMap(db map[int]models.Product) *ProductMap {
@@ -38,9 +40,12 @@ func (r *ProductMap) FindAllProducts() (p map[int]models.Product, err error) {
 	return v, nil
 }
 
-func (r *ProductMap) FindProductsById(id int) (models.Product, bool) {
+func (r *ProductMap) FindProductsById(id int) (models.Product, error) {
 	product, ok := r.db[id]
-	return product, ok
+	if !ok {
+		return models.Product{}, pkgErrors.WrapErrNotFound("product", "id", id)
+	}
+	return product, nil
 }
 
 func (r *ProductMap) UpdateProduct(id int, prod models.Product) (models.Product, error) {

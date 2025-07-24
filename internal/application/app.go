@@ -1,10 +1,10 @@
 package application
 
 import (
-	"ProyectoFinal/docs/db"
 	"ProyectoFinal/internal/application/config"
 	"ProyectoFinal/internal/application/di"
 	"ProyectoFinal/internal/application/router"
+
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -42,9 +42,6 @@ func NewServerChi(cfg *ConfigServerChi) *ServerChi {
 
 func (a *ServerChi) Run() (err error) {
 	rt := chi.NewRouter()
-
-	database := db.LoadDB(a.loaderFilePath)
-	//TODO: Replace LoadDB to InitDB
 	sqlDB := config.InitDB()
 
 	// Dependency injection
@@ -53,12 +50,13 @@ func (a *ServerChi) Run() (err error) {
 	sectionHandler := di.GetSectionHandler(sqlDB)
 	buyerHandler := di.GetBuyerHandler(sqlDB)
 	employeeHandler := di.GetEmployeeHandler(sqlDB)
-	productHandler := di.GetProductsHandler(database.Product)
+	productHandler := di.GetProductsHandler(sqlDB)
 	productBatchHandler := di.GetProductBatchHandler(sqlDB)
 	carrierHandler := di.GetCarrierHandler(sqlDB)
 	localityHandler := di.GetLocalityHandler(sqlDB)
 	inboundOrderHandler := di.GetInboundOrderHandler(sqlDB)
 	purchaseOrderHandler := di.GetPurchaseOrderHandler(sqlDB)
+	productRecordHandler := di.GetProductRecordHandler(sqlDB)
 
 	//Middlewares
 	rt.Use(middleware.Logger)
@@ -69,8 +67,9 @@ func (a *ServerChi) Run() (err error) {
 		r.Mount("/sellers", router.GetSellerRouter(sellerHandler))
 		r.Mount("/employees", router.EmployeeRoutes(employeeHandler, inboundOrderHandler))
 		r.Mount("/warehouses", router.GetWarehouseRouter(warehouseHandler))
-		r.Mount("/products", router.ProductRoutes(productHandler))
+		r.Mount("/products", router.ProductRoutes(productHandler, productRecordHandler))
 		r.Mount("/buyers", router.GetBuyerRouter(buyerHandler))
+		r.Mount("/productRecords", router.GetProductRecordRouter(productRecordHandler))
 		r.Mount("/localities", router.GetLocalityRouter(localityHandler))
 		r.Mount("/carriers", router.GetCarrierRouter(carrierHandler))
 		r.Mount("/inboundOrders", router.InboundOrderRoutes(inboundOrderHandler))

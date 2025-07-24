@@ -7,6 +7,7 @@ import (
 	"database/sql"
 )
 
+// GetSellerHandler initializes and returns a SellerHandler with the provided database connection.
 func GetSellerHandler(db *sql.DB) *handler.SellerHandler {
 	sellerRepository := repository.NewSellerMysqlRepository(db)
 	sellerService := service.NewSellerService(sellerRepository)

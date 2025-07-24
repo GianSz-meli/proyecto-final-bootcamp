@@ -7,6 +7,8 @@ import (
 	"regexp"
 )
 
+// HandleMysqlError inspects a MySQL error and returns a wrapped application-specific error
+// based on the error number. If the error does not match any known MySQL error code, it returns the original error.
 func HandleMysqlError(err error) error {
 	var mysqlError *mysql.MySQLError
 	if errors.As(err, &mysqlError) {
@@ -24,6 +26,8 @@ func HandleMysqlError(err error) error {
 	return err
 }
 
+// HandleDuplicatedEntryError parses a MySQL duplicate entry error and wraps it in a conflict error
+// with detailed information about the conflicting value, domain, and property.
 func HandleDuplicatedEntryError(err error) error {
 	re := regexp.MustCompile(`Duplicate entry '([^']*)' for key '([^\.]+)\.([^\']*)'`)
 	matches := re.FindStringSubmatch(err.Error())
@@ -39,6 +43,8 @@ func HandleDuplicatedEntryError(err error) error {
 	return fmt.Errorf("%w: %s", ErrConflict, "Duplicate entry")
 }
 
+// HandleViolationFkError parses a MySQL foreign key violation error and wraps it
+// with information about the violated foreign key field, indicating that the reference is invalid.
 func HandleViolationFkError(err error) error {
 	re := regexp.MustCompile("FOREIGN KEY \\(`([^`]*)`\\)")
 	matches := re.FindStringSubmatch(err.Error())
@@ -49,6 +55,8 @@ func HandleViolationFkError(err error) error {
 	return fmt.Errorf("%w: invalid reference: one of the linked objects was not found", ErrConflict)
 }
 
+// HandleColumnRequired parses a MySQL error about required (non-nullable) columns
+// and wraps it as a bad request error indicating which column is missing or null.
 func HandleColumnRequired(err error) error {
 	re := regexp.MustCompile(`Column '([^']*)'`)
 	matches := re.FindStringSubmatch(err.Error())
@@ -58,6 +66,8 @@ func HandleColumnRequired(err error) error {
 	return fmt.Errorf("%w: a required field is missing or null", ErrBadRequest)
 }
 
+// HandleParentRowError parses a MySQL error about parent row deletion/update constraint violations
+// and wraps it as a conflict error with detailed information about the involved tables and columns.
 func HandleParentRowError(err error) error {
 	re := regexp.MustCompile(
 		"fails \\(`[^`]+`\\.`([^`]*)`, CONSTRAINT `([^`]*)` FOREIGN KEY \\(`([^`]*)`\\) REFERENCES `([^`]*)` \\(`([^`]*)`\\)",
