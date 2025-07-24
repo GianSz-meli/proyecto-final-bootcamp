@@ -67,6 +67,7 @@ func TestSellerHandler_Create_ValidateRequest(t *testing.T) {
 
 			//Assert
 			test.assertFunc(t, response)
+			require.Equal(t, 0, test.service.Spy.CountCreateFunc)
 		})
 	}
 }
@@ -165,6 +166,7 @@ func TestSellerHandler_Create_ValidateRequestData(t *testing.T) {
 
 			//Assert
 			test.assertFunc(t, response)
+			require.Equal(t, 0, test.service.Spy.CountCreateFunc)
 		})
 	}
 }
@@ -270,6 +272,7 @@ func TestSellerHandler_Create_MySQL_Errors(t *testing.T) {
 
 			//Assert
 			test.assertFunc(t, response)
+			require.Equal(t, 1, test.service.Spy.CountCreateFunc)
 		})
 	}
 }
@@ -327,6 +330,8 @@ func TestSellerHandler_Create_Success(t *testing.T) {
 
 			//Assert
 			test.assertFunc(t, response)
+			require.Equal(t, 1, test.service.Spy.CountCreateFunc)
+
 		})
 	}
 }
