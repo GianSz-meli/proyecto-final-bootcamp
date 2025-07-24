@@ -17,6 +17,7 @@ import (
 
 var reqBodySuccesfull = "{   \n    \"cid\": \"GDJ2SJ3\",\n    \"company_name\": \"Farm to Table Produce Hub\",\n    \"address\": \"812 Cypress Way, Denver, CO 80201\",\n    \"telephone\": \"+1-555-1901\",\n    \"locality_id\": 1\n} "
 
+// Test for create bad request
 func TestSellerHandler_Create_ValidateRequest(t *testing.T) {
 	tests := []struct {
 		name        string
@@ -70,6 +71,7 @@ func TestSellerHandler_Create_ValidateRequest(t *testing.T) {
 	}
 }
 
+// Test for create fails
 func TestSellerHandler_Create_ValidateRequestData(t *testing.T) {
 	tests := []struct {
 		name        string
@@ -167,6 +169,7 @@ func TestSellerHandler_Create_ValidateRequestData(t *testing.T) {
 	}
 }
 
+// Test for create mysql errors
 func TestSellerHandler_Create_MySQL_Errors(t *testing.T) {
 
 	tests := []struct {
@@ -271,6 +274,7 @@ func TestSellerHandler_Create_MySQL_Errors(t *testing.T) {
 	}
 }
 
+// Test for create ok
 func TestSellerHandler_Create_Success(t *testing.T) {
 	newSeller := models.Seller{
 		Id:          1,
