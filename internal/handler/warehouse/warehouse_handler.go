@@ -1,7 +1,8 @@
-package handler
+package warehouse
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"ProyectoFinal/internal/handler/utils"
@@ -61,7 +62,7 @@ func (h *WarehouseHandler) GetWarehouseById(w http.ResponseWriter, r *http.Reque
 func (h *WarehouseHandler) CreateWarehouse(w http.ResponseWriter, r *http.Request) {
 	var createRequest models.CreateWarehouseRequest
 	if err := json.NewDecoder(r.Body).Decode(&createRequest); err != nil {
-		errors.HandleError(w, errors.WrapErrBadRequest(err))
+		errors.HandleError(w, errors.WrapErrBadRequest(fmt.Errorf("it was not possible to decode json")))
 		return
 	}
 
@@ -93,7 +94,7 @@ func (h *WarehouseHandler) UpdateWarehouse(w http.ResponseWriter, r *http.Reques
 
 	var updateRequest models.UpdateWarehouseRequest
 	if err := json.NewDecoder(r.Body).Decode(&updateRequest); err != nil {
-		errors.HandleError(w, errors.WrapErrBadRequest(err))
+		errors.HandleError(w, errors.WrapErrBadRequest(fmt.Errorf("it was not possible to decode json")))
 		return
 	}
 

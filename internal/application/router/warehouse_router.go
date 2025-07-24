@@ -1,7 +1,7 @@
 package router
 
 import (
-	"ProyectoFinal/internal/handler"
+	handler "ProyectoFinal/internal/handler/warehouse"
 
 	"github.com/go-chi/chi/v5"
 )
