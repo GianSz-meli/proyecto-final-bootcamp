@@ -170,58 +170,52 @@ func TestCreateProduct(t *testing.T) {
 	})
 }
 
-// func TestFindProducts(t *testing.T) {
-// 	prod1 := models.Product{
-// 		ID:             1,
-// 		ProductCode:    "A123",
-// 		Description:    "Caja de manzanas",
-// 		Width:          40.0,
-// 		Height:         25.0,
-// 		Length:         60.0,
-// 		NetWeight:      15.0,
-// 		ExpirationRate: 0.05,
-// 		Temperature:    4.0,
-// 		FreezingRate:   0.02,
-// 		ProductTypeID:  2,
-// 		SellerID:       nil,
-// 	}
-// 	sellerID := 17
-// 	prod2 := models.Product{
-// 		ID:             2,
-// 		ProductCode:    "B456",
-// 		Description:    "Botella de jugo",
-// 		Width:          8.0,
-// 		Height:         30.0,
-// 		Length:         8.0,
-// 		NetWeight:      1.2,
-// 		ExpirationRate: 0.01,
-// 		Temperature:    6.5,
-// 		FreezingRate:   0.0,
-// 		ProductTypeID:  3,
-// 		SellerID:       &sellerID,
-// 	}
-// 	prods := map[int]models.Product{
-// 		1: prod1,
-// 		2: prod2,
-// 	}
+func TestFindProducts(t *testing.T) {
+	prod1 := models.Product{
+		ID:             1,
+		ProductCode:    "A123",
+		Description:    "Caja de manzanas",
+		Width:          40.0,
+		Height:         25.0,
+		Length:         60.0,
+		NetWeight:      15.0,
+		ExpirationRate: 0.05,
+		Temperature:    4.0,
+		FreezingRate:   0.02,
+		ProductTypeID:  2,
+		SellerID:       nil,
+	}
+	sellerID := 17
+	prod2 := models.Product{
+		ID:             2,
+		ProductCode:    "B456",
+		Description:    "Botella de jugo",
+		Width:          8.0,
+		Height:         30.0,
+		Length:         8.0,
+		NetWeight:      1.2,
+		ExpirationRate: 0.01,
+		Temperature:    6.5,
+		FreezingRate:   0.0,
+		ProductTypeID:  3,
+		SellerID:       &sellerID,
+	}
+	prods := map[int]models.Product{
+		1: prod1,
+		2: prod2,
+	}
 
-// 	t.Run("find_all", func(t *testing.T) {
-// 		mockService := &MockProductService{
-// 			FindAllProductsFunc: func() (map[int]models.Product, error) {
-// 				return prods, nil
-// 			},
-// 		}
-// 		hd := handler.NewProductHandler(mockService)
+	t.Run("find_all", func(t *testing.T) {
+		mockService := &MockProductService{}
+		mockService.On("FindAllProducts").Return(prods, nil)
+		hd := handler.NewProductHandler(mockService)
 
-// 		request := httptest.NewRequest("GET", "/products", nil)
-// 		response := httptest.NewRecorder()
+		request := httptest.NewRequest("GET", "/products", nil)
+		response := httptest.NewRecorder()
 
-// 		hd.FindAllProducts(response, request)
-// 		require.Equal(t, http.StatusOK, response.Code)
-
-// 		require.Equal(t, float64(1), result["id"])
-// 		require.Equal(t, "A123", result["product_code"])
-// 		require.Equal(t, "Caja de manzanas", result["description"])
-
-// 	})
-// }
+		hd.FindAllProducts(response, request)
+		
+		require.Equal(t, http.StatusOK, response.Code)
+		
+	})
+}
