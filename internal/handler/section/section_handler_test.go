@@ -2,6 +2,7 @@ package section
 
 import (
 	"ProyectoFinal/mocks"
+	"ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
 	"bytes"
 	"context"
@@ -111,6 +112,31 @@ func TestSectionHandler_GetById_Existent_Success(t *testing.T) {
 	mockService.AssertExpectations(t)
 }
 
+func TestSectionHandler_GetById_NonExistent_NotFound(t *testing.T) {
+	// Arrange
+	mockService := new(mocks.MockSectionService)
+	handler := NewSectionDefault(mockService)
+
+	notFoundError := errors.WrapErrNotFound("Section", "id", 999)
+	mockService.On("GetById", 999).Return(models.Section{}, notFoundError)
+
+	// Act
+	req := httptest.NewRequest(http.MethodGet, "/sections/999", nil)
+	rctx := chi.NewRouteContext()
+	rctx.URLParams.Add("id", "999")
+	req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, rctx))
+	w := httptest.NewRecorder()
+	handler.GetById()(w, req)
+
+	// Assert
+	require.Equal(t, http.StatusNotFound, w.Code)
+	var response map[string]interface{}
+	err := json.Unmarshal(w.Body.Bytes(), &response)
+	require.NoError(t, err)
+	require.Equal(t, "Not Found", response["status"])
+	mockService.AssertExpectations(t)
+}
+
 func TestSectionHandler_Create_ValidRequest_Success(t *testing.T) {
 	// Arrange
 	mockService := new(mocks.MockSectionService)
@@ -159,6 +185,42 @@ func TestSectionHandler_Create_ValidRequest_Success(t *testing.T) {
 	// Assert
 	require.Equal(t, http.StatusCreated, w.Code)
 	require.Equal(t, string(expectedResponseBytes), w.Body.String())
+	mockService.AssertExpectations(t)
+}
+
+func TestSectionHandler_Create_Conflict_Error(t *testing.T) {
+	// Arrange
+	mockService := new(mocks.MockSectionService)
+	handler := NewSectionDefault(mockService)
+
+	createRequest := models.CreateSectionRequest{
+		SectionNumber:      "SEC001",
+		CurrentTemperature: 15.5,
+		MinimumTemperature: 10.0,
+		CurrentCapacity:    50,
+		MinimumCapacity:    20,
+		MaximumCapacity:    100,
+		WarehouseID:        1,
+		ProductTypeID:      1,
+	}
+
+	conflictError := errors.WrapErrConflict("Section", "section_number", "SEC001")
+	mockService.On("Create", createRequest.DocToModel()).Return(models.Section{}, conflictError)
+
+	body, _ := json.Marshal(createRequest)
+	req := httptest.NewRequest(http.MethodPost, "/sections", bytes.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+
+	// Act
+	handler.Create()(w, req)
+
+	// Assert
+	require.Equal(t, http.StatusConflict, w.Code)
+	var response map[string]interface{}
+	err := json.Unmarshal(w.Body.Bytes(), &response)
+	require.NoError(t, err)
+	require.Equal(t, "Conflict", response["status"])
 	mockService.AssertExpectations(t)
 }
 
@@ -281,6 +343,38 @@ func TestSectionHandler_Update_ValidRequest_Success(t *testing.T) {
 	mockService.AssertExpectations(t)
 }
 
+func TestSectionHandler_Update_NonExistent_NotFound(t *testing.T) {
+	// Arrange
+	mockService := new(mocks.MockSectionService)
+	handler := NewSectionDefault(mockService)
+
+	updateRequest := models.UpdateSectionRequest{
+		SectionNumber: stringPtr("SEC999-UPDATED"),
+	}
+
+	notFoundError := errors.WrapErrNotFound("Section", "id", 999)
+	mockService.On("UpdateWithValidation", 999, updateRequest).Return(models.Section{}, notFoundError)
+
+	body, _ := json.Marshal(updateRequest)
+	req := httptest.NewRequest(http.MethodPut, "/sections/999", bytes.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	rctx := chi.NewRouteContext()
+	rctx.URLParams.Add("id", "999")
+	req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, rctx))
+	w := httptest.NewRecorder()
+
+	// Act
+	handler.Update()(w, req)
+
+	// Assert
+	require.Equal(t, http.StatusNotFound, w.Code)
+	var response map[string]interface{}
+	err := json.Unmarshal(w.Body.Bytes(), &response)
+	require.NoError(t, err)
+	require.Equal(t, "Not Found", response["status"])
+	mockService.AssertExpectations(t)
+}
+
 func TestSectionHandler_Delete_Existent_Success(t *testing.T) {
 	// Arrange
 	mockService := new(mocks.MockSectionService)
@@ -298,6 +392,31 @@ func TestSectionHandler_Delete_Existent_Success(t *testing.T) {
 
 	// Assert
 	require.Equal(t, http.StatusNoContent, w.Code)
+	mockService.AssertExpectations(t)
+}
+
+func TestSectionHandler_Delete_NonExistent_NotFound(t *testing.T) {
+	// Arrange
+	mockService := new(mocks.MockSectionService)
+	handler := NewSectionDefault(mockService)
+
+	notFoundError := errors.WrapErrNotFound("Section", "id", 999)
+	mockService.On("Delete", 999).Return(notFoundError)
+
+	// Act
+	req := httptest.NewRequest(http.MethodDelete, "/sections/999", nil)
+	rctx := chi.NewRouteContext()
+	rctx.URLParams.Add("id", "999")
+	req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, rctx))
+	w := httptest.NewRecorder()
+	handler.Delete()(w, req)
+
+	// Assert
+	require.Equal(t, http.StatusNotFound, w.Code)
+	var response map[string]interface{}
+	err := json.Unmarshal(w.Body.Bytes(), &response)
+	require.NoError(t, err)
+	require.Equal(t, "Not Found", response["status"])
 	mockService.AssertExpectations(t)
 }
 
