@@ -3,54 +3,41 @@ package handler_test
 import (
 	"ProyectoFinal/internal/handler"
 	"ProyectoFinal/pkg/models"
-	pkgErrors "ProyectoFinal/pkg/errors"
 	"encoding/json"
+
 	// "errors"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
 
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
 
 type MockProductService struct {
-	CreateProductFunc    func(models.Product) (models.Product, error)
-	FindAllProductsFunc  func() (map[int]models.Product, error)
-	FindProductsByIdFunc func(int) (models.Product, error)
-	UpdateProductFunc    func(int, models.Product) (models.Product, error)
-	DeleteProductFunc    func(int) error
+	mock.Mock
 }
 
 func (m *MockProductService) CreateProduct(p models.Product) (models.Product, error) {
-	if m.CreateProductFunc != nil {
-		return m.CreateProductFunc(p)
-	}
-	return models.Product{}, nil
+	args := m.Called(p)
+	return args.Get(0).(models.Product), args.Error(1)
 }
 func (m *MockProductService) FindAllProducts() (map[int]models.Product, error) {
-	if m.FindAllProductsFunc != nil {
-		return m.FindAllProductsFunc()
-	}
-	return nil, nil
+	args := m.Called()
+	return args.Get(0).(map[int]models.Product), args.Error(1)
 }
 func (m *MockProductService) FindProductsById(id int) (models.Product, error) {
-	if m.FindProductsByIdFunc != nil {
-		return m.FindProductsByIdFunc(id)
-	}
-	return models.Product{}, nil
+	args := m.Called(id)
+	return args.Get(0).(models.Product), args.Error(1)
 }
 func (m *MockProductService) UpdateProduct(id int, p models.Product) (models.Product, error) {
-	if m.UpdateProductFunc != nil {
-		return m.UpdateProductFunc(id, p)
-	}
-	return models.Product{}, nil
+	args := m.Called(id, p)
+	return args.Get(0).(models.Product), args.Error(1)
 }
 func (m *MockProductService) DeleteProduct(id int) error {
-	if m.DeleteProductFunc != nil {
-		return m.DeleteProductFunc(id)
-	}
-	return nil
+	args := m.Called(id)
+	return args.Error(0)
 }
 
 func TestCreateProduct(t *testing.T) {
@@ -68,84 +55,98 @@ func TestCreateProduct(t *testing.T) {
     "seller_id": 7
 }`
 
+	productCode := "A1000"
+	description := "Coca Cola 2L"
+	width := 5.00
+	height := 20.00
+	length := 12.00
+	netWeight := 1.9
+	expirationRate := 15.00
+	temperature := 10.00
+	freezingRate := 10.00
+	productTypeId := 83
+	sellerID := 7
+
+	inputProduct := models.Product{
+		ProductCode:    productCode,
+		Description:    description,
+		Width:          width,
+		Height:         height,
+		Length:         length,
+		NetWeight:      netWeight,
+		ExpirationRate: expirationRate,
+		Temperature:    float32(temperature),
+		FreezingRate:   freezingRate,
+		ProductTypeID:  productTypeId,
+		SellerID:       &sellerID,
+	}
+
+	returnedProduct := models.Product{
+		ID:             1,
+		ProductCode:    productCode,
+		Description:    description,
+		Width:          width,
+		Height:         height,
+		Length:         length,
+		NetWeight:      netWeight,
+		ExpirationRate: expirationRate,
+		Temperature:    float32(temperature),
+		FreezingRate:   freezingRate,
+		ProductTypeID:  productTypeId,
+		SellerID:       nil,
+	}
+
 	t.Run("create_ok", func(t *testing.T) {
-		expected := models.Product{
-			ID:             1,
-			ProductCode:    "A1000",
-			Description:    "Coca Cola 2L",
-			Width:          5,
-			Height:         20,
-			Length:         12,
-			NetWeight:      1.9,
-			ExpirationRate: 15,
-			Temperature:    10,
-			FreezingRate:   10,
-			ProductTypeID:  83,
-		}
-		mockService := &MockProductService{
-			CreateProductFunc: func(p models.Product) (models.Product, error) {
-				return expected, nil
-			},
-		}
+		mockService := &MockProductService{}
+		mockService.On("CreateProduct", inputProduct).Return(returnedProduct, nil)
 		hd := handler.NewProductHandler(mockService)
 
 		request := httptest.NewRequest("POST", "/products", strings.NewReader(validProductJSON))
 		request.Header.Set("Content-Type", "application/json")
 		response := httptest.NewRecorder()
-
+		//act
 		hd.CreateProduct(response, request)
 
+		//assert
 		require.Equal(t, http.StatusCreated, response.Code)
+		require.Equal(t, "application/json", response.Header().Get("Content-Type"))
 
-		var respBody map[string]interface{}
-		require.NoError(t, json.Unmarshal(response.Body.Bytes(), &respBody))
-		data, ok := respBody["data"].(map[string]interface{})
-		// cambiar texto
-		require.True(t, ok, "la respuesta debe tener 'data' como objeto")
+		var resp struct {
+			Data models.Product `json:"data"`
+		}
 
-		require.Equal(t, float64(1), data["id"])
-		require.Equal(t, "A1000", data["product_code"])
-		require.Equal(t, "Coca Cola 2L", data["description"])
+		err := json.Unmarshal(response.Body.Bytes(), &resp)
+		require.NoError(t, err)
+		require.Equal(t, returnedProduct, resp.Data)
+		mockService.AssertExpectations(t)
 	})
 
 	t.Run("create_fail", func(t *testing.T) {
-		expected := models.Product{
-			ID:          2,
-			Description: "Coca Cola 2L",
-			Width:       5,
-			Height:      20,
-			Length:      12,
-			NetWeight:   1.9,
-		}
-		mockService := &MockProductService{
-			CreateProductFunc: func(p models.Product) (models.Product, error) {
-				return expected, nil
-			},
-		}
-		hd := handler.NewProductHandler(mockService)
+		mockServiceFail := &MockProductService{}
+		mockServiceFail.On("CreateProduct", inputProduct).Return(returnedProduct, nil)
+		hd := handler.NewProductHandler(mockServiceFail)
+
 		request := httptest.NewRequest("POST", "/products", strings.NewReader(validProductJSON))
 		request.Header.Set("Content-Type", "application/json")
 		response := httptest.NewRecorder()
 
 		hd.CreateProduct(response, request)
 
-		var respBody map[string]interface{}
-		require.NoError(t, json.Unmarshal(response.Body.Bytes(), &respBody))
-		data, ok := respBody["data"].(map[string]interface{})
-		require.True(t, ok, "la respuesta debe tener 'data' como objeto")
+		require.Equal(t, http.StatusBadRequest, response.Code)
+		require.Equal(t, "application/json", response.Header().Get("Content-Type"))
 
-		require.Equal(t, float64(2), data["id"])
-		require.Equal(t, "Coca Cola 2L", data["description"])
+		var resp map[string]any
+		err := json.Unmarshal(response.Body.Bytes(), &resp)
+		require.NoError(t, err)
+		require.Contains(t, response, "message")
+		require.Contains(t, response, "error")
+		mockServiceFail.AssertNotCalled(t, "CreateProduct", 0)
 
 	})
-
 	t.Run("create_conflict", func(t *testing.T) {
-		mockService := &MockProductService{
-			CreateProductFunc: func(p models.Product) (models.Product, error) {
-				return models.Product{}, pkgErrors.WrapErrConflict("product", "product_code", "A1000")
-			},
-		}
-		hd := handler.NewProductHandler(mockService)
+		mockServiceFail := &MockProductService{}
+		mockServiceFail.On("CreateProduct", inputProduct).Return(returnedProduct, nil)
+		hd := handler.NewProductHandler(mockServiceFail)
 
 		request := httptest.NewRequest("POST", "/products", strings.NewReader(validProductJSON))
 		request.Header.Set("Content-Type", "application/json")
@@ -154,7 +155,71 @@ func TestCreateProduct(t *testing.T) {
 		hd.CreateProduct(response, request)
 
 		require.Equal(t, http.StatusConflict, response.Code)
-		require.Contains(t, response.Body.String(), "product_code A1000 already exists")
-	})
+		require.Equal(t, "application/json", response.Header().Get("Content-Type"))
+		
+		var resp map[string]any
+		err := json.Unmarshal(response.Body.Bytes(), &resp)
+		require.NoError(t, err)
+		require.Contains(t, response, "message")
+		require.Contains(t, response, "error")
+		mockServiceFail.AssertExpectations(t)
 
+	})
 }
+
+
+// func TestFindProducts(t *testing.T) {
+// 	prod1 := models.Product{
+// 		ID:             1,
+// 		ProductCode:    "A123",
+// 		Description:    "Caja de manzanas",
+// 		Width:          40.0,
+// 		Height:         25.0,
+// 		Length:         60.0,
+// 		NetWeight:      15.0,
+// 		ExpirationRate: 0.05,
+// 		Temperature:    4.0,
+// 		FreezingRate:   0.02,
+// 		ProductTypeID:  2,
+// 		SellerID:       nil,
+// 	}
+// 	sellerID := 17
+// 	prod2 := models.Product{
+// 		ID:             2,
+// 		ProductCode:    "B456",
+// 		Description:    "Botella de jugo",
+// 		Width:          8.0,
+// 		Height:         30.0,
+// 		Length:         8.0,
+// 		NetWeight:      1.2,
+// 		ExpirationRate: 0.01,
+// 		Temperature:    6.5,
+// 		FreezingRate:   0.0,
+// 		ProductTypeID:  3,
+// 		SellerID:       &sellerID,
+// 	}
+// 	prods := map[int]models.Product{
+// 		1: prod1,
+// 		2: prod2,
+// 	}
+
+// 	t.Run("find_all", func(t *testing.T) {
+// 		mockService := &MockProductService{
+// 			FindAllProductsFunc: func() (map[int]models.Product, error) {
+// 				return prods, nil
+// 			},
+// 		}
+// 		hd := handler.NewProductHandler(mockService)
+
+// 		request := httptest.NewRequest("GET", "/products", nil)
+// 		response := httptest.NewRecorder()
+
+// 		hd.FindAllProducts(response, request)
+// 		require.Equal(t, http.StatusOK, response.Code)
+
+// 		require.Equal(t, float64(1), result["id"])
+// 		require.Equal(t, "A123", result["product_code"])
+// 		require.Equal(t, "Caja de manzanas", result["description"])
+
+// 	})
+// }
