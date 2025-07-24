@@ -43,21 +43,23 @@ type WarehouseDocument struct {
 }
 
 type WarehouseCreateDocument struct {
-	WarehouseCode      string   `json:"warehouse_code"`
-	Address            string   `json:"address"`
-	Telephone          string   `json:"telephone"`
-	MinimumCapacity    int     `json:"minimum_capacity"`
-	MinimumTemperature float64 `json:"minimum_temperature"`
-	LocalityId         *int     `json:"locality_id"`
-}
-
-type WarehouseUpdateDocument struct {
+	ID                 int     `json:"id"`
 	WarehouseCode      string  `json:"warehouse_code"`
 	Address            string  `json:"address"`
 	Telephone          string  `json:"telephone"`
 	MinimumCapacity    int     `json:"minimum_capacity"`
 	MinimumTemperature float64 `json:"minimum_temperature"`
-	LocalityId         *int     `json:"locality_id"`
+	LocalityId         *int    `json:"locality_id"`
+}
+
+type WarehouseUpdateDocument struct {
+	ID                 int     `json:"id"`
+	WarehouseCode      string  `json:"warehouse_code"`
+	Address            string  `json:"address"`
+	Telephone          string  `json:"telephone"`
+	MinimumCapacity    int     `json:"minimum_capacity"`
+	MinimumTemperature float64 `json:"minimum_temperature"`
+	LocalityId         *int    `json:"locality_id"`
 }
 
 // Mapping functions
@@ -108,9 +110,9 @@ func (w Warehouse) ModelToDoc() WarehouseDocument {
 	}
 }
 
-
 func (w Warehouse) ModelToCreateDoc() WarehouseCreateDocument {
 	return WarehouseCreateDocument{
+		ID:                 w.ID,
 		WarehouseCode:      w.WarehouseCode,
 		Address:            w.Address,
 		Telephone:          w.Telephone,
@@ -122,6 +124,7 @@ func (w Warehouse) ModelToCreateDoc() WarehouseCreateDocument {
 
 func (w Warehouse) ModelToUpdateDoc() WarehouseUpdateDocument {
 	return WarehouseUpdateDocument{
+		ID:                 w.ID,
 		WarehouseCode:      w.WarehouseCode,
 		Address:            w.Address,
 		Telephone:          w.Telephone,
@@ -130,4 +133,3 @@ func (w Warehouse) ModelToUpdateDoc() WarehouseUpdateDocument {
 		LocalityId:         w.LocalityId,
 	}
 }
-
