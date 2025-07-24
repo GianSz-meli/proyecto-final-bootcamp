@@ -79,7 +79,6 @@ func TestSellerHandler_Create_ValidateRequestData(t *testing.T) {
 	}{
 		{
 			name: "should return error when Cid is not present",
-			//reqBody:              strings.NewReader("{ \n    \"company_name\": \"Farm to Table Produce Hub\",\n    \"address\": \"812 Cypress Way, Denver, CO 80201\",\n    \"telephone\": \"+1-555-1901\",\n    \"locality_id\": 1\n} "),
 			createRequest: models.CreateSellerRequest{
 				CompanyName: "Farm to Table Produce Hub",
 				Address:     "812 Cypress Way, Denver, CO 80201",
