@@ -4,7 +4,6 @@ import (
 	service "ProyectoFinal/internal/service/section"
 	"ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
-	"fmt"
 	"net/http"
 
 	utilsHandler "ProyectoFinal/internal/handler/utils"
@@ -122,19 +121,7 @@ func (h *SectionDefault) Update() http.HandlerFunc {
 			return
 		}
 
-		sectionToUpdate, err := h.sv.GetById(idNum)
-		if err != nil {
-			errors.HandleError(w, err)
-			return
-		}
-
-		if updated := utilsHandler.UpdateFields(&sectionToUpdate, &reqBody); !updated {
-			newError := fmt.Errorf("%w : no fields provided for update", errors.ErrUnprocessableEntity)
-			errors.HandleError(w, newError)
-			return
-		}
-
-		updatedSection, err := h.sv.Update(idNum, sectionToUpdate)
+		updatedSection, err := h.sv.UpdateWithValidation(idNum, reqBody)
 		if err != nil {
 			errors.HandleError(w, err)
 			return
