@@ -440,7 +440,6 @@ func TestSellerHandler_GetById(t *testing.T) {
 			},
 			assertFunc: func(t *testing.T, response *httptest.ResponseRecorder) {
 				expectedSellerJson, _ := json.Marshal(seller)
-				fmt.Println(string(expectedSellerJson))
 				expectedBody := fmt.Sprintf(`{"data":[%s]}`, string(expectedSellerJson))
 				expectedCode := http.StatusOK
 
