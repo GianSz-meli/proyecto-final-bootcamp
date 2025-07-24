@@ -11,7 +11,6 @@ type Db struct {
 	Product   map[int]models.Product
 	Buyer     map[int]models.Buyer
 	Section   map[int]models.Section
-	Employee  map[int]models.Employee
 }
 
 func LoadDB(loaderFilePath map[string]string) Db {
@@ -47,18 +46,12 @@ func LoadDB(loaderFilePath map[string]string) Db {
 		panic(err)
 	}
 
-	// Load employee data
-	employeeDB, err := factory.NewEmployeeLoader().Load()
-	if err != nil {
-		panic(err)
-	}
 	db := Db{
 		Seller:    sellerDB,
 		Warehouse: warehouseDB,
 		Product:   productDB,
 		Buyer:     buyerDB,
 		Section:   sectionDb,
-		Employee:  employeeDB,
 	}
 	return db
 }

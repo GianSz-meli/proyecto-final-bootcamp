@@ -9,7 +9,6 @@ const (
 	Product   string = "products"
 	Warehouse string = "warehouse"
 	Section   string = "sections"
-	Employee  string = "employee"
 	Buyer     string = "buyers"
 )
 
@@ -27,10 +26,6 @@ func (f *FactoryLoader) NewSellerLoader() Loader[models.Seller] {
 
 func (f *FactoryLoader) NewSectionLoader() Loader[models.Section] {
 	return &SectionJSONFile{path: f.paths[Section]}
-}
-
-func (f *FactoryLoader) NewEmployeeLoader() Loader[models.Employee] {
-	return &EmployeeLoader{path: f.paths[Employee]}
 }
 
 func (f *FactoryLoader) NewProductLoader() Loader[models.Product] {
