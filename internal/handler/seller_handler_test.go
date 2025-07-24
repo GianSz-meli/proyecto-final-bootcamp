@@ -472,3 +472,99 @@ func TestSellerHandler_GetById(t *testing.T) {
 		})
 	}
 }
+
+func TestSellerHandler_Delete_Bad_PathParam(t *testing.T) {
+
+	tests := []struct {
+		name      string
+		pathParam string
+	}{
+		{
+			name:      "should return 400 bad request error when path param is not a number",
+			pathParam: "id=2",
+		},
+		{
+			name:      "should return 400 bad request error when path param is less to zero",
+			pathParam: "-2",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			//Arrange
+			srv := &mocks.MockSellerService{}
+			hd := NewSellerHandler(srv)
+			hdFunc := hd.Delete()
+			//Act
+			target := fmt.Sprintf("/%s", test.pathParam)
+			request := httptest.NewRequest("DELETE", target, nil)
+			request = utils.AddPathParamToRequest(request, "id", test.pathParam)
+			request.Header.Set("Content-Type", "application/json")
+			response := httptest.NewRecorder()
+			hdFunc(response, request)
+
+			//Assert
+			expectedCode := http.StatusBadRequest
+			require.Equal(t, expectedCode, response.Code)
+			require.Equal(t, "application/json", response.Header().Get("Content-Type"))
+			require.Equal(t, 0, srv.Spy.CountDeleteFunc)
+
+		})
+	}
+}
+
+func TestSellerHandler_Delete(t *testing.T) {
+	tests := []struct {
+		name        string
+		deleteFunc  func(id int) error
+		assertFunc  func(t *testing.T, response *httptest.ResponseRecorder)
+		contentType string
+	}{
+		{
+			name: "should return 404 not found error when seller id not exist",
+			deleteFunc: func(id int) error {
+				return pkgError.ErrNotFound
+			},
+			assertFunc: func(t *testing.T, response *httptest.ResponseRecorder) {
+				expectedCode := http.StatusNotFound
+				require.Equal(t, expectedCode, response.Code)
+				require.Contains(t, response.Body.String(), pkgError.ErrNotFound.Error())
+				require.Equal(t, "application/json", response.Header().Get("Content-Type"))
+			},
+			contentType: "application/json",
+		},
+		{
+			name: "should return 204 when delete is success",
+			deleteFunc: func(id int) error {
+				return nil
+			},
+			assertFunc: func(t *testing.T, response *httptest.ResponseRecorder) {
+				expectedCode := http.StatusNoContent
+				require.Equal(t, expectedCode, response.Code)
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			//Arrange
+			srv := &mocks.MockSellerService{
+				DeleteFunc: test.deleteFunc,
+			}
+			hd := NewSellerHandler(srv)
+			hdFunc := hd.Delete()
+			//Act
+			request := httptest.NewRequest("DELETE", "/1", nil)
+			request = utils.AddPathParamToRequest(request, "id", "1")
+			if test.contentType != "" {
+				request.Header.Set("Content-Type", test.contentType)
+			}
+			response := httptest.NewRecorder()
+			hdFunc(response, request)
+
+			//Assert
+			test.assertFunc(t, response)
+			require.Equal(t, 1, srv.Spy.CountDeleteFunc)
+		})
+	}
+}
