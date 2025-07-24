@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"ProyectoFinal/internal/handler/utils"
 	"ProyectoFinal/mocks"
 	pkgError "ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
@@ -363,6 +364,111 @@ func TestSellerHandler_GetAll(t *testing.T) {
 			//Assert
 			test.assertFunc(t, response)
 			require.Equal(t, 1, srv.Spy.CountGetAllFunc)
+		})
+	}
+}
+
+func TestSellerHandler_GetById_Bad_PathParam(t *testing.T) {
+
+	tests := []struct {
+		name      string
+		pathParam string
+	}{
+		{
+			name:      "should return 400 bad request error when path param is not a number",
+			pathParam: "id=2",
+		},
+		{
+			name:      "should return 400 bad request error when path param is less to zero",
+			pathParam: "-2",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			//Arrange
+			srv := &mocks.MockSellerService{}
+			hd := NewSellerHandler(srv)
+			hdFunc := hd.GetById()
+			//Act
+			target := fmt.Sprintf("/%s", test.pathParam)
+			request := httptest.NewRequest("GET", target, nil)
+			request = utils.AddPathParamToRequest(request, "id", test.pathParam)
+			request.Header.Set("Content-Type", "application/json")
+			response := httptest.NewRecorder()
+			hdFunc(response, request)
+
+			//Assert
+			expectedCode := http.StatusBadRequest
+			require.Equal(t, expectedCode, response.Code)
+			require.Equal(t, "application/json", response.Header().Get("Content-Type"))
+			require.Equal(t, 0, srv.Spy.CountGetByIdFunc)
+
+		})
+	}
+}
+
+func TestSellerHandler_GetById(t *testing.T) {
+	seller := models.Seller{
+		Id:          1,
+		Cid:         "2G2A",
+		CompanyName: "Farm to Table Produce Hub",
+		Address:     "812 Cypress Way, Denver, CO 80201",
+		Telephone:   "+1-555-1901",
+		LocalityId:  1,
+	}
+	tests := []struct {
+		name        string
+		getByIdFunc func(id int) (models.Seller, error)
+		assertFunc  func(t *testing.T, response *httptest.ResponseRecorder)
+	}{
+		{
+			name: "should return 404 not found error when seller id not exist",
+			getByIdFunc: func(id int) (models.Seller, error) {
+				return models.Seller{}, pkgError.ErrNotFound
+			},
+			assertFunc: func(t *testing.T, response *httptest.ResponseRecorder) {
+				expectedCode := http.StatusNotFound
+				require.Equal(t, expectedCode, response.Code)
+				require.Contains(t, response.Body.String(), pkgError.ErrNotFound.Error())
+			},
+		},
+		{
+			name: "should return 200 when seller id exist",
+			getByIdFunc: func(id int) (models.Seller, error) {
+				return seller, nil
+			},
+			assertFunc: func(t *testing.T, response *httptest.ResponseRecorder) {
+				expectedSellerJson, _ := json.Marshal(seller)
+				fmt.Println(string(expectedSellerJson))
+				expectedBody := fmt.Sprintf(`{"data":[%s]}`, string(expectedSellerJson))
+				expectedCode := http.StatusOK
+
+				require.Equal(t, expectedCode, response.Code)
+				require.JSONEq(t, expectedBody, response.Body.String())
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			//Arrange
+			srv := &mocks.MockSellerService{
+				GetByIdFunc: test.getByIdFunc,
+			}
+			hd := NewSellerHandler(srv)
+			hdFunc := hd.GetById()
+			//Act
+			request := httptest.NewRequest("GET", "/1", nil)
+			request = utils.AddPathParamToRequest(request, "id", "1")
+			request.Header.Set("Content-Type", "application/json")
+			response := httptest.NewRecorder()
+			hdFunc(response, request)
+
+			//Assert
+			test.assertFunc(t, response)
+			require.Equal(t, 1, srv.Spy.CountGetByIdFunc)
+			require.Equal(t, "application/json", response.Header().Get("Content-Type"))
 		})
 	}
 }
