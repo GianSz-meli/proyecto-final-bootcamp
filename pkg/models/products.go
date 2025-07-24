@@ -56,6 +56,7 @@ func (p *Product) ModelToDoc() ProductDoc {
 		Temperature:    p.Temperature,
 		FreezingRate:   p.FreezingRate,
 		ProductTypeID:  p.ProductTypeID,
+		SellerID:       p.SellerID,
 	}
 }
 
@@ -72,5 +73,6 @@ func (p *ProductDoc) DocToModel() Product {
 		Temperature:    p.Temperature,
 		FreezingRate:   p.FreezingRate,
 		ProductTypeID:  p.ProductTypeID,
+		SellerID:       p.SellerID,
 	}
 }

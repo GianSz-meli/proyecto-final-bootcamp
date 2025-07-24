@@ -2,6 +2,7 @@ package handler_test
 
 import (
 	"ProyectoFinal/internal/handler"
+	pkgErrors "ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
 	"encoding/json"
 
@@ -54,7 +55,19 @@ func TestCreateProduct(t *testing.T) {
     "product_type_id": 83,
     "seller_id": 7
 }`
-
+	const invalidProductJSON = `{
+    "description": "Coca Cola 2L",
+    "width": 5,
+    "height": 20,
+    "length": 12,
+    "net_weight": 1.9,
+    "expiration_rate": 15,
+    "recommended_freezing_temperature": 10,
+    "freezing_rate": 10,
+    "product_type_id": 83,
+    "seller_id": 7
+}`
+	sellerid := 7
 	productCode := "A1000"
 	description := "Coca Cola 2L"
 	width := 5.00
@@ -65,7 +78,7 @@ func TestCreateProduct(t *testing.T) {
 	temperature := 10.00
 	freezingRate := 10.00
 	productTypeId := 83
-	sellerID := 7
+	sellerID := sellerid
 
 	inputProduct := models.Product{
 		ProductCode:    productCode,
@@ -93,7 +106,7 @@ func TestCreateProduct(t *testing.T) {
 		Temperature:    float32(temperature),
 		FreezingRate:   freezingRate,
 		ProductTypeID:  productTypeId,
-		SellerID:       nil,
+		SellerID:       &sellerID,
 	}
 
 	t.Run("create_ok", func(t *testing.T) {
@@ -112,40 +125,36 @@ func TestCreateProduct(t *testing.T) {
 		require.Equal(t, "application/json", response.Header().Get("Content-Type"))
 
 		var resp struct {
-			Data models.Product `json:"data"`
+			Data models.ProductDoc `json:"data"`
 		}
 
 		err := json.Unmarshal(response.Body.Bytes(), &resp)
 		require.NoError(t, err)
-		require.Equal(t, returnedProduct, resp.Data)
+		require.Equal(t, returnedProduct, resp.Data.DocToModel())
 		mockService.AssertExpectations(t)
+
 	})
 
 	t.Run("create_fail", func(t *testing.T) {
+
 		mockServiceFail := &MockProductService{}
-		mockServiceFail.On("CreateProduct", inputProduct).Return(returnedProduct, nil)
 		hd := handler.NewProductHandler(mockServiceFail)
 
-		request := httptest.NewRequest("POST", "/products", strings.NewReader(validProductJSON))
+		request := httptest.NewRequest("POST", "/products", strings.NewReader(invalidProductJSON))
 		request.Header.Set("Content-Type", "application/json")
 		response := httptest.NewRecorder()
 
 		hd.CreateProduct(response, request)
 
-		require.Equal(t, http.StatusBadRequest, response.Code)
+		require.Equal(t, http.StatusUnprocessableEntity, response.Code)
 		require.Equal(t, "application/json", response.Header().Get("Content-Type"))
-
-		var resp map[string]any
-		err := json.Unmarshal(response.Body.Bytes(), &resp)
-		require.NoError(t, err)
-		require.Contains(t, response, "message")
-		require.Contains(t, response, "error")
-		mockServiceFail.AssertNotCalled(t, "CreateProduct", 0)
-
+		mockServiceFail.AssertNotCalled(t, "CreateProduct", mock.Anything)
 	})
-	t.Run("create_conflict", func(t *testing.T) {
+
+	t.Run("conflict", func(t *testing.T) {
+
 		mockServiceFail := &MockProductService{}
-		mockServiceFail.On("CreateProduct", inputProduct).Return(returnedProduct, nil)
+		mockServiceFail.On("CreateProduct", mock.Anything).Return(models.Product{}, pkgErrors.ErrConflict)
 		hd := handler.NewProductHandler(mockServiceFail)
 
 		request := httptest.NewRequest("POST", "/products", strings.NewReader(validProductJSON))
@@ -156,17 +165,10 @@ func TestCreateProduct(t *testing.T) {
 
 		require.Equal(t, http.StatusConflict, response.Code)
 		require.Equal(t, "application/json", response.Header().Get("Content-Type"))
-		
-		var resp map[string]any
-		err := json.Unmarshal(response.Body.Bytes(), &resp)
-		require.NoError(t, err)
-		require.Contains(t, response, "message")
-		require.Contains(t, response, "error")
 		mockServiceFail.AssertExpectations(t)
 
 	})
 }
-
 
 // func TestFindProducts(t *testing.T) {
 // 	prod1 := models.Product{

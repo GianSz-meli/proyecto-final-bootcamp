@@ -42,6 +42,7 @@ func (h *ProductHandler) CreateProduct(w http.ResponseWriter, r *http.Request) {
 		pkgErrors.HandleError(w, err)
 		return
 	}
+	fmt.Print(product)
 
 	body := models.SuccessResponse{Data: product.ModelToDoc()}
 	response.JSON(w, http.StatusCreated, body)
