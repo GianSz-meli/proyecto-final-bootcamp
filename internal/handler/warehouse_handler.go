@@ -2,7 +2,6 @@ package handler
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"ProyectoFinal/internal/handler/utils"
@@ -103,19 +102,7 @@ func (h *WarehouseHandler) UpdateWarehouse(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	currentWarehouse, err := h.warehouseService.GetWarehouseById(id)
-	if err != nil {
-		errors.HandleError(w, err)
-		return
-	}
-
-	if updated := utils.UpdateFields(&currentWarehouse, &updateRequest); !updated {
-		newError := errors.WrapErrUnprocessableEntity(fmt.Errorf("no fields provided for update"))
-		errors.HandleError(w, newError)
-		return
-	}
-
-	updatedWarehouse, err := h.warehouseService.UpdateWarehouse(id, currentWarehouse)
+	updatedWarehouse, err := h.warehouseService.UpdateWarehouse(id, updateRequest)
 	if err != nil {
 		errors.HandleError(w, err)
 		return
