@@ -14,8 +14,13 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
+
+func AddPathParamToRequest(request *http.Request, key string, value string) *http.Request {
+	ctx := chi.NewRouteContext()
+	ctx.URLParams.Add(key, value)
+	return request.WithContext(context.WithValue(request.Context(), chi.RouteCtxKey, ctx))
+}
 
 func TestEmployeeHandler_Create_OK(t *testing.T) {
 	// Arrange
@@ -38,7 +43,15 @@ func TestEmployeeHandler_Create_OK(t *testing.T) {
 		WarehouseID:  &warehouseID,
 	}
 
-	mockService.On("Create", mock.AnythingOfType("models.Employee")).Return(expectedEmployee, nil)
+	expectedEmployeeInput := models.Employee{
+		ID:           0,
+		CardNumberID: "12345",
+		FirstName:    "John",
+		LastName:     "Doe",
+		WarehouseID:  &warehouseID,
+	}
+
+	mockService.On("Create", expectedEmployeeInput).Return(expectedEmployee, nil)
 
 	reqBody, _ := json.Marshal(employeeRequest)
 	req := httptest.NewRequest(http.MethodPost, "/employees", bytes.NewBuffer(reqBody))
@@ -118,7 +131,15 @@ func TestEmployeeHandler_Create_Conflict(t *testing.T) {
 		WarehouseID:  warehouseID,
 	}
 
-	mockService.On("Create", mock.AnythingOfType("models.Employee")).Return(models.Employee{}, errors.ErrConflict)
+	expectedEmployeeInput := models.Employee{
+		ID:           0,
+		CardNumberID: "12345",
+		FirstName:    "John",
+		LastName:     "Doe",
+		WarehouseID:  &warehouseID,
+	}
+
+	mockService.On("Create", expectedEmployeeInput).Return(models.Employee{}, errors.ErrConflict)
 
 	reqBody, _ := json.Marshal(employeeRequest)
 	req := httptest.NewRequest(http.MethodPost, "/employees", bytes.NewBuffer(reqBody))
@@ -200,9 +221,7 @@ func TestEmployeeHandler_GetById_InvalidParam(t *testing.T) {
 	handler := NewEmployeeHandler(mockService)
 
 	req := httptest.NewRequest(http.MethodGet, "/employees/invalid", nil)
-	rctx := chi.NewRouteContext()
-	rctx.URLParams.Add("id", "invalid")
-	req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, rctx))
+	req = AddPathParamToRequest(req, "id", "invalid")
 	w := httptest.NewRecorder()
 
 	// Act
@@ -222,9 +241,7 @@ func TestEmployeeHandler_GetById_NonExistent(t *testing.T) {
 	mockService.On("GetById", employeeID).Return(models.Employee{}, errors.ErrNotFound)
 
 	req := httptest.NewRequest(http.MethodGet, "/employees/124", nil)
-	rctx := chi.NewRouteContext()
-	rctx.URLParams.Add("id", "124")
-	req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, rctx))
+	req = AddPathParamToRequest(req, "id", "124")
 	w := httptest.NewRecorder()
 
 	// Act
@@ -253,9 +270,7 @@ func TestEmployeeHandler_GetById_Existent(t *testing.T) {
 	mockService.On("GetById", employeeID).Return(expectedEmployee, nil)
 
 	req := httptest.NewRequest(http.MethodGet, "/employees/1", nil)
-	rctx := chi.NewRouteContext()
-	rctx.URLParams.Add("id", "1")
-	req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, rctx))
+	req = AddPathParamToRequest(req, "id", "1")
 	w := httptest.NewRecorder()
 
 	// Act
@@ -301,9 +316,7 @@ func TestEmployeeHandler_Update_OK(t *testing.T) {
 	reqBody, _ := json.Marshal(updateRequest)
 	req := httptest.NewRequest(http.MethodPatch, "/employees/1", bytes.NewBuffer(reqBody))
 	req.Header.Set("Content-Type", "application/json")
-	rctx := chi.NewRouteContext()
-	rctx.URLParams.Add("id", "1")
-	req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, rctx))
+	req = AddPathParamToRequest(req, "id", "1")
 	w := httptest.NewRecorder()
 
 	// Act
@@ -335,9 +348,7 @@ func TestEmployeeHandler_Update_InvalidParam(t *testing.T) {
 	reqBody, _ := json.Marshal(updateRequest)
 	req := httptest.NewRequest(http.MethodPatch, "/employees/invalid", bytes.NewBuffer(reqBody))
 	req.Header.Set("Content-Type", "application/json")
-	rctx := chi.NewRouteContext()
-	rctx.URLParams.Add("id", "invalid")
-	req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, rctx))
+	req = AddPathParamToRequest(req, "id", "invalid")
 	w := httptest.NewRecorder()
 
 	// Act
@@ -355,9 +366,7 @@ func TestEmployeeHandler_Update_InvalidJSON(t *testing.T) {
 
 	req := httptest.NewRequest(http.MethodPatch, "/employees/1", bytes.NewBuffer([]byte("invalid json")))
 	req.Header.Set("Content-Type", "application/json")
-	rctx := chi.NewRouteContext()
-	rctx.URLParams.Add("id", "1")
-	req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, rctx))
+	req = AddPathParamToRequest(req, "id", "1")
 	w := httptest.NewRecorder()
 
 	// Act
@@ -384,9 +393,7 @@ func TestEmployeeHandler_Update_NonExistent(t *testing.T) {
 	reqBody, _ := json.Marshal(updateRequest)
 	req := httptest.NewRequest(http.MethodPatch, "/employees/124", bytes.NewBuffer(reqBody))
 	req.Header.Set("Content-Type", "application/json")
-	rctx := chi.NewRouteContext()
-	rctx.URLParams.Add("id", "124")
-	req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, rctx))
+	req = AddPathParamToRequest(req, "id", "124")
 	w := httptest.NewRecorder()
 
 	// Act
@@ -403,9 +410,7 @@ func TestEmployeeHandler_Delete_InvalidParam(t *testing.T) {
 	handler := NewEmployeeHandler(mockService)
 
 	req := httptest.NewRequest(http.MethodDelete, "/employees/invalid", nil)
-	rctx := chi.NewRouteContext()
-	rctx.URLParams.Add("id", "invalid")
-	req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, rctx))
+	req = AddPathParamToRequest(req, "id", "invalid")
 	w := httptest.NewRecorder()
 
 	// Act
@@ -425,9 +430,7 @@ func TestEmployeeHandler_Delete_NonExistent(t *testing.T) {
 	mockService.On("Delete", employeeID).Return(errors.ErrNotFound)
 
 	req := httptest.NewRequest(http.MethodDelete, "/employees/124", nil)
-	rctx := chi.NewRouteContext()
-	rctx.URLParams.Add("id", "124")
-	req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, rctx))
+	req = AddPathParamToRequest(req, "id", "124")
 	w := httptest.NewRecorder()
 
 	// Act
@@ -447,9 +450,7 @@ func TestEmployeeHandler_Delete_OK(t *testing.T) {
 	mockService.On("Delete", employeeID).Return(nil)
 
 	req := httptest.NewRequest(http.MethodDelete, "/employees/1", nil)
-	rctx := chi.NewRouteContext()
-	rctx.URLParams.Add("id", "1")
-	req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, rctx))
+	req = AddPathParamToRequest(req, "id", "1")
 	w := httptest.NewRecorder()
 
 	// Act
