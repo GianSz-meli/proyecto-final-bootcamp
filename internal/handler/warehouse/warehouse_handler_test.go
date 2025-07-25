@@ -12,7 +12,7 @@ import (
 	customErrors "ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
 
-	"ProyectoFinal/mocks"
+	mocks "ProyectoFinal/mocks/warehouse"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/require"
