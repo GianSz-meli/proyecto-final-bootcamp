@@ -5,6 +5,7 @@ import (
 	pkgErrors "ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
 	"errors"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"testing"
 )
@@ -68,7 +69,7 @@ func TestSellerService_Update_Error(t *testing.T) {
 		CompanyName: &[]string{"New Farm to Table Produce Hub"}[0],
 	}
 	sellerId := 1
-	expectedSellerUpdated := models.Seller{
+	expectedSellerUpdated := &models.Seller{
 		Id:          currentSeller.Id,
 		Cid:         *updateRequest.Cid,
 		CompanyName: *updateRequest.CompanyName,
@@ -78,7 +79,9 @@ func TestSellerService_Update_Error(t *testing.T) {
 	}
 	mockRepository := new(seller.MockSellerRepository)
 	mockRepository.On("GetById", sellerId).Return(&currentSeller, nil)
-	mockRepository.On("Update", expectedSellerUpdated).Return(models.Seller{}, errors.New("an error occurs"))
+	mockRepository.On("Update", mock.MatchedBy(func(s *models.Seller) bool {
+		return s.Id == expectedSellerUpdated.Id
+	})).Return(models.Seller{}, errors.New("an error occurs"))
 
 	//Act
 	srv := NewSellerService(mockRepository)
@@ -116,7 +119,7 @@ func TestSellerService_Update_Success(t *testing.T) {
 	}
 	mockRepository := new(seller.MockSellerRepository)
 	mockRepository.On("GetById", sellerId).Return(&currentSeller, nil)
-	mockRepository.On("Update", expectedSellerUpdated).Return(expectedSellerUpdated, nil)
+	mockRepository.On("Update", &expectedSellerUpdated).Return(expectedSellerUpdated, nil)
 
 	//Act
 	srv := NewSellerService(mockRepository)
