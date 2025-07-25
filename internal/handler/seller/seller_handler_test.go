@@ -2,7 +2,7 @@ package seller
 
 import (
 	"ProyectoFinal/internal/handler/utils"
-	"ProyectoFinal/mocks"
+	"ProyectoFinal/mocks/seller"
 	pkgError "ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
 	"bytes"
@@ -42,7 +42,7 @@ func TestSellerHandler_Create_ValidateRequest_Errors(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			//Arrange
-			srv := &mocks.MockSellerService{}
+			srv := &seller.MockSellerService{}
 			hd := NewSellerHandler(srv)
 			hdFunc := hd.Create()
 			//Act
@@ -123,7 +123,7 @@ func TestSellerHandler_Create_ValidateRequestData_Errors(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			//Arrange
-			srv := &mocks.MockSellerService{}
+			srv := &seller.MockSellerService{}
 			hd := NewSellerHandler(srv)
 			hdFunc := hd.Create()
 
@@ -193,7 +193,7 @@ func TestSellerHandler_Create_Errors(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			//Arrange
-			srv := &mocks.MockSellerService{
+			srv := &seller.MockSellerService{
 				CreateFunc: test.createFunc,
 			}
 			hd := NewSellerHandler(srv)
@@ -232,7 +232,7 @@ func TestSellerHandler_Create_Success(t *testing.T) {
 	}
 
 	//Arrange
-	srv := &mocks.MockSellerService{
+	srv := &seller.MockSellerService{
 		CreateFunc: func(seller models.Seller) (models.Seller, error) {
 			return newSeller, nil
 		},
@@ -317,7 +317,7 @@ func TestSellerHandler_GetAll(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			//Arrange
-			srv := &mocks.MockSellerService{
+			srv := &seller.MockSellerService{
 				GetAllFunc: test.getAllFunc,
 			}
 			hd := NewSellerHandler(srv)
@@ -354,7 +354,7 @@ func TestSellerHandler_GetById_Bad_PathParam(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			//Arrange
-			srv := &mocks.MockSellerService{}
+			srv := &seller.MockSellerService{}
 			hd := NewSellerHandler(srv)
 			hdFunc := hd.GetById()
 			//Act
@@ -376,7 +376,7 @@ func TestSellerHandler_GetById_Bad_PathParam(t *testing.T) {
 }
 
 func TestSellerHandler_GetById(t *testing.T) {
-	seller := models.Seller{
+	s := models.Seller{
 		Id:          1,
 		Cid:         "2G2A",
 		CompanyName: "Farm to Table Produce Hub",
@@ -403,10 +403,10 @@ func TestSellerHandler_GetById(t *testing.T) {
 		{
 			name: "should return 200 when seller id exist",
 			getByIdFunc: func(id int) (models.Seller, error) {
-				return seller, nil
+				return s, nil
 			},
 			assertFunc: func(t *testing.T, response *httptest.ResponseRecorder) {
-				expectedSellerJson, _ := json.Marshal(seller)
+				expectedSellerJson, _ := json.Marshal(s)
 				expectedBody := fmt.Sprintf(`{"data":[%s]}`, string(expectedSellerJson))
 				expectedCode := http.StatusOK
 
@@ -419,7 +419,7 @@ func TestSellerHandler_GetById(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			//Arrange
-			srv := &mocks.MockSellerService{
+			srv := &seller.MockSellerService{
 				GetByIdFunc: test.getByIdFunc,
 			}
 			hd := NewSellerHandler(srv)
@@ -458,7 +458,7 @@ func TestSellerHandler_Delete_Bad_PathParam(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			//Arrange
-			srv := &mocks.MockSellerService{}
+			srv := &seller.MockSellerService{}
 			hd := NewSellerHandler(srv)
 			hdFunc := hd.Delete()
 			//Act
@@ -483,8 +483,10 @@ func TestSellerHandler_Delete_NotFoundError(t *testing.T) {
 
 	//Arrange
 	sellerId := 1
+	expectedCode := http.StatusNotFound
+	expectedBody := fmt.Sprintf(`{"status":"%s", "message": "%s"}`, http.StatusText(http.StatusNotFound), pkgError.WrapErrNotFound("seller", "id", sellerId))
 	//Act
-	srv := &mocks.MockSellerService{
+	srv := &seller.MockSellerService{
 		DeleteFunc: func(id int) error {
 			return pkgError.WrapErrNotFound("seller", "id", sellerId)
 		},
@@ -498,8 +500,6 @@ func TestSellerHandler_Delete_NotFoundError(t *testing.T) {
 	hdFunc(response, request)
 
 	//Assert
-	expectedCode := http.StatusNotFound
-	expectedBody := fmt.Sprintf(`{"status":"%s", "message": "%s"}`, http.StatusText(http.StatusNotFound), pkgError.WrapErrNotFound("seller", "id", sellerId))
 	require.Equal(t, expectedCode, response.Code)
 	require.JSONEq(t, expectedBody, response.Body.String())
 	require.Equal(t, srv.Spy.CountDeleteFunc, 1)
@@ -508,7 +508,7 @@ func TestSellerHandler_Delete_NotFoundError(t *testing.T) {
 func TestSellerHandler_Delete_Success(t *testing.T) {
 
 	//Arrange
-	srv := &mocks.MockSellerService{
+	srv := &seller.MockSellerService{
 		DeleteFunc: func(id int) error {
 			return nil
 		},
@@ -547,7 +547,7 @@ func TestSellerHandler_Update_Bad_PathParam_Errors(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			//Arrange
-			srv := &mocks.MockSellerService{}
+			srv := &seller.MockSellerService{}
 			hd := NewSellerHandler(srv)
 			hdFunc := hd.Update()
 			//Act
@@ -592,7 +592,7 @@ func TestSellerHandler_Update_ValidateRequest_Errors(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			//Arrange
-			srv := &mocks.MockSellerService{}
+			srv := &seller.MockSellerService{}
 			hd := NewSellerHandler(srv)
 			hdFunc := hd.Update()
 			//Act
@@ -680,7 +680,7 @@ func TestSellerHandler_Update_ValidateRequestData_Errors(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			//Arrange
-			srv := &mocks.MockSellerService{}
+			srv := &seller.MockSellerService{}
 			hd := NewSellerHandler(srv)
 			hdFunc := hd.Update()
 			//Act
@@ -735,7 +735,7 @@ func TestSellerHandler_Update_Errors(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			//Arrange
-			srv := &mocks.MockSellerService{
+			srv := &seller.MockSellerService{
 				UpdateFunc: func(id int, reqBody *models.UpdateSellerRequest) (models.Seller, error) {
 					return models.Seller{}, test.expectedError
 				},
@@ -766,8 +766,10 @@ func TestSellerHandler_Update_NotFoundError(t *testing.T) {
 		CompanyName: &[]string{"New Farm to Table Produce Hub"}[0],
 	}
 	sellerId := 1
+	expectedCode := http.StatusNotFound
+	expectedBody := fmt.Sprintf(`{"status":"%s", "message": "%s"}`, http.StatusText(http.StatusNotFound), pkgError.WrapErrNotFound("seller", "id", sellerId))
 	//Act
-	srv := &mocks.MockSellerService{
+	srv := &seller.MockSellerService{
 		UpdateFunc: func(id int, reqBody *models.UpdateSellerRequest) (models.Seller, error) {
 			return models.Seller{}, pkgError.WrapErrNotFound("seller", "id", id)
 		},
@@ -782,8 +784,6 @@ func TestSellerHandler_Update_NotFoundError(t *testing.T) {
 	hdFunc(response, request)
 
 	//Assert
-	expectedCode := http.StatusNotFound
-	expectedBody := fmt.Sprintf(`{"status":"%s", "message": "%s"}`, http.StatusText(http.StatusNotFound), pkgError.WrapErrNotFound("seller", "id", sellerId))
 	require.Equal(t, expectedCode, response.Code)
 	require.JSONEq(t, expectedBody, response.Body.String())
 	require.Equal(t, srv.Spy.CountUpdateFunc, 1)
@@ -804,8 +804,20 @@ func TestSellerHandler_Update_Success(t *testing.T) {
 		CompanyName: &[]string{"New Farm to Table Produce Hub"}[0],
 	}
 	sellerId := 1
+	expectedCode := http.StatusOK
+	expectedSellerUpdated := models.Seller{
+		Id:          1,
+		Cid:         "1235F",
+		CompanyName: "New Farm to Table Produce Hub",
+		Address:     "812 Cypress Way, Denver, CO 80201",
+		Telephone:   "+1-555-1901",
+		LocalityId:  1,
+	}
+	expectedSellerDocUpdated := expectedSellerUpdated.ModelToDoc()
+	expectedJsonSellerDoc, _ := json.Marshal(expectedSellerDocUpdated)
+	expectedBody := fmt.Sprintf(`{"data":[%s]}`, string(expectedJsonSellerDoc))
 	//Act
-	srv := &mocks.MockSellerService{
+	srv := &seller.MockSellerService{
 		UpdateFunc: func(id int, reqBody *models.UpdateSellerRequest) (models.Seller, error) {
 			updatedSeller := currentSeller
 			updatedSeller.Cid = *reqBody.Cid
@@ -823,18 +835,6 @@ func TestSellerHandler_Update_Success(t *testing.T) {
 	hdFunc(response, request)
 
 	//Assert
-	expectedCode := http.StatusOK
-	expectedSellerUpdated := models.Seller{
-		Id:          1,
-		Cid:         "1235F",
-		CompanyName: "New Farm to Table Produce Hub",
-		Address:     "812 Cypress Way, Denver, CO 80201",
-		Telephone:   "+1-555-1901",
-		LocalityId:  1,
-	}
-	expectedSellerDocUpdated := expectedSellerUpdated.ModelToDoc()
-	expectedJsonSellerDoc, _ := json.Marshal(expectedSellerDocUpdated)
-	expectedBody := fmt.Sprintf(`{"data":[%s]}`, string(expectedJsonSellerDoc))
 	require.Equal(t, expectedCode, response.Code)
 	require.JSONEq(t, expectedBody, response.Body.String())
 	require.Equal(t, srv.Spy.CountUpdateFunc, 1)

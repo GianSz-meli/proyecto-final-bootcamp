@@ -1,7 +1,8 @@
-package mocks
+package seller
 
 import "ProyectoFinal/pkg/models"
 
+// MockSellerService - implementation of seller interface
 type MockSellerService struct {
 	CreateFunc  func(seller models.Seller) (models.Seller, error)
 	GetAllFunc  func() ([]models.Seller, error)
