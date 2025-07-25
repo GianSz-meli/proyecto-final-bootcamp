@@ -59,7 +59,7 @@ func (s *CreateSellerRequest) DocToModel() Seller {
 }
 
 type UpdateSellerRequest struct {
-	Cid         *string `json:"cid" validate:"omitempty,gt=0"`
+	Cid         *string `json:"cid" validate:"omitempty,min=1"`
 	CompanyName *string `json:"company_name" validate:"omitempty,min=1"`
 	Address     *string `json:"address" validate:"omitempty,min=1"`
 	Telephone   *string `json:"telephone" validate:"omitempty,min=1"`
