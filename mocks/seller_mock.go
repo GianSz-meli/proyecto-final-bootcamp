@@ -7,7 +7,7 @@ type MockSellerService struct {
 	GetAllFunc  func() ([]models.Seller, error)
 	GetByIdFunc func(id int) (models.Seller, error)
 	DeleteFunc  func(id int) error
-	UpdateFunc  func(seller models.Seller) (models.Seller, error)
+	UpdateFunc  func(id int, reqBody *models.UpdateSellerRequest) (models.Seller, error)
 	Spy         struct {
 		CountCreateFunc  int
 		CountGetAllFunc  int
@@ -37,7 +37,7 @@ func (m *MockSellerService) Delete(id int) error {
 	return m.DeleteFunc(id)
 }
 
-func (m *MockSellerService) Update(seller models.Seller) (models.Seller, error) {
+func (m *MockSellerService) Update(id int, reqBody *models.UpdateSellerRequest) (models.Seller, error) {
 	m.Spy.CountUpdateFunc++
-	return m.UpdateFunc(seller)
+	return m.UpdateFunc(id, reqBody)
 }

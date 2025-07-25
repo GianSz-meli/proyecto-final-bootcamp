@@ -1,4 +1,4 @@
-package handler
+package seller
 
 import (
 	"ProyectoFinal/internal/handler/utils"
@@ -479,60 +479,53 @@ func TestSellerHandler_Delete_Bad_PathParam(t *testing.T) {
 	}
 }
 
-func TestSellerHandler_Delete(t *testing.T) {
-	tests := []struct {
-		name        string
-		deleteFunc  func(id int) error
-		assertFunc  func(t *testing.T, response *httptest.ResponseRecorder)
-		contentType string
-	}{
-		{
-			name: "should return 404 not found error when seller id not exist",
-			deleteFunc: func(id int) error {
-				return pkgError.ErrNotFound
-			},
-			assertFunc: func(t *testing.T, response *httptest.ResponseRecorder) {
-				expectedCode := http.StatusNotFound
-				require.Equal(t, expectedCode, response.Code)
-				require.Contains(t, response.Body.String(), pkgError.ErrNotFound.Error())
-				require.Equal(t, "application/json", response.Header().Get("Content-Type"))
-			},
-			contentType: "application/json",
-		},
-		{
-			name: "should return 204 when delete is success",
-			deleteFunc: func(id int) error {
-				return nil
-			},
-			assertFunc: func(t *testing.T, response *httptest.ResponseRecorder) {
-				expectedCode := http.StatusNoContent
-				require.Equal(t, expectedCode, response.Code)
-			},
+func TestSellerHandler_Delete_NotFoundError(t *testing.T) {
+
+	//Arrange
+	sellerId := 1
+	//Act
+	srv := &mocks.MockSellerService{
+		DeleteFunc: func(id int) error {
+			return pkgError.WrapErrNotFound("seller", "id", sellerId)
 		},
 	}
+	hd := NewSellerHandler(srv)
+	hdFunc := hd.Delete()
+	request := httptest.NewRequest("PATCH", fmt.Sprintf("/%v", sellerId), nil)
+	request = utils.AddPathParamToRequest(request, "id", fmt.Sprintf("%v", sellerId))
+	request.Header.Set("Content-Type", "application/json")
+	response := httptest.NewRecorder()
+	hdFunc(response, request)
 
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			//Arrange
-			srv := &mocks.MockSellerService{
-				DeleteFunc: test.deleteFunc,
-			}
-			hd := NewSellerHandler(srv)
-			hdFunc := hd.Delete()
-			//Act
-			request := httptest.NewRequest("DELETE", "/1", nil)
-			request = utils.AddPathParamToRequest(request, "id", "1")
-			if test.contentType != "" {
-				request.Header.Set("Content-Type", test.contentType)
-			}
-			response := httptest.NewRecorder()
-			hdFunc(response, request)
+	//Assert
+	expectedCode := http.StatusNotFound
+	expectedBody := fmt.Sprintf(`{"status":"%s", "message": "%s"}`, http.StatusText(http.StatusNotFound), pkgError.WrapErrNotFound("seller", "id", sellerId))
+	require.Equal(t, expectedCode, response.Code)
+	require.JSONEq(t, expectedBody, response.Body.String())
+	require.Equal(t, srv.Spy.CountDeleteFunc, 1)
+}
 
-			//Assert
-			test.assertFunc(t, response)
-			require.Equal(t, 1, srv.Spy.CountDeleteFunc)
-		})
+func TestSellerHandler_Delete_Success(t *testing.T) {
+
+	//Arrange
+	srv := &mocks.MockSellerService{
+		DeleteFunc: func(id int) error {
+			return nil
+		},
 	}
+	hd := NewSellerHandler(srv)
+	hdFunc := hd.Delete()
+	//Act
+	request := httptest.NewRequest("DELETE", "/1", nil)
+	request = utils.AddPathParamToRequest(request, "id", "1")
+	response := httptest.NewRecorder()
+	hdFunc(response, request)
+
+	//Assert
+	expectedCode := http.StatusNoContent
+	require.Equal(t, expectedCode, response.Code)
+	require.Equal(t, 1, srv.Spy.CountDeleteFunc)
+
 }
 
 func TestSellerHandler_Update_Bad_PathParam_Errors(t *testing.T) {
@@ -727,23 +720,23 @@ func TestSellerHandler_Update_Errors(t *testing.T) {
 			expectedCode:  http.StatusConflict,
 			expectedError: pkgError.ErrConflict,
 		},
-		//{
-		//	name:          "should return 400 bad request error when service returns bad request error",
-		//	expectedCode:  http.StatusBadRequest,
-		//	expectedError: pkgError.ErrBadRequest,
-		//},
-		//{
-		//	name:          "should return 404 not found error when service returns not found error",
-		//	expectedCode:  http.StatusNotFound,
-		//	expectedError: pkgError.ErrNotFound,
-		//},
+		{
+			name:          "should return 400 bad request error when service returns bad request error",
+			expectedCode:  http.StatusBadRequest,
+			expectedError: pkgError.ErrBadRequest,
+		},
+		{
+			name:          "should return 404 not found error when service returns not found error",
+			expectedCode:  http.StatusNotFound,
+			expectedError: pkgError.ErrNotFound,
+		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			//Arrange
 			srv := &mocks.MockSellerService{
-				UpdateFunc: func(seller models.Seller) (models.Seller, error) {
+				UpdateFunc: func(id int, reqBody *models.UpdateSellerRequest) (models.Seller, error) {
 					return models.Seller{}, test.expectedError
 				},
 			}
@@ -760,109 +753,89 @@ func TestSellerHandler_Update_Errors(t *testing.T) {
 			//Assert
 			require.Contains(t, response.Body.String(), test.expectedError.Error())
 			require.Equal(t, test.expectedCode, response.Code)
-			require.Equal(t, 1, srv.Spy.CountCreateFunc)
+			require.Equal(t, 1, srv.Spy.CountUpdateFunc)
 		})
 	}
 }
 
-func TestSellerHandler_Create_MySQL_Errors(t *testing.T) {
-	createRequestSuccess := models.CreateSellerRequest{
+func TestSellerHandler_Update_NotFoundError(t *testing.T) {
+
+	//Arrange
+	updateRequestSuccess := models.UpdateSellerRequest{
+		Cid:         &[]string{"1235F"}[0],
+		CompanyName: &[]string{"New Farm to Table Produce Hub"}[0],
+	}
+	sellerId := 1
+	//Act
+	srv := &mocks.MockSellerService{
+		UpdateFunc: func(id int, reqBody *models.UpdateSellerRequest) (models.Seller, error) {
+			return models.Seller{}, pkgError.WrapErrNotFound("seller", "id", id)
+		},
+	}
+	hd := NewSellerHandler(srv)
+	hdFunc := hd.Update()
+	reqBody, _ := json.Marshal(updateRequestSuccess)
+	request := httptest.NewRequest("PATCH", fmt.Sprintf("/%v", sellerId), bytes.NewReader(reqBody))
+	request = utils.AddPathParamToRequest(request, "id", fmt.Sprintf("%v", sellerId))
+	request.Header.Set("Content-Type", "application/json")
+	response := httptest.NewRecorder()
+	hdFunc(response, request)
+
+	//Assert
+	expectedCode := http.StatusNotFound
+	expectedBody := fmt.Sprintf(`{"status":"%s", "message": "%s"}`, http.StatusText(http.StatusNotFound), pkgError.WrapErrNotFound("seller", "id", sellerId))
+	require.Equal(t, expectedCode, response.Code)
+	require.JSONEq(t, expectedBody, response.Body.String())
+	require.Equal(t, srv.Spy.CountUpdateFunc, 1)
+}
+
+func TestSellerHandler_Update_Success(t *testing.T) {
+	currentSeller := models.Seller{
+		Id:          1,
 		Cid:         "1",
 		CompanyName: "Farm to Table Produce Hub",
 		Address:     "812 Cypress Way, Denver, CO 80201",
 		Telephone:   "+1-555-1901",
 		LocalityId:  1,
 	}
-	tests := []struct {
-		name        string
-		contentType string
-		createFunc  func(seller models.Seller) (models.Seller, error)
-		assertFunc  func(t *testing.T, response *httptest.ResponseRecorder)
-	}{
-		{
-			name:        "should return 409 conflict error when service returns duplicate entry error",
-			contentType: "application/json",
-			createFunc: func(seller models.Seller) (models.Seller, error) {
-				mysqlError := &mysql.MySQLError{
-					Number:  1062,
-					Message: "Duplicate entry",
-				}
-				return models.Seller{}, mysqlError
-			},
-			assertFunc: func(t *testing.T, response *httptest.ResponseRecorder) {
-				expectedCode := http.StatusConflict
-				require.Contains(t, response.Body.String(), pkgError.ErrConflict.Error())
-				require.Equal(t, expectedCode, response.Code)
-			},
-		},
-		{
-			name:        "should return 409 conflict error when service returns foreign key constraint error",
-			contentType: "application/json",
-			createFunc: func(seller models.Seller) (models.Seller, error) {
-				mysqlError := &mysql.MySQLError{
-					Number:  1452,
-					Message: "Cannot add or update a child row: a foreign key constraint fails",
-				}
-				return models.Seller{}, mysqlError
-			},
-			assertFunc: func(t *testing.T, response *httptest.ResponseRecorder) {
-				expectedCode := http.StatusConflict
-				require.Contains(t, response.Body.String(), pkgError.ErrConflict.Error())
-				require.Equal(t, expectedCode, response.Code)
-			},
-		},
-		{
-			name:        "should return 400 bad request error when service returns column cannot be null",
-			contentType: "application/json",
-			createFunc: func(seller models.Seller) (models.Seller, error) {
-				mysqlError := &mysql.MySQLError{
-					Number:  1048,
-					Message: "Column 'xxx' cannot be null",
-				}
-				return models.Seller{}, mysqlError
-			},
-			assertFunc: func(t *testing.T, response *httptest.ResponseRecorder) {
-				expectedCode := http.StatusBadRequest
-				require.Contains(t, response.Body.String(), pkgError.ErrBadRequest.Error())
-				require.Equal(t, expectedCode, response.Code)
-			},
-		},
-		{
-			name:        "should return 409 conflict error when service returns cannot delete or update",
-			contentType: "application/json",
-			createFunc: func(seller models.Seller) (models.Seller, error) {
-				mysqlError := &mysql.MySQLError{
-					Number:  1451,
-					Message: "Cannot delete or update a parent row: a foreign key constraint fails",
-				}
-				return models.Seller{}, mysqlError
-			},
-			assertFunc: func(t *testing.T, response *httptest.ResponseRecorder) {
-				expectedCode := http.StatusConflict
-				require.Contains(t, response.Body.String(), pkgError.ErrConflict.Error())
-				require.Equal(t, expectedCode, response.Code)
-			},
+	//Arrange
+	updateRequestSuccess := models.UpdateSellerRequest{
+		Cid:         &[]string{"1235F"}[0],
+		CompanyName: &[]string{"New Farm to Table Produce Hub"}[0],
+	}
+	sellerId := 1
+	//Act
+	srv := &mocks.MockSellerService{
+		UpdateFunc: func(id int, reqBody *models.UpdateSellerRequest) (models.Seller, error) {
+			updatedSeller := currentSeller
+			updatedSeller.Cid = *reqBody.Cid
+			updatedSeller.CompanyName = *reqBody.CompanyName
+			return updatedSeller, nil
 		},
 	}
+	hd := NewSellerHandler(srv)
+	hdFunc := hd.Update()
+	reqBody, _ := json.Marshal(updateRequestSuccess)
+	request := httptest.NewRequest("PATCH", fmt.Sprintf("/%v", sellerId), bytes.NewReader(reqBody))
+	request = utils.AddPathParamToRequest(request, "id", fmt.Sprintf("%v", sellerId))
+	request.Header.Set("Content-Type", "application/json")
+	response := httptest.NewRecorder()
+	hdFunc(response, request)
 
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			//Arrange
-			srv := &mocks.MockSellerService{
-				CreateFunc: test.createFunc,
-			}
-			hd := NewSellerHandler(srv)
-			hdFunc := hd.Create()
-			//Act
-			reqBody, _ := json.Marshal(createRequestSuccess)
-			request := httptest.NewRequest("POST", "/", bytes.NewReader(reqBody))
-			request.Header.Set("Content-Type", test.contentType)
-			response := httptest.NewRecorder()
-			hdFunc(response, request)
-
-			//Assert
-			test.assertFunc(t, response)
-			require.Equal(t, 1, srv.Spy.CountCreateFunc)
-		})
+	//Assert
+	expectedCode := http.StatusOK
+	expectedSellerUpdated := models.Seller{
+		Id:          1,
+		Cid:         "1235F",
+		CompanyName: "New Farm to Table Produce Hub",
+		Address:     "812 Cypress Way, Denver, CO 80201",
+		Telephone:   "+1-555-1901",
+		LocalityId:  1,
 	}
+	expectedSellerDocUpdated := expectedSellerUpdated.ModelToDoc()
+	expectedJsonSellerDoc, _ := json.Marshal(expectedSellerDocUpdated)
+	expectedBody := fmt.Sprintf(`{"data":[%s]}`, string(expectedJsonSellerDoc))
+	require.Equal(t, expectedCode, response.Code)
+	require.JSONEq(t, expectedBody, response.Body.String())
+	require.Equal(t, srv.Spy.CountUpdateFunc, 1)
 }
