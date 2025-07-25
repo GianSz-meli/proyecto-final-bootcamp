@@ -1,12 +1,12 @@
 package router
 
 import (
-	"ProyectoFinal/internal/handler"
+	"ProyectoFinal/internal/handler/buyer"
 	"github.com/go-chi/chi/v5"
 )
 
 // GetBuyerRouter creates and configures a Chi router with all buyer-related HTTP routes.
-func GetBuyerRouter(h *handler.BuyerHandler) chi.Router {
+func GetBuyerRouter(h *buyer.BuyerHandler) chi.Router {
 	rt := chi.NewRouter()
 
 	rt.Get("/", h.GetAll())
