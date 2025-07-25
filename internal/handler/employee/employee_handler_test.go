@@ -64,6 +64,23 @@ func TestEmployeeHandler_Create_OK(t *testing.T) {
 	mockService.AssertExpectations(t)
 }
 
+func TestEmployeeHandler_Create_InvalidJSON(t *testing.T) {
+	// Arrange
+	mockService := &mocks.MockEmployeeService{}
+	handler := NewEmployeeHandler(mockService)
+
+	req := httptest.NewRequest(http.MethodPost, "/employees", bytes.NewBuffer([]byte("invalid json")))
+	req.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+
+	// Act
+	handler.Create()(w, req)
+
+	// Assert
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+	mockService.AssertExpectations(t)
+}
+
 func TestEmployeeHandler_Create_Fail(t *testing.T) {
 	// Arrange
 	mockService := &mocks.MockEmployeeService{}
@@ -157,6 +174,42 @@ func TestEmployeeHandler_GetAll(t *testing.T) {
 	employeesData := response.Data.([]interface{})
 	assert.Len(t, employeesData, 2)
 
+	mockService.AssertExpectations(t)
+}
+
+func TestEmployeeHandler_GetAll_ServiceError(t *testing.T) {
+	// Arrange
+	mockService := &mocks.MockEmployeeService{}
+	handler := NewEmployeeHandler(mockService)
+
+	mockService.On("GetAll").Return([]models.Employee{}, errors.ErrGeneral)
+	req := httptest.NewRequest(http.MethodGet, "/employees", nil)
+	w := httptest.NewRecorder()
+
+	// Act
+	handler.GetAll()(w, req)
+
+	// Assert
+	assert.Equal(t, http.StatusInternalServerError, w.Code)
+	mockService.AssertExpectations(t)
+}
+
+func TestEmployeeHandler_GetById_InvalidParam(t *testing.T) {
+	// Arrange
+	mockService := &mocks.MockEmployeeService{}
+	handler := NewEmployeeHandler(mockService)
+
+	req := httptest.NewRequest(http.MethodGet, "/employees/invalid", nil)
+	rctx := chi.NewRouteContext()
+	rctx.URLParams.Add("id", "invalid")
+	req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, rctx))
+	w := httptest.NewRecorder()
+
+	// Act
+	handler.GetById()(w, req)
+
+	// Assert
+	assert.Equal(t, http.StatusBadRequest, w.Code)
 	mockService.AssertExpectations(t)
 }
 
@@ -269,6 +322,52 @@ func TestEmployeeHandler_Update_OK(t *testing.T) {
 	mockService.AssertExpectations(t)
 }
 
+func TestEmployeeHandler_Update_InvalidParam(t *testing.T) {
+	// Arrange
+	mockService := &mocks.MockEmployeeService{}
+	handler := NewEmployeeHandler(mockService)
+
+	updatedFirstName := "Johnny"
+	updateRequest := models.EmployeeUpdateRequest{
+		FirstName: &updatedFirstName,
+	}
+
+	reqBody, _ := json.Marshal(updateRequest)
+	req := httptest.NewRequest(http.MethodPatch, "/employees/invalid", bytes.NewBuffer(reqBody))
+	req.Header.Set("Content-Type", "application/json")
+	rctx := chi.NewRouteContext()
+	rctx.URLParams.Add("id", "invalid")
+	req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, rctx))
+	w := httptest.NewRecorder()
+
+	// Act
+	handler.Update()(w, req)
+
+	// Assert
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+	mockService.AssertExpectations(t)
+}
+
+func TestEmployeeHandler_Update_InvalidJSON(t *testing.T) {
+	// Arrange
+	mockService := &mocks.MockEmployeeService{}
+	handler := NewEmployeeHandler(mockService)
+
+	req := httptest.NewRequest(http.MethodPatch, "/employees/1", bytes.NewBuffer([]byte("invalid json")))
+	req.Header.Set("Content-Type", "application/json")
+	rctx := chi.NewRouteContext()
+	rctx.URLParams.Add("id", "1")
+	req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, rctx))
+	w := httptest.NewRecorder()
+
+	// Act
+	handler.Update()(w, req)
+
+	// Assert
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+	mockService.AssertExpectations(t)
+}
+
 func TestEmployeeHandler_Update_NonExistent(t *testing.T) {
 	// Arrange
 	mockService := &mocks.MockEmployeeService{}
@@ -295,6 +394,25 @@ func TestEmployeeHandler_Update_NonExistent(t *testing.T) {
 
 	// Assert
 	assert.Equal(t, http.StatusNotFound, w.Code)
+	mockService.AssertExpectations(t)
+}
+
+func TestEmployeeHandler_Delete_InvalidParam(t *testing.T) {
+	// Arrange
+	mockService := &mocks.MockEmployeeService{}
+	handler := NewEmployeeHandler(mockService)
+
+	req := httptest.NewRequest(http.MethodDelete, "/employees/invalid", nil)
+	rctx := chi.NewRouteContext()
+	rctx.URLParams.Add("id", "invalid")
+	req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, rctx))
+	w := httptest.NewRecorder()
+
+	// Act
+	handler.Delete()(w, req)
+
+	// Assert
+	assert.Equal(t, http.StatusBadRequest, w.Code)
 	mockService.AssertExpectations(t)
 }
 
