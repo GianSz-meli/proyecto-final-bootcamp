@@ -12,7 +12,7 @@ import (
 	customErrors "ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
 
-	"ProyectoFinal/mocks"
+	mocks "ProyectoFinal/mocks/warehouse"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/require"
@@ -479,7 +479,7 @@ func TestUpdateWarehouse_ValidIdAndRequest_Success(t *testing.T) {
 	handler := NewWarehouseHandler(mockService)
 
 	updateRequest := models.UpdateWarehouseRequest{
-		WarehouseCode:      &[]string{"WH001-UPDATED"}[0],
+		WarehouseCode: &[]string{"WH001-UPDATED"}[0],
 	}
 	updatedWarehouse := models.Warehouse{
 		ID:                 1,
@@ -556,7 +556,7 @@ func TestUpdateWarehouse_InvalidRequest_UnprocessableEntity(t *testing.T) {
 		{
 			name: "warehouse_code minimum length validation",
 			requestBody: models.UpdateWarehouseRequest{
-				WarehouseCode:      &[]string{""}[0],
+				WarehouseCode: &[]string{""}[0],
 			},
 			expectedResponseBody: `
 			{ 
@@ -643,7 +643,7 @@ func TestUpdateWarehouse_DuplicateWarehouseCode_Conflict(t *testing.T) {
 	handler := NewWarehouseHandler(mockService)
 
 	updateRequest := models.UpdateWarehouseRequest{
-		WarehouseCode:      &[]string{"WH002"}[0],
+		WarehouseCode: &[]string{"WH002"}[0],
 	}
 	expectedError := customErrors.WrapErrConflict("warehouses", "warehouse_code", "WH002")
 	expectedResponseBody := `{"status":"Conflict","message":"conflict : warehouses with warehouse_code WH002 already exists"}`
@@ -669,20 +669,20 @@ func TestUpdateWarehouse_BadData_BadRequest(t *testing.T) {
 	handler := NewWarehouseHandler(mockService)
 
 	tests := []struct {
-		name string
-		id string
-		requestBodyJson string
+		name                 string
+		id                   string
+		requestBodyJson      string
 		expectedResponseBody string
 	}{
 		{
-			name: "invalid id",
-			id: "abc",
-			requestBodyJson: ``,
+			name:                 "invalid id",
+			id:                   "abc",
+			requestBodyJson:      ``,
 			expectedResponseBody: `{"status":"Bad Request","message":"bad request : id must be a number"}`,
 		},
 		{
-			name: "malformed json",
-			id: "1",
+			name:            "malformed json",
+			id:              "1",
 			requestBodyJson: `{warehouse_code: "WH001-UPDATED", "address": "Address Updated"}`,
 			expectedResponseBody: `
 			{ 
@@ -694,7 +694,7 @@ func TestUpdateWarehouse_BadData_BadRequest(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			req := httptest.NewRequest(http.MethodPut, "/warehouses/" + test.id, bytes.NewReader([]byte(test.requestBodyJson)))
+			req := httptest.NewRequest(http.MethodPut, "/warehouses/"+test.id, bytes.NewReader([]byte(test.requestBodyJson)))
 
 			rctx := chi.NewRouteContext()
 			rctx.URLParams.Add("id", test.id)
@@ -707,6 +707,24 @@ func TestUpdateWarehouse_BadData_BadRequest(t *testing.T) {
 			require.JSONEq(t, test.expectedResponseBody, w.Body.String())
 		})
 	}
+}
+
+func TestDeleteWarehouse_ValidId_Success(t *testing.T) {
+	mockService := new(mocks.MockWarehouseService)
+	handler := NewWarehouseHandler(mockService)
+
+	mockService.On("DeleteWarehouse", 1).Return(nil)
+
+	req := httptest.NewRequest(http.MethodDelete, "/warehouses/1", nil)
+	rctx := chi.NewRouteContext()
+	rctx.URLParams.Add("id", "1")
+	req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, rctx))
+	w := httptest.NewRecorder()
+
+	handler.DeleteWarehouse(w, req)
+
+	require.Equal(t, http.StatusNoContent, w.Code)
+	mockService.AssertExpectations(t)
 }
 
 func TestDeleteWarehouse_NonExistingId_NotFound(t *testing.T) {
