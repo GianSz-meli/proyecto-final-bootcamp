@@ -67,12 +67,13 @@ func (h *ProductHandler) FindProductsById(w http.ResponseWriter, r *http.Request
 	id, err := utils.GetParamInt(r, "id")
 	if err != nil {
 		pkgErrors.HandleError(w, err)
+		fmt.Print(err)
 		return
 	}
-
 	product, err := h.service.FindProductsById(id)
 	if err != nil {
 		pkgErrors.HandleError(w, err)
+		fmt.Print(err)
 		return
 	}
 
@@ -88,14 +89,6 @@ func (h *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 		pkgErrors.HandleError(w, err)
 		return
 	}
-
-	currentProd, err := h.service.FindProductsById(id)
-	if err != nil {
-		log.Println(err)
-		pkgErrors.HandleError(w, err)
-		return
-	}
-
 	var reqBody models.ProductDocUpdate
 	if err := request.JSON(r, &reqBody); err != nil {
 		newErr := pkgErrors.WrapErrBadRequest(err)
@@ -108,13 +101,7 @@ func (h *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if updated := utils.UpdateFields(&currentProd, &reqBody); !updated {
-		newError := fmt.Errorf("%w : no fields provided for update", pkgErrors.ErrUnprocessableEntity)
-		pkgErrors.HandleError(w, newError)
-		return
-	}
-	
-	update, err := h.service.UpdateProduct(id, currentProd)
+	update, err := h.service.UpdateProduct(id, reqBody)
 	if err != nil {
 		log.Println(err)
 		pkgErrors.HandleError(w, err)
