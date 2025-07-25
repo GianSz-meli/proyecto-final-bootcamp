@@ -175,7 +175,6 @@ func (r *SqlWarehouseRepository) Update(id int, warehouse models.Warehouse) (mod
 		return models.Warehouse{}, err
 	}
 
-	warehouse.ID = id
 	return warehouse, nil
 }
 

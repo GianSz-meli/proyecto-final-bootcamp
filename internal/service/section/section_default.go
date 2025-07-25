@@ -1,8 +1,11 @@
 package service
 
 import (
+	"ProyectoFinal/internal/handler/utils"
 	repository "ProyectoFinal/internal/repository/section"
+	"ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
+	"fmt"
 )
 
 // NewSectionDefault creates a new instance of SectionDefault with the provided repository
@@ -74,4 +77,29 @@ func (s *SectionDefault) Delete(id int) (err error) {
 		return err
 	}
 	return nil
+}
+
+// UpdateWithValidation modifies an existing section by ID with validation logic
+// This method encapsulates the business logic that was previously in the handler
+// It validates the section exists, applies updates, and validates that at least one field was updated
+func (s *SectionDefault) UpdateWithValidation(id int, updateRequest models.UpdateSectionRequest) (updatedSection models.Section, err error) {
+	// First, get the existing section to validate it exists
+	sectionToUpdate, err := s.rp.GetById(id)
+	if err != nil {
+		return models.Section{}, err
+	}
+
+	// Apply updates to the section
+	if updated := utils.UpdateFields(&sectionToUpdate, &updateRequest); !updated {
+		return models.Section{}, fmt.Errorf("%w : no fields provided for update", errors.ErrUnprocessableEntity)
+	}
+
+	// Set the ID and perform the update
+	sectionToUpdate.ID = id
+	updatedSection, err = s.rp.Update(id, sectionToUpdate)
+	if err != nil {
+		return models.Section{}, err
+	}
+
+	return updatedSection, nil
 }

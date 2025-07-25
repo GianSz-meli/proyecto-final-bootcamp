@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
 	"database/sql"
 	"fmt"
@@ -107,7 +108,7 @@ func (r *ProductBatchMySQL) GetProductCountBySection(sectionID *int) ([]models.S
 	if sectionID != nil {
 		// Verificar si la sección existe antes de hacer la consulta
 		if !r.SectionExists(*sectionID) {
-			return nil, fmt.Errorf("section with id %d not found", *sectionID)
+			return nil, errors.WrapErrNotFound("section", "id", *sectionID)
 		}
 		rows, err = r.db.Query(ProductBatchCountBySectionId, *sectionID)
 	} else {
