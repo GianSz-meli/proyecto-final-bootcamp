@@ -5,7 +5,6 @@ import (
 	pkgErrors "ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
 	"errors"
-	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"testing"
 )
@@ -26,6 +25,7 @@ func TestSellerService_Update_GetById_NotFound(t *testing.T) {
 	//Assert
 	require.Equal(t, models.Seller{}, sellerUpdated)
 	require.ErrorIs(t, err, pkgErrors.ErrNotFound)
+	mockRepository.AssertExpectations(t)
 }
 
 func TestSellerService_Update_UpdateFields_Error(t *testing.T) {
@@ -50,6 +50,7 @@ func TestSellerService_Update_UpdateFields_Error(t *testing.T) {
 	//Assert
 	require.Equal(t, models.Seller{}, sellerUpdated)
 	require.ErrorIs(t, err, pkgErrors.ErrUnprocessableEntity)
+	mockRepository.AssertExpectations(t)
 
 }
 
@@ -77,9 +78,7 @@ func TestSellerService_Update_Error(t *testing.T) {
 	}
 	mockRepository := new(seller.MockSellerRepository)
 	mockRepository.On("GetById", sellerId).Return(&currentSeller, nil)
-	mockRepository.On("Update", mock.MatchedBy(func(s *models.Seller) bool {
-		return s.Id == expectedSellerUpdated.Id
-	})).Return(models.Seller{}, errors.New("an error occurs"))
+	mockRepository.On("Update", expectedSellerUpdated).Return(models.Seller{}, errors.New("an error occurs"))
 
 	//Act
 	srv := NewSellerService(mockRepository)
@@ -88,6 +87,8 @@ func TestSellerService_Update_Error(t *testing.T) {
 	//Assert
 	require.Equal(t, models.Seller{}, sellerUpdated)
 	require.Error(t, err)
+	mockRepository.AssertExpectations(t)
+
 }
 
 func TestSellerService_Update_Success(t *testing.T) {
@@ -115,9 +116,7 @@ func TestSellerService_Update_Success(t *testing.T) {
 	}
 	mockRepository := new(seller.MockSellerRepository)
 	mockRepository.On("GetById", sellerId).Return(&currentSeller, nil)
-	mockRepository.On("Update", mock.MatchedBy(func(s *models.Seller) bool {
-		return s.Id == expectedSellerUpdated.Id
-	})).Return(expectedSellerUpdated, nil)
+	mockRepository.On("Update", expectedSellerUpdated).Return(expectedSellerUpdated, nil)
 
 	//Act
 	srv := NewSellerService(mockRepository)
@@ -126,4 +125,6 @@ func TestSellerService_Update_Success(t *testing.T) {
 	//Assert
 	require.Equal(t, expectedSellerUpdated, sellerUpdated)
 	require.NoError(t, err)
+	mockRepository.AssertExpectations(t)
+
 }
