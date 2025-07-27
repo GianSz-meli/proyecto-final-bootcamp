@@ -1,44 +1,36 @@
 package seller
 
-import "ProyectoFinal/pkg/models"
+import (
+	"ProyectoFinal/pkg/models"
+	"github.com/stretchr/testify/mock"
+)
 
 // MockSellerService - implementation of seller interface
 type MockSellerService struct {
-	CreateFunc  func(seller models.Seller) (models.Seller, error)
-	GetAllFunc  func() ([]models.Seller, error)
-	GetByIdFunc func(id int) (models.Seller, error)
-	DeleteFunc  func(id int) error
-	UpdateFunc  func(id int, reqBody *models.UpdateSellerRequest) (models.Seller, error)
-	Spy         struct {
-		CountCreateFunc  int
-		CountGetAllFunc  int
-		CountGetByIdFunc int
-		CountDeleteFunc  int
-		CountUpdateFunc  int
-	}
+	mock.Mock
 }
 
 func (m *MockSellerService) Create(seller models.Seller) (models.Seller, error) {
-	m.Spy.CountCreateFunc++
-	return m.CreateFunc(seller)
+	args := m.Called(seller)
+	return args.Get(0).(models.Seller), args.Error(1)
 }
 
 func (m *MockSellerService) GetAll() ([]models.Seller, error) {
-	m.Spy.CountGetAllFunc++
-	return m.GetAllFunc()
+	args := m.Called()
+	return args.Get(0).([]models.Seller), args.Error(1)
 }
 
 func (m *MockSellerService) GetById(id int) (models.Seller, error) {
-	m.Spy.CountGetByIdFunc++
-	return m.GetByIdFunc(id)
+	args := m.Called(id)
+	return args.Get(0).(models.Seller), args.Error(1)
 }
 
 func (m *MockSellerService) Delete(id int) error {
-	m.Spy.CountDeleteFunc++
-	return m.DeleteFunc(id)
+	args := m.Called(id)
+	return args.Error(0)
 }
 
 func (m *MockSellerService) Update(id int, reqBody *models.UpdateSellerRequest) (models.Seller, error) {
-	m.Spy.CountUpdateFunc++
-	return m.UpdateFunc(id, reqBody)
+	args := m.Called(id, reqBody)
+	return args.Get(0).(models.Seller), args.Error(1)
 }

@@ -9,7 +9,6 @@ import (
 	"encoding/json"
 	"fmt"
 	pkgRequest "github.com/bootcamp-go/web/request"
-	"github.com/go-sql-driver/mysql"
 	"github.com/stretchr/testify/require"
 	"io"
 	"net/http"
@@ -42,7 +41,7 @@ func TestSellerHandler_Create_ValidateRequest_Errors(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			//Arrange
-			srv := &seller.MockSellerService{}
+			srv := new(seller.MockSellerService)
 			hd := NewSellerHandler(srv)
 			hdFunc := hd.Create()
 			//Act
@@ -56,7 +55,7 @@ func TestSellerHandler_Create_ValidateRequest_Errors(t *testing.T) {
 			require.Equal(t, expectedCode, response.Code)
 			require.Contains(t, response.Body.String(), test.expectedRequestError.Error())
 			require.Equal(t, "application/json", response.Header().Get("Content-Type"))
-			require.Equal(t, 0, srv.Spy.CountCreateFunc)
+			srv.AssertNotCalled(t, "create")
 		})
 	}
 }
@@ -141,7 +140,7 @@ func TestSellerHandler_Create_ValidateRequestData_Errors(t *testing.T) {
 			require.Equal(t, expectedCode, response.Code)
 			require.Contains(t, response.Body.String(), test.expectedMissingField)
 			require.Equal(t, "application/json", response.Header().Get("Content-Type"))
-			require.Equal(t, 0, srv.Spy.CountCreateFunc)
+			srv.AssertNotCalled(t, "Create")
 		})
 	}
 }
@@ -157,34 +156,24 @@ func TestSellerHandler_Create_Errors(t *testing.T) {
 	tests := []struct {
 		name          string
 		contentType   string
-		createFunc    func(seller models.Seller) (models.Seller, error)
 		expectedCode  int
 		expectedError error
 	}{
 		{
-			name:        "should return 409 conflict error when service returns conflict error",
-			contentType: "application/json",
-			createFunc: func(seller models.Seller) (models.Seller, error) {
-				return models.Seller{}, pkgError.ErrConflict
-			},
+			name:          "should return 409 conflict error when service returns conflict error",
+			contentType:   "application/json",
 			expectedCode:  http.StatusConflict,
 			expectedError: pkgError.ErrConflict,
 		},
 		{
-			name:        "should return 400 bad request error when service returns bad request error",
-			contentType: "application/json",
-			createFunc: func(seller models.Seller) (models.Seller, error) {
-				return models.Seller{}, pkgError.ErrBadRequest
-			},
+			name:          "should return 400 bad request error when service returns bad request error",
+			contentType:   "application/json",
 			expectedCode:  http.StatusBadRequest,
 			expectedError: pkgError.ErrBadRequest,
 		},
 		{
-			name:        "should return 404 not found error when service returns not found error",
-			contentType: "application/json",
-			createFunc: func(seller models.Seller) (models.Seller, error) {
-				return models.Seller{}, pkgError.ErrNotFound
-			},
+			name:          "should return 404 not found error when service returns not found error",
+			contentType:   "application/json",
 			expectedCode:  http.StatusNotFound,
 			expectedError: pkgError.ErrNotFound,
 		},
@@ -193,9 +182,8 @@ func TestSellerHandler_Create_Errors(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			//Arrange
-			srv := &seller.MockSellerService{
-				CreateFunc: test.createFunc,
-			}
+			srv := &seller.MockSellerService{}
+			srv.On("Create", createRequestSuccess.DocToModel()).Return(models.Seller{}, test.expectedError)
 			hd := NewSellerHandler(srv)
 			hdFunc := hd.Create()
 			//Act
@@ -208,14 +196,14 @@ func TestSellerHandler_Create_Errors(t *testing.T) {
 			//Assert
 			require.Contains(t, response.Body.String(), test.expectedError.Error())
 			require.Equal(t, test.expectedCode, response.Code)
-			require.Equal(t, 1, srv.Spy.CountCreateFunc)
+			srv.AssertExpectations(t)
 		})
 	}
 }
 
 func TestSellerHandler_Create_Success(t *testing.T) {
 	createRequestSuccess := models.CreateSellerRequest{
-		Cid:         "1",
+		Cid:         "GDJ2SJ3",
 		CompanyName: "Farm to Table Produce Hub",
 		Address:     "812 Cypress Way, Denver, CO 80201",
 		Telephone:   "+1-555-1901",
@@ -232,12 +220,9 @@ func TestSellerHandler_Create_Success(t *testing.T) {
 	}
 
 	//Arrange
-	srv := &seller.MockSellerService{
-		CreateFunc: func(seller models.Seller) (models.Seller, error) {
-			return newSeller, nil
-		},
-	}
+	srv := &seller.MockSellerService{}
 	hd := NewSellerHandler(srv)
+	srv.On("Create", createRequestSuccess.DocToModel()).Return(newSeller, nil)
 	hdFunc := hd.Create()
 
 	//Act
@@ -254,7 +239,7 @@ func TestSellerHandler_Create_Success(t *testing.T) {
 	require.Equal(t, "application/json", response.Header().Get("Content-Type"))
 	require.Equal(t, expectedCode, response.Code)
 	require.JSONEq(t, expectedBody, response.Body.String())
-	require.Equal(t, 1, srv.Spy.CountCreateFunc)
+	srv.AssertExpectations(t)
 
 }
 
@@ -279,14 +264,14 @@ func TestSellerHandler_GetAll(t *testing.T) {
 	}
 	tests := []struct {
 		name       string
-		getAllFunc func() ([]models.Seller, error)
+		srvReturn  []models.Seller
+		srvError   error
 		assertFunc func(t *testing.T, response *httptest.ResponseRecorder)
 	}{
 		{
-			name: "should return 200  when service returns all sellers",
-			getAllFunc: func() ([]models.Seller, error) {
-				return sellers, nil
-			},
+			name:      "should return 200  when service returns all sellers",
+			srvReturn: sellers,
+			srvError:  nil,
 			assertFunc: func(t *testing.T, response *httptest.ResponseRecorder) {
 				expectedSellersJson, _ := json.Marshal(sellers)
 				expectedBody := fmt.Sprintf(`{"data":%s}`, string(expectedSellersJson))
@@ -297,15 +282,9 @@ func TestSellerHandler_GetAll(t *testing.T) {
 			},
 		},
 		{
-			name: "should return 500 internal server  error when service returns a mysql error not mapped",
-			getAllFunc: func() ([]models.Seller, error) {
-				mysqlError := &mysql.MySQLError{
-					Number:  1054,
-					Message: "Unknown column 'xxx' in 'xxx'",
-				}
-				return nil, mysqlError
-			},
-
+			name:      "should return  error when service returns an error ",
+			srvReturn: nil,
+			srvError:  pkgError.ErrGeneral,
 			assertFunc: func(t *testing.T, response *httptest.ResponseRecorder) {
 				expectedCode := http.StatusInternalServerError
 				require.Contains(t, response.Body.String(), http.StatusText(expectedCode))
@@ -317,9 +296,8 @@ func TestSellerHandler_GetAll(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			//Arrange
-			srv := &seller.MockSellerService{
-				GetAllFunc: test.getAllFunc,
-			}
+			srv := &seller.MockSellerService{}
+			srv.On("GetAll").Return(test.srvReturn, test.srvError)
 			hd := NewSellerHandler(srv)
 			hdFunc := hd.GetAll()
 			//Act
@@ -330,7 +308,7 @@ func TestSellerHandler_GetAll(t *testing.T) {
 
 			//Assert
 			test.assertFunc(t, response)
-			require.Equal(t, 1, srv.Spy.CountGetAllFunc)
+			srv.AssertExpectations(t)
 		})
 	}
 }
@@ -369,8 +347,7 @@ func TestSellerHandler_GetById_Bad_PathParam(t *testing.T) {
 			expectedCode := http.StatusBadRequest
 			require.Equal(t, expectedCode, response.Code)
 			require.Equal(t, "application/json", response.Header().Get("Content-Type"))
-			require.Equal(t, 0, srv.Spy.CountGetByIdFunc)
-
+			srv.AssertNotCalled(t, "GetById")
 		})
 	}
 }
@@ -385,15 +362,15 @@ func TestSellerHandler_GetById(t *testing.T) {
 		LocalityId:  1,
 	}
 	tests := []struct {
-		name        string
-		getByIdFunc func(id int) (models.Seller, error)
-		assertFunc  func(t *testing.T, response *httptest.ResponseRecorder)
+		name       string
+		srvReturn  models.Seller
+		srvError   error
+		assertFunc func(t *testing.T, response *httptest.ResponseRecorder)
 	}{
 		{
-			name: "should return 404 not found error when seller id not exist",
-			getByIdFunc: func(id int) (models.Seller, error) {
-				return models.Seller{}, pkgError.ErrNotFound
-			},
+			name:      "should return 404 not found error when seller id not exist",
+			srvReturn: models.Seller{},
+			srvError:  pkgError.ErrNotFound,
 			assertFunc: func(t *testing.T, response *httptest.ResponseRecorder) {
 				expectedCode := http.StatusNotFound
 				require.Equal(t, expectedCode, response.Code)
@@ -401,10 +378,9 @@ func TestSellerHandler_GetById(t *testing.T) {
 			},
 		},
 		{
-			name: "should return 200 when seller id exist",
-			getByIdFunc: func(id int) (models.Seller, error) {
-				return s, nil
-			},
+			name:      "should return 200 when seller id exist",
+			srvReturn: s,
+			srvError:  nil,
 			assertFunc: func(t *testing.T, response *httptest.ResponseRecorder) {
 				expectedSellerJson, _ := json.Marshal(s)
 				expectedBody := fmt.Sprintf(`{"data":[%s]}`, string(expectedSellerJson))
@@ -419,21 +395,22 @@ func TestSellerHandler_GetById(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			//Arrange
-			srv := &seller.MockSellerService{
-				GetByIdFunc: test.getByIdFunc,
-			}
+			sellerId := 1
+			srv := &seller.MockSellerService{}
+			srv.On("GetById", sellerId).Return(test.srvReturn, test.srvError)
 			hd := NewSellerHandler(srv)
 			hdFunc := hd.GetById()
+
 			//Act
-			request := httptest.NewRequest("GET", "/1", nil)
-			request = utils.AddPathParamToRequest(request, "id", "1")
+			request := httptest.NewRequest("GET", fmt.Sprintf("/%v", sellerId), nil)
+			request = utils.AddPathParamToRequest(request, "id", fmt.Sprintf("%v", sellerId))
 			request.Header.Set("Content-Type", "application/json")
 			response := httptest.NewRecorder()
 			hdFunc(response, request)
 
 			//Assert
 			test.assertFunc(t, response)
-			require.Equal(t, 1, srv.Spy.CountGetByIdFunc)
+			srv.AssertExpectations(t)
 			require.Equal(t, "application/json", response.Header().Get("Content-Type"))
 		})
 	}
@@ -473,8 +450,7 @@ func TestSellerHandler_Delete_Bad_PathParam(t *testing.T) {
 			expectedCode := http.StatusBadRequest
 			require.Equal(t, expectedCode, response.Code)
 			require.Equal(t, "application/json", response.Header().Get("Content-Type"))
-			require.Equal(t, 0, srv.Spy.CountDeleteFunc)
-
+			srv.AssertNotCalled(t, "Delete")
 		})
 	}
 }
@@ -486,14 +462,11 @@ func TestSellerHandler_Delete_NotFoundError(t *testing.T) {
 	expectedCode := http.StatusNotFound
 	expectedBody := fmt.Sprintf(`{"status":"%s", "message": "%s"}`, http.StatusText(http.StatusNotFound), pkgError.WrapErrNotFound("seller", "id", sellerId))
 	//Act
-	srv := &seller.MockSellerService{
-		DeleteFunc: func(id int) error {
-			return pkgError.WrapErrNotFound("seller", "id", sellerId)
-		},
-	}
+	srv := &seller.MockSellerService{}
+	srv.On("Delete", sellerId).Return(pkgError.WrapErrNotFound("seller", "id", sellerId))
 	hd := NewSellerHandler(srv)
 	hdFunc := hd.Delete()
-	request := httptest.NewRequest("PATCH", fmt.Sprintf("/%v", sellerId), nil)
+	request := httptest.NewRequest("DELETE", fmt.Sprintf("/%v", sellerId), nil)
 	request = utils.AddPathParamToRequest(request, "id", fmt.Sprintf("%v", sellerId))
 	request.Header.Set("Content-Type", "application/json")
 	response := httptest.NewRecorder()
@@ -502,29 +475,28 @@ func TestSellerHandler_Delete_NotFoundError(t *testing.T) {
 	//Assert
 	require.Equal(t, expectedCode, response.Code)
 	require.JSONEq(t, expectedBody, response.Body.String())
-	require.Equal(t, srv.Spy.CountDeleteFunc, 1)
+	require.NotEmpty(t, response.Body.String())
+	srv.AssertExpectations(t)
 }
 
 func TestSellerHandler_Delete_Success(t *testing.T) {
 
 	//Arrange
-	srv := &seller.MockSellerService{
-		DeleteFunc: func(id int) error {
-			return nil
-		},
-	}
+	sellerId := 1
+	srv := &seller.MockSellerService{}
+	srv.On("Delete", sellerId).Return(nil)
 	hd := NewSellerHandler(srv)
 	hdFunc := hd.Delete()
 	//Act
-	request := httptest.NewRequest("DELETE", "/1", nil)
-	request = utils.AddPathParamToRequest(request, "id", "1")
+	request := httptest.NewRequest("DELETE", fmt.Sprintf("/%v", sellerId), nil)
+	request = utils.AddPathParamToRequest(request, "id", fmt.Sprintf("%v", sellerId))
 	response := httptest.NewRecorder()
 	hdFunc(response, request)
 
 	//Assert
 	expectedCode := http.StatusNoContent
 	require.Equal(t, expectedCode, response.Code)
-	require.Equal(t, 1, srv.Spy.CountDeleteFunc)
+	srv.AssertExpectations(t)
 
 }
 
@@ -552,7 +524,7 @@ func TestSellerHandler_Update_Bad_PathParam_Errors(t *testing.T) {
 			hdFunc := hd.Update()
 			//Act
 			target := fmt.Sprintf("/%s", test.pathParam)
-			request := httptest.NewRequest("DELETE", target, nil)
+			request := httptest.NewRequest("PATCH", target, nil)
 			request = utils.AddPathParamToRequest(request, "id", test.pathParam)
 			request.Header.Set("Content-Type", "application/json")
 			response := httptest.NewRecorder()
@@ -562,8 +534,7 @@ func TestSellerHandler_Update_Bad_PathParam_Errors(t *testing.T) {
 			expectedCode := http.StatusBadRequest
 			require.Equal(t, expectedCode, response.Code)
 			require.Equal(t, "application/json", response.Header().Get("Content-Type"))
-			require.Equal(t, 0, srv.Spy.CountUpdateFunc)
-
+			srv.AssertNotCalled(t, "Update")
 		})
 	}
 }
@@ -597,7 +568,7 @@ func TestSellerHandler_Update_ValidateRequest_Errors(t *testing.T) {
 			hdFunc := hd.Update()
 			//Act
 			target := fmt.Sprintf("/%s", "1")
-			request := httptest.NewRequest("DELETE", target, nil)
+			request := httptest.NewRequest("PATCH", target, nil)
 			request = utils.AddPathParamToRequest(request, "id", "1")
 			request.Header.Set("Content-Type", "application/json")
 			response := httptest.NewRecorder()
@@ -607,8 +578,7 @@ func TestSellerHandler_Update_ValidateRequest_Errors(t *testing.T) {
 			expectedCode := http.StatusBadRequest
 			require.Equal(t, expectedCode, response.Code)
 			require.Equal(t, "application/json", response.Header().Get("Content-Type"))
-			require.Equal(t, 0, srv.Spy.CountUpdateFunc)
-
+			srv.AssertNotCalled(t, "Update")
 		})
 	}
 }
@@ -680,14 +650,15 @@ func TestSellerHandler_Update_ValidateRequestData_Errors(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			//Arrange
+			sellerId := 1
 			srv := &seller.MockSellerService{}
 			hd := NewSellerHandler(srv)
 			hdFunc := hd.Update()
 			//Act
-			target := fmt.Sprintf("/%s", "1")
+			target := fmt.Sprintf("/%v", sellerId)
 			reqBody, _ := json.Marshal(test.updateRequest)
 			request := httptest.NewRequest("PATCH", target, bytes.NewReader(reqBody))
-			request = utils.AddPathParamToRequest(request, "id", "1")
+			request = utils.AddPathParamToRequest(request, "id", fmt.Sprintf("%v", sellerId))
 			request.Header.Set("Content-Type", "application/json")
 			response := httptest.NewRecorder()
 			hdFunc(response, request)
@@ -697,7 +668,6 @@ func TestSellerHandler_Update_ValidateRequestData_Errors(t *testing.T) {
 			require.Equal(t, expectedCode, response.Code)
 			require.Equal(t, "application/json", response.Header().Get("Content-Type"))
 			require.Contains(t, response.Body.String(), test.expectedBadField)
-			require.Equal(t, 0, srv.Spy.CountUpdateFunc)
 		})
 	}
 }
@@ -735,17 +705,16 @@ func TestSellerHandler_Update_Errors(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			//Arrange
-			srv := &seller.MockSellerService{
-				UpdateFunc: func(id int, reqBody *models.UpdateSellerRequest) (models.Seller, error) {
-					return models.Seller{}, test.expectedError
-				},
-			}
+			sellerId := 1
+			srv := &seller.MockSellerService{}
+
+			srv.On("Update", sellerId, &updateRequestSuccess).Return(models.Seller{}, test.expectedError)
 			hd := NewSellerHandler(srv)
 			hdFunc := hd.Update()
 			//Act
 			reqBody, _ := json.Marshal(updateRequestSuccess)
-			request := httptest.NewRequest("POST", "/1", bytes.NewReader(reqBody))
-			request = utils.AddPathParamToRequest(request, "id", "1")
+			request := httptest.NewRequest("PATCH", fmt.Sprintf("/%v", sellerId), bytes.NewReader(reqBody))
+			request = utils.AddPathParamToRequest(request, "id", fmt.Sprintf("%v", sellerId))
 			request.Header.Set("Content-Type", "application/json")
 			response := httptest.NewRecorder()
 			hdFunc(response, request)
@@ -753,7 +722,7 @@ func TestSellerHandler_Update_Errors(t *testing.T) {
 			//Assert
 			require.Contains(t, response.Body.String(), test.expectedError.Error())
 			require.Equal(t, test.expectedCode, response.Code)
-			require.Equal(t, 1, srv.Spy.CountUpdateFunc)
+			srv.AssertExpectations(t)
 		})
 	}
 }
@@ -768,14 +737,12 @@ func TestSellerHandler_Update_NotFoundError(t *testing.T) {
 	sellerId := 1
 	expectedCode := http.StatusNotFound
 	expectedBody := fmt.Sprintf(`{"status":"%s", "message": "%s"}`, http.StatusText(http.StatusNotFound), pkgError.WrapErrNotFound("seller", "id", sellerId))
-	//Act
-	srv := &seller.MockSellerService{
-		UpdateFunc: func(id int, reqBody *models.UpdateSellerRequest) (models.Seller, error) {
-			return models.Seller{}, pkgError.WrapErrNotFound("seller", "id", id)
-		},
-	}
+	srv := &seller.MockSellerService{}
+	srv.On("Update", sellerId, &updateRequestSuccess).Return(models.Seller{}, pkgError.WrapErrNotFound("seller", "id", sellerId))
 	hd := NewSellerHandler(srv)
 	hdFunc := hd.Update()
+
+	//Act
 	reqBody, _ := json.Marshal(updateRequestSuccess)
 	request := httptest.NewRequest("PATCH", fmt.Sprintf("/%v", sellerId), bytes.NewReader(reqBody))
 	request = utils.AddPathParamToRequest(request, "id", fmt.Sprintf("%v", sellerId))
@@ -786,18 +753,10 @@ func TestSellerHandler_Update_NotFoundError(t *testing.T) {
 	//Assert
 	require.Equal(t, expectedCode, response.Code)
 	require.JSONEq(t, expectedBody, response.Body.String())
-	require.Equal(t, srv.Spy.CountUpdateFunc, 1)
+	srv.AssertExpectations(t)
 }
 
 func TestSellerHandler_Update_Success(t *testing.T) {
-	currentSeller := models.Seller{
-		Id:          1,
-		Cid:         "1",
-		CompanyName: "Farm to Table Produce Hub",
-		Address:     "812 Cypress Way, Denver, CO 80201",
-		Telephone:   "+1-555-1901",
-		LocalityId:  1,
-	}
 	//Arrange
 	updateRequestSuccess := models.UpdateSellerRequest{
 		Cid:         &[]string{"1235F"}[0],
@@ -816,17 +775,11 @@ func TestSellerHandler_Update_Success(t *testing.T) {
 	expectedSellerDocUpdated := expectedSellerUpdated.ModelToDoc()
 	expectedJsonSellerDoc, _ := json.Marshal(expectedSellerDocUpdated)
 	expectedBody := fmt.Sprintf(`{"data":[%s]}`, string(expectedJsonSellerDoc))
-	//Act
-	srv := &seller.MockSellerService{
-		UpdateFunc: func(id int, reqBody *models.UpdateSellerRequest) (models.Seller, error) {
-			updatedSeller := currentSeller
-			updatedSeller.Cid = *reqBody.Cid
-			updatedSeller.CompanyName = *reqBody.CompanyName
-			return updatedSeller, nil
-		},
-	}
+	srv := &seller.MockSellerService{}
+	srv.On("Update", sellerId, &updateRequestSuccess).Return(expectedSellerUpdated, nil)
 	hd := NewSellerHandler(srv)
 	hdFunc := hd.Update()
+	//Act
 	reqBody, _ := json.Marshal(updateRequestSuccess)
 	request := httptest.NewRequest("PATCH", fmt.Sprintf("/%v", sellerId), bytes.NewReader(reqBody))
 	request = utils.AddPathParamToRequest(request, "id", fmt.Sprintf("%v", sellerId))
@@ -837,5 +790,5 @@ func TestSellerHandler_Update_Success(t *testing.T) {
 	//Assert
 	require.Equal(t, expectedCode, response.Code)
 	require.JSONEq(t, expectedBody, response.Body.String())
-	require.Equal(t, srv.Spy.CountUpdateFunc, 1)
+	srv.AssertExpectations(t)
 }
