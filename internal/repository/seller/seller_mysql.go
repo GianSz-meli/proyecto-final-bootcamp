@@ -56,9 +56,6 @@ func (r *SellerMysql) GetAll() ([]models.Seller, error) {
 	}
 	defer rows.Close()
 
-	if err = rows.Err(); err != nil {
-		return nil, err
-	}
 	var sellers []models.Seller
 
 	for rows.Next() {
@@ -67,6 +64,9 @@ func (r *SellerMysql) GetAll() ([]models.Seller, error) {
 			return nil, err
 		}
 		sellers = append(sellers, seller)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, err
 	}
 
 	return sellers, nil
