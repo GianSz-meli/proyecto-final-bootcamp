@@ -319,7 +319,7 @@ func TestUpdateProduct(t *testing.T) {
 
 		hd.UpdateProduct(response, request)
 
-		require.Equal(t, http.StatusCreated, response.Code)
+		require.Equal(t, http.StatusOK, response.Code)
 		require.Equal(t, "application/json", response.Header().Get("Content-Type"))
 
 	})

@@ -1,4 +1,4 @@
-package handler
+package product_record
 
 import (
 	"ProyectoFinal/internal/handler/utils"
@@ -62,9 +62,9 @@ func (h *ProductRecordHandler) GetProductRecordsCount(w http.ResponseWriter, r *
 		response.JSON(w, http.StatusOK, body)
 		return
 	}
-    
+
 	productID, err := strconv.Atoi(idStr)
-	if err != nil { 
+	if err != nil {
 		errC := errors.New("invalid param. It must be a number")
 		pkgErrors.HandleError(w, pkgErrors.WrapErrBadRequest(errC))
 		return

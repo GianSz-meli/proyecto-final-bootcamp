@@ -7,12 +7,13 @@ type ProductRecord struct {
 	SalePrice      float64
 	ProductID      int
 }
+
 type ProductRecordDoc struct {
 	ID             int     `json:"id"`
-	LastUpdateDate string  `json:"last_update_date"`
-	PurchasePrice  float64 `json:"purchase_price"`
-	SalePrice      float64 `json:"sale_price"`
-	ProductID      int     `json:"product_id"`
+	LastUpdateDate string  `json:"last_update_date" validate:"required"`
+	PurchasePrice  float64 `json:"purchase_price" validate:"required,gte=0"`
+	SalePrice      float64 `json:"sale_price" validate:"required,gte=0"`
+	ProductID      int     `json:"product_id" validate:"required,gt=0"`
 }
 
 func (p *ProductRecord) ModelToDoc() ProductRecordDoc {
@@ -40,5 +41,3 @@ type ReportProductData struct {
 	Description  string
 	RecordsCount int
 }
-
-
