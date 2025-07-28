@@ -62,6 +62,10 @@ func (r *buyerMySql) GetAll() ([]*models.Buyer, error) {
 		return nil, rowsErr
 	}
 
+	if buyers == nil {
+		buyers = make([]*models.Buyer, 0)
+	}
+
 	return buyers, nil
 }
 
@@ -155,6 +159,10 @@ func (r *buyerMySql) GetAllWithOrderCount() ([]*models.BuyerWithOrderCount, erro
 
 	if rowsErr := rows.Err(); rowsErr != nil {
 		return nil, rowsErr
+	}
+
+	if buyers == nil {
+		buyers = make([]*models.BuyerWithOrderCount, 0)
 	}
 
 	return buyers, nil

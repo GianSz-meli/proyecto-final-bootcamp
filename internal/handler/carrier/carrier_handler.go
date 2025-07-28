@@ -5,6 +5,7 @@ import (
 	"ProyectoFinal/internal/service/carrier"
 	"ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
+	"fmt"
 	"net/http"
 
 	"github.com/bootcamp-go/web/request"
@@ -26,7 +27,7 @@ func (h *CarrierHandler) Create() http.HandlerFunc {
 		var dto models.CarrierCreateDTO
 
 		if err := request.JSON(r, &dto); err != nil {
-			errors.HandleError(w, errors.WrapErrBadRequest(err))
+			errors.HandleError(w, errors.WrapErrBadRequest(fmt.Errorf("it was not possible to decode json")))
 			return
 		}
 

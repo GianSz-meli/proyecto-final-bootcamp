@@ -1,4 +1,4 @@
-package handler
+package seller
 
 import (
 	utilsHandler "ProyectoFinal/internal/handler/utils"

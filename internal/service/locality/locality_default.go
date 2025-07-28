@@ -22,14 +22,6 @@ func (l *LocalityDefault) Create(locality models.Locality) (models.Locality, err
 	return newlocality, nil
 }
 
-func (l *LocalityDefault) GetById(id int) (models.Locality, error) {
-	locality, err := l.repository.GetById(id)
-	if err != nil {
-		return models.Locality{}, err
-	}
-	return *locality, nil
-}
-
 func (l *LocalityDefault) GetSellersByLocalities() ([]models.SellersByLocalityReport, error) {
 
 	sellersByLocality, err := l.repository.GetSellersByLocalities()

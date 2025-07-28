@@ -1,13 +1,13 @@
 package router
 
 import (
-	"ProyectoFinal/internal/handler"
+	"ProyectoFinal/internal/handler/seller"
 
 	"github.com/go-chi/chi/v5"
 )
 
 // GetSellerRouter initializes and returns a Chi router with routes for seller resource operations.
-func GetSellerRouter(handler *handler.SellerHandler) chi.Router {
+func GetSellerRouter(handler *seller.SellerHandler) chi.Router {
 	r := chi.NewRouter()
 	r.Post("/", handler.Create())
 	r.Get("/", handler.GetAll())

@@ -2,3 +2,11 @@
 .DS_Store
 .env
 coverage.out
+
+# Coverage reports
+*.out
+*.html
+coverage/
+
+# Environment files
+.env

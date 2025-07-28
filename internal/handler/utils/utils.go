@@ -1,6 +1,9 @@
 package utils
 
 import (
+	"context"
+	"github.com/go-chi/chi/v5"
+	"net/http"
 	"reflect"
 )
 
@@ -44,4 +47,10 @@ func UpdateFields(target interface{}, source interface{}) bool {
 	}
 
 	return updated
+}
+
+func AddPathParamToRequest(request *http.Request, key string, value string) *http.Request {
+	ctx := chi.NewRouteContext()
+	ctx.URLParams.Add(key, value)
+	return request.WithContext(context.WithValue(request.Context(), chi.RouteCtxKey, ctx))
 }

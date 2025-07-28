@@ -112,6 +112,29 @@ func TestSectionHandler_GetById_Existent_Success(t *testing.T) {
 	mockService.AssertExpectations(t)
 }
 
+func TestSectionHandler_GetById_InvalidIdParam_BadRequest(t *testing.T) {
+	// Arrange
+	mockService := new(mocks.MockSectionService)
+	handler := NewSectionDefault(mockService)
+
+	// Act - Request with invalid id parameter
+	req := httptest.NewRequest(http.MethodGet, "/sections/invalid", nil)
+	rctx := chi.NewRouteContext()
+	rctx.URLParams.Add("id", "invalid")
+	req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, rctx))
+	w := httptest.NewRecorder()
+
+	// Act
+	handler.GetById()(w, req)
+
+	// Assert
+	require.Equal(t, http.StatusBadRequest, w.Code)
+	var response map[string]interface{}
+	err := json.Unmarshal(w.Body.Bytes(), &response)
+	require.NoError(t, err)
+	require.Equal(t, "Bad Request", response["status"])
+}
+
 func TestSectionHandler_GetById_NonExistent_NotFound(t *testing.T) {
 	// Arrange
 	mockService := new(mocks.MockSectionService)
@@ -375,6 +398,29 @@ func TestSectionHandler_Update_NonExistent_NotFound(t *testing.T) {
 	mockService.AssertExpectations(t)
 }
 
+func TestSectionHandler_Delete_InvalidIdParam_BadRequest(t *testing.T) {
+	// Arrange
+	mockService := new(mocks.MockSectionService)
+	handler := NewSectionDefault(mockService)
+
+	// Act - Request with invalid id parameter
+	req := httptest.NewRequest(http.MethodDelete, "/sections/invalid", nil)
+	rctx := chi.NewRouteContext()
+	rctx.URLParams.Add("id", "invalid")
+	req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, rctx))
+	w := httptest.NewRecorder()
+
+	// Act
+	handler.Delete()(w, req)
+
+	// Assert
+	require.Equal(t, http.StatusBadRequest, w.Code)
+	var response map[string]interface{}
+	err := json.Unmarshal(w.Body.Bytes(), &response)
+	require.NoError(t, err)
+	require.Equal(t, "Bad Request", response["status"])
+}
+
 func TestSectionHandler_Delete_Existent_Success(t *testing.T) {
 	// Arrange
 	mockService := new(mocks.MockSectionService)
@@ -393,6 +439,82 @@ func TestSectionHandler_Delete_Existent_Success(t *testing.T) {
 	// Assert
 	require.Equal(t, http.StatusNoContent, w.Code)
 	mockService.AssertExpectations(t)
+}
+
+func TestSectionHandler_Update_InvalidIdParam_BadRequest(t *testing.T) {
+	// Arrange
+	mockService := new(mocks.MockSectionService)
+	handler := NewSectionDefault(mockService)
+
+	// Act - Request without id parameter
+	req := httptest.NewRequest(http.MethodPut, "/sections/invalid", nil)
+	rctx := chi.NewRouteContext()
+	rctx.URLParams.Add("id", "invalid")
+	req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, rctx))
+	w := httptest.NewRecorder()
+
+	// Act
+	handler.Update()(w, req)
+
+	// Assert
+	require.Equal(t, http.StatusBadRequest, w.Code)
+	var response map[string]interface{}
+	err := json.Unmarshal(w.Body.Bytes(), &response)
+	require.NoError(t, err)
+	require.Equal(t, "Bad Request", response["status"])
+}
+
+func TestSectionHandler_Update_InvalidJSON_BadRequest(t *testing.T) {
+	// Arrange
+	mockService := new(mocks.MockSectionService)
+	handler := NewSectionDefault(mockService)
+
+	// Act - Request with invalid JSON
+	req := httptest.NewRequest(http.MethodPut, "/sections/1", bytes.NewReader([]byte("invalid json")))
+	req.Header.Set("Content-Type", "application/json")
+	rctx := chi.NewRouteContext()
+	rctx.URLParams.Add("id", "1")
+	req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, rctx))
+	w := httptest.NewRecorder()
+
+	// Act
+	handler.Update()(w, req)
+
+	// Assert
+	require.Equal(t, http.StatusBadRequest, w.Code)
+	var response map[string]interface{}
+	err := json.Unmarshal(w.Body.Bytes(), &response)
+	require.NoError(t, err)
+	require.Equal(t, "Bad Request", response["status"])
+}
+
+func TestSectionHandler_Update_InvalidRequestData_UnprocessableEntity(t *testing.T) {
+	// Arrange
+	mockService := new(mocks.MockSectionService)
+	handler := NewSectionDefault(mockService)
+
+	// Invalid request with negative values
+	invalidRequest := map[string]interface{}{
+		"maximum_capacity": -100, // Invalid: negative value
+	}
+
+	body, _ := json.Marshal(invalidRequest)
+	req := httptest.NewRequest(http.MethodPut, "/sections/1", bytes.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	rctx := chi.NewRouteContext()
+	rctx.URLParams.Add("id", "1")
+	req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, rctx))
+	w := httptest.NewRecorder()
+
+	// Act
+	handler.Update()(w, req)
+
+	// Assert
+	require.Equal(t, http.StatusUnprocessableEntity, w.Code)
+	var response map[string]interface{}
+	err := json.Unmarshal(w.Body.Bytes(), &response)
+	require.NoError(t, err)
+	require.Equal(t, "Unprocessable Entity", response["status"])
 }
 
 func TestSectionHandler_Delete_NonExistent_NotFound(t *testing.T) {

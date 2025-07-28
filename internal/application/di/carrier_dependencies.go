@@ -1,7 +1,7 @@
 package di
 
 import (
-	"ProyectoFinal/internal/handler"
+	handler "ProyectoFinal/internal/handler/carrier"
 	carrierRepo "ProyectoFinal/internal/repository/carrier"
 	carrierService "ProyectoFinal/internal/service/carrier"
 	"database/sql"
