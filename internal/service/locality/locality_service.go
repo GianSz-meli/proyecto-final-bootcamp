@@ -7,9 +7,6 @@ type LocalityService interface {
 	// Create adds a new locality.
 	Create(locality models.Locality) (models.Locality, error)
 
-	// GetById returns a locality by its ID.
-	GetById(id int) (models.Locality, error)
-
 	// GetSellersByLocalities returns seller reports for all localities.
 	GetSellersByLocalities() ([]models.SellersByLocalityReport, error)
 
