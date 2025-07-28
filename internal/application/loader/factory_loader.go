@@ -5,7 +5,6 @@ import (
 )
 
 const (
-	Seller    string = "sellers"
 	Product   string = "products"
 	Warehouse string = "warehouse"
 	Section   string = "sections"
@@ -19,10 +18,6 @@ type FactoryLoader struct {
 
 func NewLoaderFactory(paths map[string]string) *FactoryLoader {
 	return &FactoryLoader{paths: paths}
-}
-
-func (f *FactoryLoader) NewSellerLoader() Loader[models.Seller] {
-	return &SellerLoader{path: f.paths[Seller]}
 }
 
 func (f *FactoryLoader) NewSectionLoader() Loader[models.Section] {
