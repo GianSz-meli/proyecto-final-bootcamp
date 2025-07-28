@@ -17,12 +17,6 @@ type Db struct {
 func LoadDB(loaderFilePath map[string]string) Db {
 	factory := loader.NewLoaderFactory(loaderFilePath)
 
-	// Load sellers
-	sellerDB, err := factory.NewSellerLoader().Load()
-	if err != nil {
-		panic(err)
-	}
-
 	//Load warehouse
 	warehouseDB, err := factory.NewWarehouseLoader().Load()
 	if err != nil {
@@ -53,7 +47,6 @@ func LoadDB(loaderFilePath map[string]string) Db {
 		panic(err)
 	}
 	db := Db{
-		Seller:    sellerDB,
 		Warehouse: warehouseDB,
 		Product:   productDB,
 		Buyer:     buyerDB,
