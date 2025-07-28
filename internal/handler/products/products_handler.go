@@ -1,4 +1,4 @@
-package handler
+package products
 
 import (
 	"ProyectoFinal/internal/handler/utils"

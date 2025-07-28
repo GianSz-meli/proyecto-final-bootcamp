@@ -1,7 +1,7 @@
-package handler_test
+package products_test
 
 import (
-	"ProyectoFinal/internal/handler"
+	"ProyectoFinal/internal/handler/products"
 	"ProyectoFinal/mocks"
 	pkgErrors "ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
@@ -88,7 +88,7 @@ func TestCreateProduct(t *testing.T) {
 	t.Run("create_ok", func(t *testing.T) {
 		mockService := &mocks.MockProductService{}
 		mockService.On("CreateProduct", inputProduct).Return(returnedProduct, nil)
-		hd := handler.NewProductHandler(mockService)
+		hd := products.NewProductHandler(mockService)
 
 		request := httptest.NewRequest("POST", "/products", strings.NewReader(validProductJSON))
 		request.Header.Set("Content-Type", "application/json")
@@ -114,7 +114,7 @@ func TestCreateProduct(t *testing.T) {
 	t.Run("create_fail", func(t *testing.T) {
 
 		mockServiceFail := &mocks.MockProductService{}
-		hd := handler.NewProductHandler(mockServiceFail)
+		hd := products.NewProductHandler(mockServiceFail)
 
 		request := httptest.NewRequest("POST", "/products", strings.NewReader(invalidProductJSON))
 		request.Header.Set("Content-Type", "application/json")
@@ -131,7 +131,7 @@ func TestCreateProduct(t *testing.T) {
 
 		mockServiceFail := &mocks.MockProductService{}
 		mockServiceFail.On("CreateProduct", mock.Anything).Return(models.Product{}, pkgErrors.ErrConflict)
-		hd := handler.NewProductHandler(mockServiceFail)
+		hd := products.NewProductHandler(mockServiceFail)
 
 		request := httptest.NewRequest("POST", "/products", strings.NewReader(validProductJSON))
 		request.Header.Set("Content-Type", "application/json")
@@ -184,7 +184,7 @@ func TestFindProducts(t *testing.T) {
 	t.Run("find_all", func(t *testing.T) {
 		mockService := &mocks.MockProductService{}
 		mockService.On("FindAllProducts").Return(prods, nil)
-		hd := handler.NewProductHandler(mockService)
+		hd := products.NewProductHandler(mockService)
 
 		request := httptest.NewRequest("GET", "/products", nil)
 		response := httptest.NewRecorder()
@@ -199,7 +199,7 @@ func TestFindProducts(t *testing.T) {
 
 		mockService := &mocks.MockProductService{}
 		mockService.On("FindProductsById", 3).Return(models.Product{}, pkgErrors.ErrNotFound)
-		hd := handler.NewProductHandler(mockService)
+		hd := products.NewProductHandler(mockService)
 
 		request := httptest.NewRequest("GET", "/products/3", nil)
 
@@ -220,7 +220,7 @@ func TestFindProducts(t *testing.T) {
 
 		mockService := &mocks.MockProductService{}
 		mockService.On("FindProductsById", 1).Return(prod1, nil)
-		hd := handler.NewProductHandler(mockService)
+		hd := products.NewProductHandler(mockService)
 
 		req := httptest.NewRequest("GET", "/products/1", nil)
 
@@ -306,7 +306,7 @@ func TestUpdateProduct(t *testing.T) {
 	t.Run("update_ok", func(t *testing.T) {
 		mockService := &mocks.MockProductService{}
 		mockService.On("UpdateProduct", 1, updateRequest).Return(updatedProduct, nil)
-		hd := handler.NewProductHandler(mockService)
+		hd := products.NewProductHandler(mockService)
 
 		request := httptest.NewRequest("PUT", "/products/1", strings.NewReader(validProductJSON))
 		request.Header.Set("Content-Type", "application/json")
@@ -327,7 +327,7 @@ func TestUpdateProduct(t *testing.T) {
 
 		mockService := &mocks.MockProductService{}
 		mockService.On("UpdateProduct", 1, mock.AnythingOfType("models.ProductDocUpdate")).Return(models.Product{}, pkgErrors.ErrNotFound)
-		hd := handler.NewProductHandler(mockService)
+		hd := products.NewProductHandler(mockService)
 
 		request := httptest.NewRequest("PUT", "/products/1", strings.NewReader(validProductJSON))
 		request.Header.Set("Content-Type", "application/json")
@@ -347,46 +347,46 @@ func TestUpdateProduct(t *testing.T) {
 
 }
 
-func TestDeleteProducts(t *testing.T){
+func TestDeleteProducts(t *testing.T) {
 	t.Run("delete_non_existent_product", func(t *testing.T) {
-    mockService := &mocks.MockProductService{}
-    mockService.On("DeleteProduct", 3).Return(pkgErrors.ErrNotFound)
+		mockService := &mocks.MockProductService{}
+		mockService.On("DeleteProduct", 3).Return(pkgErrors.ErrNotFound)
 
-    hd := handler.NewProductHandler(mockService)
+		hd := products.NewProductHandler(mockService)
 
-    request := httptest.NewRequest("DELETE", "/products/3", nil)
-    routeCtx := chi.NewRouteContext()
-    routeCtx.URLParams.Add("id", "3")
-    request = request.WithContext(context.WithValue(request.Context(), chi.RouteCtxKey, routeCtx))
+		request := httptest.NewRequest("DELETE", "/products/3", nil)
+		routeCtx := chi.NewRouteContext()
+		routeCtx.URLParams.Add("id", "3")
+		request = request.WithContext(context.WithValue(request.Context(), chi.RouteCtxKey, routeCtx))
 
-    response := httptest.NewRecorder()
+		response := httptest.NewRecorder()
 
-    hd.DeleteProduct(response, request)
+		hd.DeleteProduct(response, request)
 
-    require.Equal(t, http.StatusNotFound, response.Code)
-    require.Contains(t, response.Body.String(), pkgErrors.ErrNotFound.Error())
+		require.Equal(t, http.StatusNotFound, response.Code)
+		require.Contains(t, response.Body.String(), pkgErrors.ErrNotFound.Error())
 
-    mockService.AssertExpectations(t)
-})
+		mockService.AssertExpectations(t)
+	})
 
-t.Run("delete_existent_product_success", func(t *testing.T) {
-    mockService := &mocks.MockProductService{}
-    mockService.On("DeleteProduct", 2).Return(nil)
+	t.Run("delete_existent_product_success", func(t *testing.T) {
+		mockService := &mocks.MockProductService{}
+		mockService.On("DeleteProduct", 2).Return(nil)
 
-    hd := handler.NewProductHandler(mockService)
+		hd := products.NewProductHandler(mockService)
 
-    request := httptest.NewRequest("DELETE", "/products/2", nil)
-    routeCtx := chi.NewRouteContext()
-    routeCtx.URLParams.Add("id", "2")
-    request = request.WithContext(context.WithValue(request.Context(), chi.RouteCtxKey, routeCtx))
+		request := httptest.NewRequest("DELETE", "/products/2", nil)
+		routeCtx := chi.NewRouteContext()
+		routeCtx.URLParams.Add("id", "2")
+		request = request.WithContext(context.WithValue(request.Context(), chi.RouteCtxKey, routeCtx))
 
-    response := httptest.NewRecorder()
+		response := httptest.NewRecorder()
 
-    hd.DeleteProduct(response, request)
+		hd.DeleteProduct(response, request)
 
-    require.Equal(t, http.StatusNoContent, response.Code)
-    require.Empty(t, response.Body.String())
+		require.Equal(t, http.StatusNoContent, response.Code)
+		require.Empty(t, response.Body.String())
 
-    mockService.AssertExpectations(t)
-})
+		mockService.AssertExpectations(t)
+	})
 }
