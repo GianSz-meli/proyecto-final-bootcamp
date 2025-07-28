@@ -30,24 +30,6 @@ func (r *LocalityMysql) Create(locality models.Locality) (models.Locality, error
 	return locality, nil
 }
 
-func (r *LocalityMysql) GetById(id int) (*models.Locality, error) {
-	row := r.db.QueryRow(SQL_GET_BY_ID, id)
-	if err := row.Err(); err != nil {
-		return nil, err
-	}
-	var locality models.Locality
-
-	if err := LocalityScan(row, &locality); err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			newError := pkgErrors.WrapErrNotFound("Locality", "id", id)
-			return nil, newError
-		}
-		return nil, err
-	}
-
-	return &locality, nil
-}
-
 func (r *LocalityMysql) GetSellersByIdLocality(idLocality int) (models.SellersByLocalityReport, error) {
 	row := r.db.QueryRow(SQL_SELLERS_BY_ID_LOCALITY, idLocality)
 	if err := row.Err(); err != nil {
@@ -74,9 +56,6 @@ func (r *LocalityMysql) GetSellersByLocalities() ([]models.SellersByLocalityRepo
 	}
 	defer rows.Close()
 
-	if err = rows.Err(); err != nil {
-		return nil, err
-	}
 	var sellersByLocality []models.SellersByLocalityReport
 
 	for rows.Next() {
@@ -85,6 +64,9 @@ func (r *LocalityMysql) GetSellersByLocalities() ([]models.SellersByLocalityRepo
 			return nil, err
 		}
 		sellersByLocality = append(sellersByLocality, sellerByLocality)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, err
 	}
 
 	return sellersByLocality, nil
@@ -110,7 +92,7 @@ func (r *LocalityMysql) ReportCarriersByLocality(id *int) ([]models.CarrierRepor
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
-	
+
 	if len(reports) == 0 {
 		return nil, pkgErrors.WrapErrNotFound("carrier", "id", *id)
 	}
