@@ -56,9 +56,6 @@ func (r *LocalityMysql) GetSellersByLocalities() ([]models.SellersByLocalityRepo
 	}
 	defer rows.Close()
 
-	if err = rows.Err(); err != nil {
-		return nil, err
-	}
 	var sellersByLocality []models.SellersByLocalityReport
 
 	for rows.Next() {
@@ -67,6 +64,9 @@ func (r *LocalityMysql) GetSellersByLocalities() ([]models.SellersByLocalityRepo
 			return nil, err
 		}
 		sellersByLocality = append(sellersByLocality, sellerByLocality)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, err
 	}
 
 	return sellersByLocality, nil
