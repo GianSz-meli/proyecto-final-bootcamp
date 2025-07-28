@@ -1,4 +1,4 @@
-package handler
+package section
 
 import (
 	service "ProyectoFinal/internal/service/section"

@@ -1,8 +1,12 @@
 package seller
 
 import (
+	"ProyectoFinal/internal/handler/utils"
 	"ProyectoFinal/internal/repository/seller"
+	"ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
+	"fmt"
+	"log"
 )
 
 type SellerDefault struct {
@@ -51,11 +55,21 @@ func (s *SellerDefault) Delete(id int) error {
 	return nil
 }
 
-func (s *SellerDefault) Update(seller models.Seller) (models.Seller, error) {
-	_, err := s.repository.Update(&seller)
+func (s *SellerDefault) Update(id int, reqBody *models.UpdateSellerRequest) (models.Seller, error) {
+	sellerToUpdate, err := s.repository.GetById(id)
+
+	if err != nil {
+		return models.Seller{}, err
+	}
+	if !utils.UpdateFields(sellerToUpdate, reqBody) {
+		newError := fmt.Errorf("%w : no fields provided for update", errors.ErrUnprocessableEntity)
+		log.Println(newError)
+		return models.Seller{}, newError
+	}
+	_, err = s.repository.Update(sellerToUpdate)
 	if err != nil {
 		return models.Seller{}, err
 	}
 
-	return seller, nil
+	return *sellerToUpdate, nil
 }
