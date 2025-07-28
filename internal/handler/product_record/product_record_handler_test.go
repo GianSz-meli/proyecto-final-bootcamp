@@ -43,6 +43,7 @@ func TestCreateProductRecord(t *testing.T) {
 		SalePrice:      60.60,
 		ProductID:      1234,
 	}
+
 	t.Run("create_product_record_ok", func(t *testing.T) {
 		mockService := &mocks.MockProductRecordService{}
 		mockService.On("CreateProductRecord", inputProductRecord).Return(returnedProductRecord, nil)
@@ -100,5 +101,28 @@ func TestCreateProductRecord(t *testing.T) {
 		require.Equal(t, "application/json", response.Header().Get("Content-Type"))
 		mockService.AssertExpectations(t)
 
+	})
+
+	t.Run("invalid_json_product_record", func(t *testing.T) {
+
+		const malformedJSON = `{
+			"last_update_date": "2024-06-06",
+			"purchase_price": 50.50,
+			"sale_price": 60.60,
+			"product_id": 1234,`
+
+		mockService := &mocks.MockProductRecordService{}
+		hd := product_record.NewProductRecordHandler(mockService)
+
+		request := httptest.NewRequest("POST", "/productRecords", strings.NewReader(malformedJSON))
+		request.Header.Set("Content-Type", "application/json")
+		response := httptest.NewRecorder()
+
+		hd.CreateProductRecord(response, request)
+
+		require.Equal(t, http.StatusBadRequest, response.Code)
+		require.Equal(t, "application/json", response.Header().Get("Content-Type"))
+
+		mockService.AssertExpectations(t)
 	})
 }

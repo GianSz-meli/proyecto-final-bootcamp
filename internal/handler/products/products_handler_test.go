@@ -144,6 +144,34 @@ func TestCreateProduct(t *testing.T) {
 		mockServiceFail.AssertExpectations(t)
 
 	})
+
+	t.Run("invalid_json", func(t *testing.T) {
+		const malformedJSON = `{
+			"product_code": "A1000",
+			"description": "Coca Cola 2L",
+			"width": 5,
+			"height": 20,
+			"length": 12,
+			"net_weight": 1.9,
+			"expiration_rate": 15,
+			"recommended_freezing_temperature": 10,
+			"freezing_rate": 10,
+			"product_type_id": 83,
+			"seller_id": 7`
+		mockService := &mocks.MockProductService{}
+		hd := products.NewProductHandler(mockService)
+
+		request := httptest.NewRequest("POST", "/products", strings.NewReader(malformedJSON))
+		request.Header.Set("Content-Type", "application/json")
+		response := httptest.NewRecorder()
+
+		hd.CreateProduct(response, request)
+
+		require.Equal(t, http.StatusBadRequest, response.Code)
+		require.Equal(t, "application/json", response.Header().Get("Content-Type"))
+
+		mockService.AssertExpectations(t)
+	})
 }
 
 func TestFindProducts(t *testing.T) {
@@ -181,6 +209,20 @@ func TestFindProducts(t *testing.T) {
 		2: prod2,
 	}
 
+	t.Run("find_all_fail", func(t *testing.T) {
+		mockService := &mocks.MockProductService{}
+		mockService.On("FindAllProducts").Return(map[int]models.Product{}, pkgErrors.ErrNotFound)
+		hd := products.NewProductHandler(mockService)
+
+		request := httptest.NewRequest("GET", "/products", nil)
+		response := httptest.NewRecorder()
+
+		hd.FindAllProducts(response, request)
+
+		require.Equal(t, http.StatusNotFound, response.Code)
+		require.Contains(t, response.Body.String(), pkgErrors.ErrNotFound.Error())
+		mockService.AssertExpectations(t)
+	})
 	t.Run("find_all", func(t *testing.T) {
 		mockService := &mocks.MockProductService{}
 		mockService.On("FindAllProducts").Return(prods, nil)
@@ -195,6 +237,19 @@ func TestFindProducts(t *testing.T) {
 
 	})
 
+	t.Run("find_by_id_fail", func(t *testing.T) {
+		mockService := &mocks.MockProductService{}
+		hd := products.NewProductHandler(mockService)
+
+		request := httptest.NewRequest("GET", "/products/hj", nil)
+		response := httptest.NewRecorder()
+
+		hd.FindProductsById(response, request)
+
+		require.Equal(t, http.StatusBadRequest, response.Code)
+
+		mockService.AssertExpectations(t)
+	})
 	t.Run("find_by_id_non_existent", func(t *testing.T) {
 
 		mockService := &mocks.MockProductService{}
@@ -262,7 +317,6 @@ func TestUpdateProduct(t *testing.T) {
 		"seller_id": 7
 		}`
 
-	// Datos de entrada esperados en el mock
 	productCode := "A1000"
 	description := "Coca Cola 2L"
 	width := 5.0
@@ -302,6 +356,21 @@ func TestUpdateProduct(t *testing.T) {
 		ProductTypeID:  83,
 		SellerID:       &sellerID,
 	}
+
+	t.Run("invalid_parameter_product_id", func(t *testing.T) {
+		mockService := &mocks.MockProductService{}
+		hd := products.NewProductHandler(mockService)
+
+		request := httptest.NewRequest("PUT", "/products/hj", strings.NewReader(validProductJSON))
+		request.Header.Set("Content-Type", "application/json")
+		response := httptest.NewRecorder()
+
+		hd.UpdateProduct(response, request)
+
+		require.Equal(t, http.StatusBadRequest, response.Code)
+		require.Equal(t, "application/json", response.Header().Get("Content-Type"))
+		mockService.AssertExpectations(t)
+	})
 
 	t.Run("update_ok", func(t *testing.T) {
 		mockService := &mocks.MockProductService{}

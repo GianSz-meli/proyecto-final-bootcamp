@@ -107,7 +107,7 @@ func (h *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	body := models.SuccessResponse{Data: update}
-	response.JSON(w, http.StatusCreated, body)
+	response.JSON(w, http.StatusOK, body)
 }
 
 func (h *ProductHandler) DeleteProduct(w http.ResponseWriter, r *http.Request) {
