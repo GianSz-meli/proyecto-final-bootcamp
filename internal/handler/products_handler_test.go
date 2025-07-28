@@ -7,8 +7,6 @@ import (
 	"ProyectoFinal/pkg/models"
 	"context"
 	"encoding/json"
-
-	// "errors"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -347,4 +345,48 @@ func TestUpdateProduct(t *testing.T) {
 		mockService.AssertExpectations(t)
 	})
 
+}
+
+func TestDeleteProducts(t *testing.T){
+	t.Run("delete_non_existent_product", func(t *testing.T) {
+    mockService := &mocks.MockProductService{}
+    mockService.On("DeleteProduct", 3).Return(pkgErrors.ErrNotFound)
+
+    hd := handler.NewProductHandler(mockService)
+
+    request := httptest.NewRequest("DELETE", "/products/3", nil)
+    routeCtx := chi.NewRouteContext()
+    routeCtx.URLParams.Add("id", "3")
+    request = request.WithContext(context.WithValue(request.Context(), chi.RouteCtxKey, routeCtx))
+
+    response := httptest.NewRecorder()
+
+    hd.DeleteProduct(response, request)
+
+    require.Equal(t, http.StatusNotFound, response.Code)
+    require.Contains(t, response.Body.String(), pkgErrors.ErrNotFound.Error())
+
+    mockService.AssertExpectations(t)
+})
+
+t.Run("delete_existent_product_success", func(t *testing.T) {
+    mockService := &mocks.MockProductService{}
+    mockService.On("DeleteProduct", 2).Return(nil)
+
+    hd := handler.NewProductHandler(mockService)
+
+    request := httptest.NewRequest("DELETE", "/products/2", nil)
+    routeCtx := chi.NewRouteContext()
+    routeCtx.URLParams.Add("id", "2")
+    request = request.WithContext(context.WithValue(request.Context(), chi.RouteCtxKey, routeCtx))
+
+    response := httptest.NewRecorder()
+
+    hd.DeleteProduct(response, request)
+
+    require.Equal(t, http.StatusNoContent, response.Code)
+    require.Empty(t, response.Body.String())
+
+    mockService.AssertExpectations(t)
+})
 }
