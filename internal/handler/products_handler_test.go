@@ -262,38 +262,52 @@ func TestUpdateProduct(t *testing.T) {
 		"freezing_rate": 10,
 		"product_type_id": 83,
 		"seller_id": 7
-	}`
-	prodinput := models.Product{
-		ProductCode:    "A123",
-		Description:    "Caja de manzanas",
-		Width:          40.0,
-		Height:         25.0,
-		Length:         60.0,
-		NetWeight:      15.0,
-		ExpirationRate: 0.05,
-		Temperature:    4.0,
-		FreezingRate:   0.02,
-		ProductTypeID:  2,
-		SellerID:       nil,
+		}`
+
+	// Datos de entrada esperados en el mock
+	productCode := "A1000"
+	description := "Coca Cola 2L"
+	width := 5.0
+	height := 20.0
+	length := 12.0
+	netWeight := 1.9
+	expirationRate := 15.0
+	temperature := float32(10.0)
+	freezingRate := 10.0
+	productTypeID := 83
+	sellerID := 7
+
+	updateRequest := models.ProductDocUpdate{
+		ProductCode:    &productCode,
+		Description:    &description,
+		Width:          &width,
+		Height:         &height,
+		Length:         &length,
+		NetWeight:      &netWeight,
+		ExpirationRate: &expirationRate,
+		Temperature:    &temperature,
+		FreezingRate:   &freezingRate,
+		ProductTypeID:  &productTypeID,
 	}
-	prodoutput := models.Product{
+
+	updatedProduct := models.Product{
 		ID:             1,
-		ProductCode:    "A123",
-		Description:    "Caja de manzanas",
-		Width:          40.0,
-		Height:         25.0,
-		Length:         60.0,
-		NetWeight:      15.0,
-		ExpirationRate: 0.05,
-		Temperature:    4.0,
-		FreezingRate:   0.02,
-		ProductTypeID:  2,
-		SellerID:       nil,
+		ProductCode:    "A1000",
+		Description:    "Coca Cola 2L",
+		Width:          5.0,
+		Height:         20.0,
+		Length:         12.0,
+		NetWeight:      1.9,
+		ExpirationRate: 15.0,
+		Temperature:    10.0,
+		FreezingRate:   10.0,
+		ProductTypeID:  83,
+		SellerID:       &sellerID,
 	}
 
 	t.Run("update_ok", func(t *testing.T) {
 		mockService := &mocks.MockProductService{}
-		mockService.On("UpdateProduct", 1, prodinput).Return(prodoutput, nil)
+		mockService.On("UpdateProduct", 1, updateRequest).Return(updatedProduct, nil)
 		hd := handler.NewProductHandler(mockService)
 
 		request := httptest.NewRequest("PUT", "/products/1", strings.NewReader(validProductJSON))
