@@ -2,7 +2,10 @@ package warehouse
 
 import (
 	"ProyectoFinal/internal/repository/warehouse"
+	"ProyectoFinal/internal/service/utils"
+	customErrors "ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
+	"fmt"
 )
 
 type WarehouseServiceImpl struct {
@@ -39,14 +42,17 @@ func (s *WarehouseServiceImpl) CreateWarehouse(warehouse models.Warehouse) (mode
 	return wh, nil
 }
 
-func (s *WarehouseServiceImpl) UpdateWarehouse(id int, warehouse models.Warehouse) (models.Warehouse, error) {
-	_, err := s.warehouseRepo.GetById(id)
+func (s *WarehouseServiceImpl) UpdateWarehouse(id int, warehouseUpdate models.UpdateWarehouseRequest) (models.Warehouse, error) {
+	existingWarehouse, err := s.warehouseRepo.GetById(id)
 	if err != nil {
 		return models.Warehouse{}, err
 	}
 
-	warehouse.ID = id
-	updatedWarehouse, err := s.warehouseRepo.Update(id, warehouse)
+	if updated := utils.UpdateFields(existingWarehouse, &warehouseUpdate); !updated {
+		return models.Warehouse{}, customErrors.WrapErrUnprocessableEntity(fmt.Errorf("no fields provided for update"))
+	}
+
+	updatedWarehouse, err := s.warehouseRepo.Update(id, *existingWarehouse)
 	if err != nil {
 		return models.Warehouse{}, err
 	}
