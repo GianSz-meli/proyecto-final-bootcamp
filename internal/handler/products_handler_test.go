@@ -13,7 +13,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
@@ -227,7 +227,7 @@ func TestFindProducts(t *testing.T) {
 		mockService.On("FindProductsById", 3).Return(models.Product{}, pkgErrors.ErrNotFound)
 		hd := handler.NewProductHandler(mockService)
 
-		request := httptest.NewRequest(http.MethodGet, "/api/v1/products/{id}", nil)
+		request := httptest.NewRequest("GET", "/products/3", nil)
 
 		routeCtx := chi.NewRouteContext()
 		routeCtx.URLParams.Add("id", "3")
@@ -245,16 +245,14 @@ func TestFindProducts(t *testing.T) {
 	t.Run("find_by_id_success", func(t *testing.T) {
 
 		mockService := &MockProductService{}
-		mockService.On("FindProductById", 1).Return(prod1, nil)
+		mockService.On("FindProductsById", 1).Return(prod1, nil)
 		hd := handler.NewProductHandler(mockService)
 
 		req := httptest.NewRequest("GET", "/products/1", nil)
 
-		// -------- chi: agregar param "id" al contexto -------------
 		routeCtx := chi.NewRouteContext()
 		routeCtx.URLParams.Add("id", "1")
 		req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, routeCtx))
-		// ----------------------------------------------------------
 
 		res := httptest.NewRecorder()
 		hd.FindProductsById(res, req)
@@ -289,7 +287,20 @@ func TestUpdateProduct(t *testing.T) {
 		"product_type_id": 83,
 		"seller_id": 7
 	}`
-	prod1 := models.Product{
+	prodinput := models.Product{
+		ProductCode:    "A123",
+		Description:    "Caja de manzanas",
+		Width:          40.0,
+		Height:         25.0,
+		Length:         60.0,
+		NetWeight:      15.0,
+		ExpirationRate: 0.05,
+		Temperature:    4.0,
+		FreezingRate:   0.02,
+		ProductTypeID:  2,
+		SellerID:       nil,
+	}
+	prodoutput := models.Product{
 		ID:             1,
 		ProductCode:    "A123",
 		Description:    "Caja de manzanas",
@@ -306,27 +317,37 @@ func TestUpdateProduct(t *testing.T) {
 
 	t.Run("update_ok", func(t *testing.T) {
 		mockService := &MockProductService{}
-		mockService.On("UpdateProduct", 1, prod1).Return(prod1, nil)
+		mockService.On("UpdateProduct", 1, prodinput).Return(prodoutput, nil)
 		hd := handler.NewProductHandler(mockService)
 
 		request := httptest.NewRequest("PUT", "/products/1", strings.NewReader(validProductJSON))
 		request.Header.Set("Content-Type", "application/json")
+
+		routeCtx := chi.NewRouteContext()
+		routeCtx.URLParams.Add("id", "1")
+		request = request.WithContext(context.WithValue(request.Context(), chi.RouteCtxKey, routeCtx))
+
 		response := httptest.NewRecorder()
 
 		hd.UpdateProduct(response, request)
 
-		require.Equal(t, http.StatusOK, response.Code)
+		require.Equal(t, http.StatusCreated, response.Code)
 		require.Equal(t, "application/json", response.Header().Get("Content-Type"))
 
 	})
 	t.Run("update_non_existent", func(t *testing.T) {
 
 		mockService := &MockProductService{}
-		mockService.On("UpdateProduct", 1, prod1).Return(models.Product{}, pkgErrors.ErrNotFound)
+		mockService.On("UpdateProduct", 1, mock.AnythingOfType("models.ProductDocUpdate")).Return(models.Product{}, pkgErrors.ErrNotFound)
 		hd := handler.NewProductHandler(mockService)
 
 		request := httptest.NewRequest("PUT", "/products/1", strings.NewReader(validProductJSON))
 		request.Header.Set("Content-Type", "application/json")
+
+		routeCtx := chi.NewRouteContext()
+		routeCtx.URLParams.Add("id", "1")
+		request = request.WithContext(context.WithValue(request.Context(), chi.RouteCtxKey, routeCtx))
+
 		response := httptest.NewRecorder()
 
 		hd.UpdateProduct(response, request)
