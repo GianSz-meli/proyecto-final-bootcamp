@@ -12,7 +12,6 @@ func main() {
 		ServerAddress: ":8080",
 		LoaderFilePath: map[string]string{
 			loader.Section:   "docs/db/sections_10.json",
-			loader.Employee:  "docs/db/employees.json",
 			loader.Warehouse: "docs/db/warehouses.json",
 			loader.Product:   "docs/db/products.json",
 			loader.Buyer:     "docs/db/buyers.json",
