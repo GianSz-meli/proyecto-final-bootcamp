@@ -126,3 +126,111 @@ func TestCreateProductRecord(t *testing.T) {
 		mockService.AssertExpectations(t)
 	})
 }
+
+func TestGetProductRecordsCount(t *testing.T) {
+
+	t.Run("get_product_records_by_id_ok", func(t *testing.T) {
+		expectedReport := models.ReportProductData{
+			ProductID:    1,
+			Description:  "Test Product",
+			RecordsCount: 5,
+		}
+
+		productID := 1
+		mockService := &mocks.MockProductRecordService{}
+		mockService.On("GetRecordsProduct", &productID).Return(expectedReport, nil)
+		hd := product_record.NewProductRecordHandler(mockService)
+
+		request := httptest.NewRequest("GET", "/products/reportRecords?id=1", nil)
+		response := httptest.NewRecorder()
+
+		hd.GetProductRecordsCount(response, request)
+
+		require.Equal(t, http.StatusOK, response.Code)
+		require.Equal(t, "application/json", response.Header().Get("Content-Type"))
+
+		var resp struct {
+			Data models.ReportProductData `json:"data"`
+		}
+
+		err := json.Unmarshal(response.Body.Bytes(), &resp)
+		require.NoError(t, err)
+		require.Equal(t, expectedReport, resp.Data)
+		mockService.AssertExpectations(t)
+	})
+
+	t.Run("get_all_product_records_ok", func(t *testing.T) {
+		expectedReports := []models.ReportProductData{
+			{ProductID: 1, Description: "Product 1", RecordsCount: 3},
+			{ProductID: 2, Description: "Product 2", RecordsCount: 5},
+		}
+
+		mockService := &mocks.MockProductRecordService{}
+		mockService.On("GetRecordsProductAll").Return(expectedReports, nil)
+		hd := product_record.NewProductRecordHandler(mockService)
+
+		request := httptest.NewRequest("GET", "/products/reportRecords", nil)
+		response := httptest.NewRecorder()
+
+		hd.GetProductRecordsCount(response, request)
+
+		require.Equal(t, http.StatusOK, response.Code)
+		require.Equal(t, "application/json", response.Header().Get("Content-Type"))
+
+		var resp struct {
+			Data []models.ReportProductData `json:"data"`
+		}
+
+		err := json.Unmarshal(response.Body.Bytes(), &resp)
+		require.NoError(t, err)
+		require.Equal(t, expectedReports, resp.Data)
+		mockService.AssertExpectations(t)
+	})
+
+	t.Run("get_all_product_records_service_error", func(t *testing.T) {
+		mockService := &mocks.MockProductRecordService{}
+		mockService.On("GetRecordsProductAll").Return([]models.ReportProductData{}, pkgErrors.ErrNotFound)
+		hd := product_record.NewProductRecordHandler(mockService)
+
+		request := httptest.NewRequest("GET", "/products/reportRecords", nil)
+		response := httptest.NewRecorder()
+
+		hd.GetProductRecordsCount(response, request)
+
+		require.Equal(t, http.StatusNotFound, response.Code)
+		require.Equal(t, "application/json", response.Header().Get("Content-Type"))
+		require.Contains(t, response.Body.String(), pkgErrors.ErrNotFound.Error())
+		mockService.AssertExpectations(t)
+	})
+
+	t.Run("get_product_records_invalid_id", func(t *testing.T) {
+		mockService := &mocks.MockProductRecordService{}
+		hd := product_record.NewProductRecordHandler(mockService)
+
+		request := httptest.NewRequest("GET", "/products/reportRecords?id=abc", nil)
+		response := httptest.NewRecorder()
+
+		hd.GetProductRecordsCount(response, request)
+
+		require.Equal(t, http.StatusBadRequest, response.Code)
+		require.Equal(t, "application/json", response.Header().Get("Content-Type"))
+		require.Contains(t, response.Body.String(), "invalid param")
+		mockService.AssertExpectations(t)
+	})
+
+	t.Run("get_product_records_service_error", func(t *testing.T) {
+		productID := 1
+		mockService := &mocks.MockProductRecordService{}
+		mockService.On("GetRecordsProduct", &productID).Return(models.ReportProductData{}, pkgErrors.ErrNotFound)
+		hd := product_record.NewProductRecordHandler(mockService)
+
+		request := httptest.NewRequest("GET", "/products/reportRecords?id=1", nil)
+		response := httptest.NewRecorder()
+
+		hd.GetProductRecordsCount(response, request)
+
+		require.Equal(t, http.StatusNotFound, response.Code)
+		require.Contains(t, response.Body.String(), pkgErrors.ErrNotFound.Error())
+		mockService.AssertExpectations(t)
+	})
+}
