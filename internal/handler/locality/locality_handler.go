@@ -1,4 +1,4 @@
-package handler
+package locality
 
 import (
 	utilsHandler "ProyectoFinal/internal/handler/utils"
@@ -9,7 +9,6 @@ import (
 	"github.com/bootcamp-go/web/response"
 	"log"
 	"net/http"
-	"strconv"
 )
 
 type LocalityHandler struct {
@@ -54,49 +53,20 @@ func (h *LocalityHandler) Create() http.HandlerFunc {
 
 }
 
-// GetById handles the HTTP request for retrieving a locality by its ID.
-func (h *LocalityHandler) GetById() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		id, err := utilsHandler.GetParamInt(r, "id")
-		if err != nil {
-			log.Println(err)
-			errors.HandleError(w, err)
-			return
-		}
-
-		locality, err := h.service.GetById(id)
-
-		if err != nil {
-			log.Println(err)
-			errors.HandleError(w, err)
-			return
-		}
-
-		body := models.SuccessResponse{
-			Data: []models.Locality{locality},
-		}
-		response.JSON(w, http.StatusOK, body)
-	}
-}
-
 // GetSellersByLocality handles the HTTP request for retrieving seller info by locality ID.
 // If the 'id' query parameter is not present, it returns sellers for all localities.
 func (h *LocalityHandler) GetSellersByLocality() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		idReq := r.URL.Query().Get("id")
-		if idReq == "" {
-			h.GetSellersByLocalities(w, r)
-			return
-		}
-		id, err := strconv.Atoi(idReq)
-
+		id, err := utilsHandler.GetQueryInt(r, "id")
 		if err != nil {
-			log.Println(err)
 			errors.HandleError(w, err)
 			return
 		}
-
-		sellersByLocality, err := h.service.GetSellersByIdLocality(id)
+		if id == nil {
+			h.GetSellersByLocalities(w, r)
+			return
+		}
+		sellersByLocality, err := h.service.GetSellersByIdLocality(*id)
 
 		if err != nil {
 			log.Println(err)
@@ -127,7 +97,7 @@ func (h *LocalityHandler) GetSellersByLocalities(w http.ResponseWriter, r *http.
 	response.JSON(w, http.StatusOK, body)
 }
 
-// ReportCarriersByLocality handles the HTTP request for retrieving carrier info 
+// ReportCarriersByLocality handles the HTTP request for retrieving carrier info
 // by locality ID or by all localities if ID sent on the query params is nil.
 func (h *LocalityHandler) ReportCarriersByLocality() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
