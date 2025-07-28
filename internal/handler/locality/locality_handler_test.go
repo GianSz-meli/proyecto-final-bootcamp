@@ -55,7 +55,7 @@ func TestLocalityHandler_Create_ValidateRequest_Errors(t *testing.T) {
 			require.Equal(t, expectedCode, response.Code)
 			require.Contains(t, response.Body.String(), test.expectedRequestError.Error())
 			require.Equal(t, "application/json", response.Header().Get("Content-Type"))
-			srv.AssertNotCalled(t, "create")
+			srv.AssertNotCalled(t, "Create")
 		})
 	}
 }
@@ -327,13 +327,13 @@ func TestLocalityHandler_GetSellersByLocality_Bad_QueryParam(t *testing.T) {
 			require.Equal(t, expectedCode, response.Code)
 			require.Contains(t, response.Body.String(), pkgError.ErrBadRequest.Error())
 			require.Equal(t, "application/json", response.Header().Get("Content-Type"))
-			srv.AssertNotCalled(t, "GetById")
+			srv.AssertNotCalled(t, "GetSellersByLocality")
 		})
 	}
 }
 func TestLocalityHandler_GetSellersByLocality_Errors(t *testing.T) {
 
-	sellerId := 1
+	localityId := 1
 	tests := []struct {
 		name          string
 		expectedCode  int
@@ -347,19 +347,19 @@ func TestLocalityHandler_GetSellersByLocality_Errors(t *testing.T) {
 		{
 			name:          "should return 404 not found error when service returns not found error",
 			expectedCode:  http.StatusNotFound,
-			expectedError: pkgError.WrapErrNotFound("Seller", "id", sellerId),
+			expectedError: pkgError.WrapErrNotFound("Seller", "id", localityId),
 		},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			//Arrange
 			srv := &locality.MockLocalityService{}
-			srv.On("GetSellersByIdLocality", sellerId).Return(models.SellersByLocalityReport{}, test.expectedError)
+			srv.On("GetSellersByIdLocality", localityId).Return(models.SellersByLocalityReport{}, test.expectedError)
 			hd := NewLocalityHandler(srv)
 			hdFunc := hd.GetSellersByLocality()
 			expectedBody := fmt.Sprintf(`{"status":"%s", "message":"%s"}`, http.StatusText(test.expectedCode), test.expectedError.Error())
 			//Act
-			request := httptest.NewRequest("GET", fmt.Sprintf("/reportSellers?id=%v", sellerId), nil)
+			request := httptest.NewRequest("GET", fmt.Sprintf("/reportSellers?id=%v", localityId), nil)
 			request.Header.Set("Content-Type", "application/json")
 			response := httptest.NewRecorder()
 			hdFunc(response, request)
@@ -377,15 +377,15 @@ func TestLocalityHandler_GetSellersByLocality_Success(t *testing.T) {
 		LocalityName: "La Plata",
 		SellersCount: 3,
 	}
-	sellerId := 1
+	localityId := 1
 
 	//Arrange
 	srv := &locality.MockLocalityService{}
-	srv.On("GetSellersByIdLocality", sellerId).Return(expectedSellerByIdLocality, nil)
+	srv.On("GetSellersByIdLocality", localityId).Return(expectedSellerByIdLocality, nil)
 	hd := NewLocalityHandler(srv)
 	hdFunc := hd.GetSellersByLocality()
 	//Act
-	request := httptest.NewRequest("GET", fmt.Sprintf("/reportSellers?id=%v", sellerId), nil)
+	request := httptest.NewRequest("GET", fmt.Sprintf("/reportSellers?id=%v", localityId), nil)
 	request.Header.Set("Content-Type", "application/json")
 	response := httptest.NewRecorder()
 	hdFunc(response, request)
@@ -394,6 +394,115 @@ func TestLocalityHandler_GetSellersByLocality_Success(t *testing.T) {
 	expectedSellerByIdLocalityJSON, err := json.Marshal(expectedSellerByIdLocality)
 	require.NoError(t, err)
 	expectedBody := fmt.Sprintf(`{"data": %s}`, string(expectedSellerByIdLocalityJSON))
+	require.JSONEq(t, expectedBody, response.Body.String())
+	require.Equal(t, http.StatusOK, response.Code)
+	srv.AssertExpectations(t)
+}
+
+func TestLocalityHandler_ReportCarriersByLocality_Bad_QueryParam(t *testing.T) {
+
+	tests := []struct {
+		name       string
+		queryParam string
+	}{
+		{
+			name:       "should return 400 bad request error when path param is not a number",
+			queryParam: "id=2",
+		},
+		{
+			name:       "should return 400 bad request error when path param is less to zero",
+			queryParam: "-2",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			//Arrange
+			srv := &locality.MockLocalityService{}
+			hd := NewLocalityHandler(srv)
+			hdFunc := hd.ReportCarriersByLocality()
+			expectedCode := http.StatusBadRequest
+
+			//Act
+			target := fmt.Sprintf("/reportCarriers?id=%s", test.queryParam)
+			request := httptest.NewRequest("GET", target, nil)
+			request.Header.Set("Content-Type", "application/json")
+			response := httptest.NewRecorder()
+			hdFunc(response, request)
+
+			//Assert
+			require.Equal(t, expectedCode, response.Code)
+			require.Contains(t, response.Body.String(), pkgError.ErrBadRequest.Error())
+			require.Equal(t, "application/json", response.Header().Get("Content-Type"))
+			srv.AssertNotCalled(t, "ReportCarriersByLocality")
+		})
+	}
+}
+func TestLocalityHandler_ReportCarriersByLocality_Errors(t *testing.T) {
+
+	localityId := 1
+	tests := []struct {
+		name          string
+		expectedCode  int
+		expectedError error
+	}{
+		{
+			name:          "should return 400 bad request error when service returns bad request error",
+			expectedCode:  http.StatusBadRequest,
+			expectedError: pkgError.ErrBadRequest,
+		},
+		{
+			name:          "should return 404 not found error when service returns not found error",
+			expectedCode:  http.StatusNotFound,
+			expectedError: pkgError.WrapErrNotFound("Locality", "id", localityId),
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			//Arrange
+			srv := &locality.MockLocalityService{}
+			srv.On("ReportCarriersByLocality", &localityId).Return(nil, test.expectedError)
+			hd := NewLocalityHandler(srv)
+			hdFunc := hd.ReportCarriersByLocality()
+			expectedBody := fmt.Sprintf(`{"status":"%s", "message":"%s"}`, http.StatusText(test.expectedCode), test.expectedError.Error())
+			//Act
+			request := httptest.NewRequest("GET", fmt.Sprintf("/reportCarriers?id=%v", localityId), nil)
+			request.Header.Set("Content-Type", "application/json")
+			response := httptest.NewRecorder()
+			hdFunc(response, request)
+
+			//Assert
+			require.JSONEq(t, expectedBody, response.Body.String())
+			require.Equal(t, test.expectedCode, response.Code)
+			srv.AssertExpectations(t)
+		})
+	}
+}
+func TestLocalityHandler_ReportCarriersByLocality_Success(t *testing.T) {
+	expectedCarrierByIdLocality := []models.CarrierReport{
+		{
+			LocalityId:    1,
+			LocalityName:  "La Plata",
+			CarriersCount: 3,
+		},
+	}
+	localityId := 1
+
+	//Arrange
+	srv := &locality.MockLocalityService{}
+	srv.On("ReportCarriersByLocality", &localityId).Return(expectedCarrierByIdLocality, nil)
+	hd := NewLocalityHandler(srv)
+	hdFunc := hd.ReportCarriersByLocality()
+	//Act
+	request := httptest.NewRequest("GET", fmt.Sprintf("/reportSellers?id=%v", localityId), nil)
+	request.Header.Set("Content-Type", "application/json")
+	response := httptest.NewRecorder()
+	hdFunc(response, request)
+
+	//Assert
+	expectedCarrierByIdLocalityJSON, err := json.Marshal(expectedCarrierByIdLocality)
+	require.NoError(t, err)
+	expectedBody := fmt.Sprintf(`{"data": %s}`, string(expectedCarrierByIdLocalityJSON))
 	require.JSONEq(t, expectedBody, response.Body.String())
 	require.Equal(t, http.StatusOK, response.Code)
 	srv.AssertExpectations(t)

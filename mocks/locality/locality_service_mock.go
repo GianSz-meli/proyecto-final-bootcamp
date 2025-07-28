@@ -30,5 +30,8 @@ func (m *MockLocalityService) GetSellersByIdLocality(idLocality int) (models.Sel
 
 func (m *MockLocalityService) ReportCarriersByLocality(id *int) ([]models.CarrierReport, error) {
 	args := m.Called(id)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
 	return args.Get(0).([]models.CarrierReport), args.Error(1)
 }
