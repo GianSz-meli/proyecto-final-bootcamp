@@ -2,6 +2,7 @@ package handler_test
 
 import (
 	"ProyectoFinal/internal/handler"
+	"ProyectoFinal/mocks"
 	pkgErrors "ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
 	"context"
@@ -17,31 +18,6 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
-
-type MockProductService struct {
-	mock.Mock
-}
-
-func (m *MockProductService) CreateProduct(p models.Product) (models.Product, error) {
-	args := m.Called(p)
-	return args.Get(0).(models.Product), args.Error(1)
-}
-func (m *MockProductService) FindAllProducts() (map[int]models.Product, error) {
-	args := m.Called()
-	return args.Get(0).(map[int]models.Product), args.Error(1)
-}
-func (m *MockProductService) FindProductsById(id int) (models.Product, error) {
-	args := m.Called(id)
-	return args.Get(0).(models.Product), args.Error(1)
-}
-func (m *MockProductService) UpdateProduct(id int, p models.ProductDocUpdate) (models.Product, error) {
-	args := m.Called(id, p)
-	return args.Get(0).(models.Product), args.Error(1)
-}
-func (m *MockProductService) DeleteProduct(id int) error {
-	args := m.Called(id)
-	return args.Error(0)
-}
 
 func TestCreateProduct(t *testing.T) {
 	const validProductJSON = `{
@@ -112,7 +88,7 @@ func TestCreateProduct(t *testing.T) {
 	}
 
 	t.Run("create_ok", func(t *testing.T) {
-		mockService := &MockProductService{}
+		mockService := &mocks.MockProductService{}
 		mockService.On("CreateProduct", inputProduct).Return(returnedProduct, nil)
 		hd := handler.NewProductHandler(mockService)
 
@@ -139,7 +115,7 @@ func TestCreateProduct(t *testing.T) {
 
 	t.Run("create_fail", func(t *testing.T) {
 
-		mockServiceFail := &MockProductService{}
+		mockServiceFail := &mocks.MockProductService{}
 		hd := handler.NewProductHandler(mockServiceFail)
 
 		request := httptest.NewRequest("POST", "/products", strings.NewReader(invalidProductJSON))
@@ -155,7 +131,7 @@ func TestCreateProduct(t *testing.T) {
 
 	t.Run("conflict", func(t *testing.T) {
 
-		mockServiceFail := &MockProductService{}
+		mockServiceFail := &mocks.MockProductService{}
 		mockServiceFail.On("CreateProduct", mock.Anything).Return(models.Product{}, pkgErrors.ErrConflict)
 		hd := handler.NewProductHandler(mockServiceFail)
 
@@ -208,7 +184,7 @@ func TestFindProducts(t *testing.T) {
 	}
 
 	t.Run("find_all", func(t *testing.T) {
-		mockService := &MockProductService{}
+		mockService := &mocks.MockProductService{}
 		mockService.On("FindAllProducts").Return(prods, nil)
 		hd := handler.NewProductHandler(mockService)
 
@@ -220,10 +196,10 @@ func TestFindProducts(t *testing.T) {
 		require.Equal(t, http.StatusOK, response.Code)
 
 	})
-	// devuelve 400 y tiene que devolver 404
+
 	t.Run("find_by_id_non_existent", func(t *testing.T) {
 
-		mockService := &MockProductService{}
+		mockService := &mocks.MockProductService{}
 		mockService.On("FindProductsById", 3).Return(models.Product{}, pkgErrors.ErrNotFound)
 		hd := handler.NewProductHandler(mockService)
 
@@ -244,7 +220,7 @@ func TestFindProducts(t *testing.T) {
 
 	t.Run("find_by_id_success", func(t *testing.T) {
 
-		mockService := &MockProductService{}
+		mockService := &mocks.MockProductService{}
 		mockService.On("FindProductsById", 1).Return(prod1, nil)
 		hd := handler.NewProductHandler(mockService)
 
@@ -261,12 +237,12 @@ func TestFindProducts(t *testing.T) {
 		require.Equal(t, "application/json", res.Header().Get("Content-Type"))
 
 		type Response struct {
-			Data models.Product `json:"data"`
+			Data models.ProductDoc `json:"data"`
 		}
 		var got Response
 		err := json.Unmarshal(res.Body.Bytes(), &got)
 		require.NoError(t, err)
-		require.Equal(t, prod1, got.Data)
+		require.Equal(t, prod1.ModelToDoc(), got.Data)
 
 		mockService.AssertExpectations(t)
 	})
@@ -316,7 +292,7 @@ func TestUpdateProduct(t *testing.T) {
 	}
 
 	t.Run("update_ok", func(t *testing.T) {
-		mockService := &MockProductService{}
+		mockService := &mocks.MockProductService{}
 		mockService.On("UpdateProduct", 1, prodinput).Return(prodoutput, nil)
 		hd := handler.NewProductHandler(mockService)
 
@@ -337,7 +313,7 @@ func TestUpdateProduct(t *testing.T) {
 	})
 	t.Run("update_non_existent", func(t *testing.T) {
 
-		mockService := &MockProductService{}
+		mockService := &mocks.MockProductService{}
 		mockService.On("UpdateProduct", 1, mock.AnythingOfType("models.ProductDocUpdate")).Return(models.Product{}, pkgErrors.ErrNotFound)
 		hd := handler.NewProductHandler(mockService)
 
