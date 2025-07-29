@@ -8,9 +8,6 @@ type LocalityRepository interface {
 	// Create inserts a new locality record into the repository.
 	Create(locality models.Locality) (models.Locality, error)
 
-	// GetById retrieves a locality by its ID.
-	GetById(id int) (*models.Locality, error)
-
 	// GetSellersByIdLocality retrieves the seller report for a specific locality by its ID.
 	GetSellersByIdLocality(idLocality int) (models.SellersByLocalityReport, error)
 

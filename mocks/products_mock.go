@@ -1,0 +1,36 @@
+package mocks
+
+import (
+	"ProyectoFinal/pkg/models"
+
+	"github.com/stretchr/testify/mock"
+)
+
+type MockProductService struct {
+	mock.Mock
+}
+
+func (m *MockProductService) CreateProduct(p models.Product) (models.Product, error) {
+	args := m.Called(p)
+	return args.Get(0).(models.Product), args.Error(1)
+}
+
+func (m *MockProductService) FindAllProducts() (map[int]models.Product, error) {
+	args := m.Called()
+	return args.Get(0).(map[int]models.Product), args.Error(1)
+}
+
+func (m *MockProductService) FindProductsById(id int) (models.Product, error) {
+	args := m.Called(id)
+	return args.Get(0).(models.Product), args.Error(1)
+}
+
+func (m *MockProductService) UpdateProduct(id int, p models.ProductDocUpdate) (models.Product, error) {
+	args := m.Called(id, p)
+	return args.Get(0).(models.Product), args.Error(1)
+}
+
+func (m *MockProductService) DeleteProduct(id int) error {
+	args := m.Called(id)
+	return args.Error(0)
+}

@@ -1,17 +1,16 @@
 package di
 
 import (
-	handler "ProyectoFinal/internal/handler"
+	products "ProyectoFinal/internal/handler/products"
 	repository "ProyectoFinal/internal/repository/products"
 	service "ProyectoFinal/internal/service/products"
-	
+
 	"database/sql"
 )
 
-func GetProductsHandler(sqlDB *sql.DB) *handler.ProductHandler {
+func GetProductsHandler(sqlDB *sql.DB) *products.ProductHandler {
 	productRepository := repository.NewProductSQL(sqlDB)
 	productService := service.NewProductDefault(productRepository)
-	productHandler := handler.NewProductHandler(productService)
+	productHandler := products.NewProductHandler(productService)
 	return productHandler
 }
-
