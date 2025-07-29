@@ -51,7 +51,7 @@ func TestMySQLRepository_CreateProductRecord_DatabaseError(t *testing.T) {
 
 	// Simular error de base de datos en INSERT
 	expectedError := errors.New("database insert failed")
-	mock.ExpectExec(QueryCreate).
+	mock.ExpectExec("INSERT INTO products_records").
 		WithArgs(productRecord.LastUpdateDate, productRecord.PurchasePrice, productRecord.SalePrice, productRecord.ProductID).
 		WillReturnError(expectedError)
 
