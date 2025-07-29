@@ -35,6 +35,7 @@ func (r *ProductSQL) CreateProduct(newProd models.Product) (models.Product, erro
 		newProd.Temperature,
 		newProd.FreezingRate,
 		newProd.ProductTypeID,
+		newProd.SellerID,
 	)
 
 	if err != nil {
@@ -58,7 +59,7 @@ func (r *ProductSQL) FindAllProducts() (map[int]models.Product, error) {
 
 	for rows.Next() {
 		var p models.Product
-		if err := rows.Scan(&p.ID, &p.ProductCode, &p.Description, &p.Width, &p.Height, &p.Length, &p.NetWeight, &p.ExpirationRate, &p.Temperature, &p.FreezingRate, &p.ProductTypeID); err != nil {
+		if err := rows.Scan(&p.ID, &p.ProductCode, &p.Description, &p.Width, &p.Height, &p.Length, &p.NetWeight, &p.ExpirationRate, &p.Temperature, &p.FreezingRate, &p.ProductTypeID, &p.SellerID); err != nil {
 			return nil, err
 		}
 		products[p.ID] = p
@@ -69,7 +70,7 @@ func (r *ProductSQL) FindAllProducts() (map[int]models.Product, error) {
 func (r *ProductSQL) FindProductsById(id int) (models.Product, error) {
 	var p models.Product
 
-	err := r.db.QueryRow(QueryFindProductById, id).Scan(&p.ID, &p.ProductCode, &p.Description, &p.Width, &p.Height, &p.Length, &p.NetWeight, &p.ExpirationRate, &p.Temperature, &p.FreezingRate, &p.ProductTypeID)
+	err := r.db.QueryRow(QueryFindProductById, id).Scan(&p.ID, &p.ProductCode, &p.Description, &p.Width, &p.Height, &p.Length, &p.NetWeight, &p.ExpirationRate, &p.Temperature, &p.FreezingRate, &p.ProductTypeID, &p.SellerID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return models.Product{}, pkgErrors.WrapErrNotFound("product", "id", id)
@@ -92,6 +93,7 @@ func (r *ProductSQL) UpdateProduct(id int, prod models.Product) (models.Product,
 		prod.Temperature,
 		prod.FreezingRate,
 		prod.ProductTypeID,
+		prod.SellerID,
 		id,
 	)
 	if err != nil {
@@ -101,5 +103,5 @@ func (r *ProductSQL) UpdateProduct(id int, prod models.Product) (models.Product,
 }
 
 func (r *ProductSQL) DeleteProduct(id int) {
-	r.db.Exec(QueryDeleteProduct)
+	r.db.Exec(QueryDeleteProduct, id)
 }
