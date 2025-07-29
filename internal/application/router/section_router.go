@@ -1,13 +1,13 @@
 package router
 
 import (
-	"ProyectoFinal/internal/handler"
+	"ProyectoFinal/internal/handler/product_batch"
 	sectionHandler "ProyectoFinal/internal/handler/section"
 
 	"github.com/go-chi/chi/v5"
 )
 
-func GetSectionRouter(handler *sectionHandler.SectionDefault, productBatchHandler *handler.ProductBatchHandler) chi.Router {
+func GetSectionRouter(handler *sectionHandler.SectionDefault, productBatchHandler *product_batch.ProductBatchHandler) chi.Router {
 	r := chi.NewRouter()
 	r.Post("/", handler.Create())
 	r.Get("/", handler.GetAll())
