@@ -10,11 +10,6 @@ type MockProductRepository struct {
 	mock.Mock
 }
 
-func (m *MockProductRepository) ExistsProdCode(prodCode string) bool {
-	args := m.Called(prodCode)
-	return args.Bool(0)
-}
-
 func (m *MockProductRepository) CreateProduct(newProd models.Product) (models.Product, error) {
 	args := m.Called(newProd)
 	return args.Get(0).(models.Product), args.Error(1)

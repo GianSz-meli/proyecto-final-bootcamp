@@ -2,6 +2,7 @@ package products
 
 import (
 	"ProyectoFinal/pkg/models"
+	"database/sql"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -77,6 +78,7 @@ func TestMySQLRepository_FindAllProducts(t *testing.T) {
 }
 
 func TestMySQLRepository_FindProductsById(t *testing.T) {
+	t.Run("should return product successfully when product exists", func(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	require.NoError(t, err)
 	defer db.Close()
@@ -107,7 +109,24 @@ func TestMySQLRepository_FindProductsById(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, product, result)
 
-	mock.ExpectationsWereMet()
+		mock.ExpectationsWereMet()
+	})
+
+	t.Run("should return error when product does not exist", func(t *testing.T) {
+		db, mock, err := sqlmock.New()
+		require.NoError(t, err)
+		defer db.Close()
+
+		repo := NewProductSQL(db)
+
+		mock.ExpectQuery("SELECT id, product_code, description, width, height, length, net_weight, expiration_rate, recommended_freezing_temperature, freezing_rate, product_type_id, seller_id FROM products WHERE id = ?").WithArgs(1).WillReturnError(sql.ErrNoRows)
+
+		result, err := repo.FindProductsById(1)
+		require.Error(t, err)
+		require.Equal(t, models.Product{}, result)
+
+		mock.ExpectationsWereMet()
+	})
 }
 
 func TestMySQLRepository_UpdateProduct(t *testing.T) {

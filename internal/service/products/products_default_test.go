@@ -56,7 +56,7 @@ func TestCreateProduct(t *testing.T) {
 			SellerID:       ptrInt(7),
 		}
 
-		mockRepo.On("ExistsProdCode", product.ProductCode).Return(false)
+		
 		mockRepo.On("CreateProduct", product).Return(product, nil)
 
 		result, err := service.CreateProduct(product)
@@ -64,7 +64,7 @@ func TestCreateProduct(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, product, result)
 
-		mockRepo.AssertCalled(t, "ExistsProdCode", product.ProductCode)
+		
 		mockRepo.AssertCalled(t, "CreateProduct", product)
 		mockRepo.AssertExpectations(t)
 	})
@@ -86,7 +86,7 @@ func TestCreateProduct(t *testing.T) {
 			ProductTypeID:  1,
 		}
 
-		mockRepo.On("ExistsProdCode", "A1000").Return(true)
+		mockRepo.On("CreateProduct", existingProduct).Return(models.Product{}, pkgErrors.ErrConflict)
 
 		result, err := service.CreateProduct(existingProduct)
 

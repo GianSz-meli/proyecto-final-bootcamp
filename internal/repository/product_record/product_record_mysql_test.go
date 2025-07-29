@@ -34,6 +34,36 @@ func TestMySQLRepository_CreateProductRecord(t *testing.T) {
 	mock.ExpectationsWereMet()
 }
 
+func TestMySQLRepository_CreateProductRecord_DatabaseError(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	require.NoError(t, err)
+	defer db.Close()
+
+	repo := NewProductRecordSQL(db)
+
+	productRecord := models.ProductRecord{
+		ID:             1,
+		LastUpdateDate: "2024-01-01",
+		PurchasePrice:  100,
+		SalePrice:      150,
+		ProductID:      1,
+	}
+
+	// Simular error de base de datos en INSERT
+	expectedError := errors.New("database insert failed")
+	mock.ExpectExec(QueryCreate).
+		WithArgs(productRecord.LastUpdateDate, productRecord.PurchasePrice, productRecord.SalePrice, productRecord.ProductID).
+		WillReturnError(expectedError)
+
+	result, err := repo.CreateProductRecord(productRecord)
+
+	require.Error(t, err)
+	require.Equal(t, expectedError, err)
+	require.Equal(t, productRecord, result) // Retorna el mismo record cuando hay error
+
+	mock.ExpectationsWereMet()
+}
+
 func TestMySQLRepository_GetRecordsProduct(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	require.NoError(t, err)
@@ -117,6 +147,27 @@ func TestMySQLRepository_GetRecordsProductAll(t *testing.T) {
 	result, err := repo.GetRecordsProductAll()
 	require.NoError(t, err)
 	require.Equal(t, expected, result)
+
+	mock.ExpectationsWereMet()
+}
+
+func TestMySQLRepository_GetRecordsProductAll_DatabaseError(t *testing.T) {
+	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherRegexp))
+	require.NoError(t, err)
+	defer db.Close()
+
+	repo := NewProductRecordSQL(db)
+
+	// Simular error de base de datos en SELECT
+	expectedError := errors.New("database connection failed")
+	mock.ExpectQuery("SELECT p\\.id, p\\.description, COUNT\\(pr\\.id\\) as records_count FROM products p JOIN products_records pr ON pr\\.product_id = p\\.id GROUP BY p\\.id, p\\.description").
+		WillReturnError(expectedError)
+
+	result, err := repo.GetRecordsProductAll()
+
+	require.Error(t, err)
+	require.Equal(t, expectedError, err)
+	require.Nil(t, result)
 
 	mock.ExpectationsWereMet()
 }
