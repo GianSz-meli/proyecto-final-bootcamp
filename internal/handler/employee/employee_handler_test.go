@@ -8,7 +8,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"ProyectoFinal/mocks"
+	mocks "ProyectoFinal/mocks/employee"
 	"ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
 
