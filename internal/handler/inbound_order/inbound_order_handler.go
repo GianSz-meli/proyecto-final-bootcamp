@@ -1,4 +1,4 @@
-package handler
+package inbound_order
 
 import (
 	"net/http"
