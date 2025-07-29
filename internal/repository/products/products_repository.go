@@ -1,4 +1,4 @@
-package repository
+package products
 
 import (
 	"ProyectoFinal/pkg/models"
@@ -6,9 +6,9 @@ import (
 
 type ProductRepository interface {
 	ExistsProdCode(prodCode string) bool
-    CreateProduct(newProd models.Product) (models.Product, error)
-    FindAllProducts() (map[int]models.Product, error)
-    FindProductsById(id int) (models.Product, error)
-    UpdateProduct(id int, prod models.Product) (models.Product, error)
-    DeleteProduct(id int)
+	CreateProduct(newProd models.Product) (models.Product, error)
+	FindAllProducts() (map[int]models.Product, error)
+	FindProductsById(id int) (models.Product, error)
+	UpdateProduct(id int, prod models.Product) (models.Product, error)
+	DeleteProduct(id int)
 }

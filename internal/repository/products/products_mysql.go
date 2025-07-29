@@ -1,8 +1,8 @@
 package products
 
 import (
-	"ProyectoFinal/pkg/models"
 	pkgErrors "ProyectoFinal/pkg/errors"
+	"ProyectoFinal/pkg/models"
 	"database/sql"
 	"errors"
 )
@@ -17,8 +17,7 @@ type ProductSQL struct {
 
 func (r *ProductSQL) ExistsProdCode(prodCode string) bool {
 	var exists bool
-	query := "SELECT EXISTS(SELECT 1 FROM products WHERE product_code = ?)"
-	err := r.db.QueryRow(query, prodCode).Scan(&exists)
+	err := r.db.QueryRow(QueryExistsProdCode, prodCode).Scan(&exists)
 
 	return err == nil && exists
 }
@@ -69,22 +68,21 @@ func (r *ProductSQL) FindAllProducts() (map[int]models.Product, error) {
 
 func (r *ProductSQL) FindProductsById(id int) (models.Product, error) {
 	var p models.Product
-	
+
 	err := r.db.QueryRow(QueryFindProductById, id).Scan(&p.ID, &p.ProductCode, &p.Description, &p.Width, &p.Height, &p.Length, &p.NetWeight, &p.ExpirationRate, &p.Temperature, &p.FreezingRate, &p.ProductTypeID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return models.Product{},  pkgErrors.WrapErrNotFound("product", "id", id)
+			return models.Product{}, pkgErrors.WrapErrNotFound("product", "id", id)
 		}
 		return models.Product{}, err
 	}
 	return p, nil
 }
 
-
 func (r *ProductSQL) UpdateProduct(id int, prod models.Product) (models.Product, error) {
-	
 	_, err := r.db.Exec(
-QueryUpdateProduct		prod.ProductCode,
+		QueryUpdateProduct,
+		prod.ProductCode,
 		prod.Description,
 		prod.Width,
 		prod.Height,
@@ -103,5 +101,5 @@ QueryUpdateProduct		prod.ProductCode,
 }
 
 func (r *ProductSQL) DeleteProduct(id int) {
-	r.db.Exec("DELETE FROM products WHERE id = ?", id)
+	r.db.Exec(QueryDeleteProduct)
 }
