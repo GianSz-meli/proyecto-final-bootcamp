@@ -8,7 +8,6 @@ import (
 type Db struct {
 	Seller    map[int]models.Seller
 	Warehouse map[int]models.Warehouse
-	Product   map[int]models.Product
 	Buyer     map[int]models.Buyer
 	Section   map[int]models.Section
 }
@@ -18,12 +17,6 @@ func LoadDB(loaderFilePath map[string]string) Db {
 
 	//Load warehouse
 	warehouseDB, err := factory.NewWarehouseLoader().Load()
-	if err != nil {
-		panic(err)
-	}
-
-	//Load Product
-	productDB, err := factory.NewProductLoader().Load()
 	if err != nil {
 		panic(err)
 	}
@@ -42,7 +35,6 @@ func LoadDB(loaderFilePath map[string]string) Db {
 
 	db := Db{
 		Warehouse: warehouseDB,
-		Product:   productDB,
 		Buyer:     buyerDB,
 		Section:   sectionDb,
 	}

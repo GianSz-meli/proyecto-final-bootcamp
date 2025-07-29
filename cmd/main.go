@@ -13,7 +13,6 @@ func main() {
 		LoaderFilePath: map[string]string{
 			loader.Section:   "docs/db/sections_10.json",
 			loader.Warehouse: "docs/db/warehouses.json",
-			loader.Product:   "docs/db/products.json",
 			loader.Buyer:     "docs/db/buyers.json",
 		},
 	}
