@@ -1,4 +1,4 @@
-package mocks
+package section
 
 import (
 	"ProyectoFinal/pkg/models"

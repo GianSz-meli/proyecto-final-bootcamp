@@ -1,7 +1,7 @@
 package section
 
 import (
-	"ProyectoFinal/mocks"
+	mocks "ProyectoFinal/mocks/section"
 	"ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
 	"bytes"
