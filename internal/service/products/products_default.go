@@ -18,12 +18,11 @@ type ProductDefault struct {
 }
 
 func (s *ProductDefault) CreateProduct(newProd models.Product) (models.Product, error) {
-	if s.rp.ExistsProdCode(newProd.ProductCode) {
-		newError := pkgErrors.WrapErrConflict("product", "product code", newProd.ProductCode)
-		return models.Product{}, newError
+	result, err := s.rp.CreateProduct(newProd)
+	if err != nil {
+		return models.Product{}, err
 	}
-	s.rp.CreateProduct(newProd)
-	return newProd, nil
+	return result, nil
 }
 
 func (s *ProductDefault) FindAllProducts() (p map[int]models.Product, err error) {
@@ -48,7 +47,7 @@ func (s *ProductDefault) UpdateProduct(id int, prod models.ProductDocUpdate) (mo
 		newError := fmt.Errorf("%w : no fields provided for update", pkgErrors.ErrUnprocessableEntity)
 		return models.Product{}, newError
 	}
-	 
+
 	prodUpdate, err := s.rp.UpdateProduct(id, currentProd)
 	if err != nil {
 		return models.Product{}, err

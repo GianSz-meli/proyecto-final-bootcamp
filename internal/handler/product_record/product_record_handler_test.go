@@ -2,7 +2,7 @@ package product_record_test
 
 import (
 	"ProyectoFinal/internal/handler/product_record"
-	"ProyectoFinal/mocks"
+	"ProyectoFinal/mocks/product_record"
 	pkgErrors "ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
 	"encoding/json"

@@ -15,14 +15,6 @@ type ProductRecordSQL struct {
 	db *sql.DB
 }
 
-func (r *ProductRecordSQL) ExistsProductRecordID(productID int) (bool, error) {
-	var exists bool
-	err := r.db.QueryRow(QueryExists, productID).Scan(&exists)
-	if err != nil {
-		return false, err
-	}
-	return exists, nil
-}
 
 func (r *ProductRecordSQL) CreateProductRecord(newRecord models.ProductRecord) (models.ProductRecord, error) {
 

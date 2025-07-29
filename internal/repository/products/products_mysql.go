@@ -1,8 +1,8 @@
-package repository
+package products
 
 import (
-	"ProyectoFinal/pkg/models"
 	pkgErrors "ProyectoFinal/pkg/errors"
+	"ProyectoFinal/pkg/models"
 	"database/sql"
 	"errors"
 )
@@ -15,23 +15,9 @@ type ProductSQL struct {
 	db *sql.DB
 }
 
-func (r *ProductSQL) ExistsProdCode(prodCode string) bool {
-	var exists bool
-	query := "SELECT EXISTS(SELECT 1 FROM products WHERE product_code = ?)"
-	err := r.db.QueryRow(query, prodCode).Scan(&exists)
-
-	return err == nil && exists
-}
-
 func (r *ProductSQL) CreateProduct(newProd models.Product) (models.Product, error) {
-	query := `
-        INSERT INTO products 
-            (product_code, description, width, height, length, net_weight, expiration_rate, recommended_freezing_temperature, freezing_rate, product_type_id)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `
-
 	res, err := r.db.Exec(
-		query,
+		QueryCreateProduct,
 		newProd.ProductCode,
 		newProd.Description,
 		newProd.Width,
@@ -42,6 +28,7 @@ func (r *ProductSQL) CreateProduct(newProd models.Product) (models.Product, erro
 		newProd.Temperature,
 		newProd.FreezingRate,
 		newProd.ProductTypeID,
+		newProd.SellerID,
 	)
 
 	if err != nil {
@@ -57,7 +44,7 @@ func (r *ProductSQL) CreateProduct(newProd models.Product) (models.Product, erro
 
 func (r *ProductSQL) FindAllProducts() (map[int]models.Product, error) {
 	products := make(map[int]models.Product)
-	rows, err := r.db.Query("SELECT id, product_code, description, width, height, length, net_weight, expiration_rate, recommended_freezing_temperature, freezing_rate, product_type_id FROM products")
+	rows, err := r.db.Query(QueryFindAllProducts)
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +52,7 @@ func (r *ProductSQL) FindAllProducts() (map[int]models.Product, error) {
 
 	for rows.Next() {
 		var p models.Product
-		if err := rows.Scan(&p.ID, &p.ProductCode, &p.Description, &p.Width, &p.Height, &p.Length, &p.NetWeight, &p.ExpirationRate, &p.Temperature, &p.FreezingRate, &p.ProductTypeID); err != nil {
+		if err := rows.Scan(&p.ID, &p.ProductCode, &p.Description, &p.Width, &p.Height, &p.Length, &p.NetWeight, &p.ExpirationRate, &p.Temperature, &p.FreezingRate, &p.ProductTypeID, &p.SellerID); err != nil {
 			return nil, err
 		}
 		products[p.ID] = p
@@ -75,35 +62,20 @@ func (r *ProductSQL) FindAllProducts() (map[int]models.Product, error) {
 
 func (r *ProductSQL) FindProductsById(id int) (models.Product, error) {
 	var p models.Product
-	query := "SELECT id, product_code, description, width, height, length, net_weight, expiration_rate, recommended_freezing_temperature, freezing_rate, product_type_id FROM products WHERE id = ?"
-	err := r.db.QueryRow(query, id).Scan(&p.ID, &p.ProductCode, &p.Description, &p.Width, &p.Height, &p.Length, &p.NetWeight, &p.ExpirationRate, &p.Temperature, &p.FreezingRate, &p.ProductTypeID)
+
+	err := r.db.QueryRow(QueryFindProductById, id).Scan(&p.ID, &p.ProductCode, &p.Description, &p.Width, &p.Height, &p.Length, &p.NetWeight, &p.ExpirationRate, &p.Temperature, &p.FreezingRate, &p.ProductTypeID, &p.SellerID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return models.Product{},  pkgErrors.WrapErrNotFound("product", "id", id)
+			return models.Product{}, pkgErrors.WrapErrNotFound("product", "id", id)
 		}
 		return models.Product{}, err
 	}
 	return p, nil
 }
 
-
 func (r *ProductSQL) UpdateProduct(id int, prod models.Product) (models.Product, error) {
-	query := `
-        UPDATE products SET
-            product_code = ?,
-            description = ?,
-            width = ?,
-            height = ?,
-            length = ?,
-            net_weight = ?,
-            expiration_rate = ?,
-            recommended_freezing_temperature = ?,
-            freezing_rate = ?,
-            product_type_id = ?
-        WHERE id = ?
-    `
 	_, err := r.db.Exec(
-		query,
+		QueryUpdateProduct,
 		prod.ProductCode,
 		prod.Description,
 		prod.Width,
@@ -114,6 +86,7 @@ func (r *ProductSQL) UpdateProduct(id int, prod models.Product) (models.Product,
 		prod.Temperature,
 		prod.FreezingRate,
 		prod.ProductTypeID,
+		prod.SellerID,
 		id,
 	)
 	if err != nil {
@@ -122,6 +95,10 @@ func (r *ProductSQL) UpdateProduct(id int, prod models.Product) (models.Product,
 	return prod, nil
 }
 
-func (r *ProductSQL) DeleteProduct(id int) {
-	r.db.Exec("DELETE FROM products WHERE id = ?", id)
+func (r *ProductSQL) DeleteProduct(id int) error {
+	_, err := r.db.Exec(QueryDeleteProduct, id)
+	if err != nil {
+		return err
+	}
+	return nil
 }
