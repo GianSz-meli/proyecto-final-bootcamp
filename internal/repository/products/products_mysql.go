@@ -15,13 +15,6 @@ type ProductSQL struct {
 	db *sql.DB
 }
 
-func (r *ProductSQL) ExistsProdCode(prodCode string) bool {
-	var exists bool
-	err := r.db.QueryRow(QueryExistsProdCode, prodCode).Scan(&exists)
-
-	return err == nil && exists
-}
-
 func (r *ProductSQL) CreateProduct(newProd models.Product) (models.Product, error) {
 	res, err := r.db.Exec(
 		QueryCreateProduct,

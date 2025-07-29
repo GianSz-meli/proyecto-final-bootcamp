@@ -18,10 +18,6 @@ type ProductDefault struct {
 }
 
 func (s *ProductDefault) CreateProduct(newProd models.Product) (models.Product, error) {
-	if s.rp.ExistsProdCode(newProd.ProductCode) {
-		newError := pkgErrors.WrapErrConflict("product", "product code", newProd.ProductCode)
-		return models.Product{}, newError
-	}
 	result, err := s.rp.CreateProduct(newProd)
 	if err != nil {
 		return models.Product{}, err
