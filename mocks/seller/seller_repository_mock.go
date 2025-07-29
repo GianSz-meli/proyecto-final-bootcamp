@@ -30,5 +30,5 @@ func (m *MockSellerRepository) GetAll() ([]models.Seller, error) {
 }
 func (m *MockSellerRepository) Delete(id int) error {
 	args := m.Called(id)
-	return args.Error(1)
+	return args.Error(0)
 }
