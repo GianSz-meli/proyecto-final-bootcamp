@@ -1,7 +1,7 @@
 package inbound_order
 
 import (
-	"ProyectoFinal/mocks"
+	mocks "ProyectoFinal/mocks/employee"
 	"ProyectoFinal/mocks/inbound_order"
 	"ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
