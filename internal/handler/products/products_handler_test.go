@@ -2,7 +2,7 @@ package products_test
 
 import (
 	"ProyectoFinal/internal/handler/products"
-	"ProyectoFinal/mocks"
+	"ProyectoFinal/mocks/products"
 	pkgErrors "ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
 	"context"

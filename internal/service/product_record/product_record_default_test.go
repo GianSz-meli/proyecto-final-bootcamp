@@ -1,7 +1,7 @@
 package service
 
 import (
-	"ProyectoFinal/mocks"
+	"ProyectoFinal/mocks/product_record"
 	pkgErrors "ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
 	"testing"

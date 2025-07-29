@@ -1,7 +1,7 @@
 package service
 
 import (
-	"ProyectoFinal/mocks"
+	"ProyectoFinal/mocks/products"
 	pkgErrors "ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
 	"fmt"
