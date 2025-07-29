@@ -24,7 +24,6 @@ func (r *ProductSQL) ExistsProdCode(prodCode string) bool {
 }
 
 func (r *ProductSQL) CreateProduct(newProd models.Product) (models.Product, error) {
-	println("hola")
 	query := `
         INSERT INTO products 
             (product_code, description, width, height, length, net_weight, expiration_rate, recommended_freezing_temperature, freezing_rate, product_type_id)

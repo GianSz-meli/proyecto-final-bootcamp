@@ -1,6 +1,7 @@
 package service
 
 import (
+	"ProyectoFinal/internal/handler/utils"
 	repository "ProyectoFinal/internal/repository/products"
 	pkgErrors "ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
@@ -38,19 +39,21 @@ func (s *ProductDefault) FindProductsById(id int) (models.Product, error) {
 	return product, nil
 }
 
-func (s *ProductDefault) UpdateProduct(id int, prod models.Product) (models.Product, error) {
+func (s *ProductDefault) UpdateProduct(id int, prod models.ProductDocUpdate) (models.Product, error) {
 	currentProd, err := s.rp.FindProductsById(id)
 	if err != nil {
-		newError := fmt.Errorf("%w : product with id %d not found", pkgErrors.ErrNotFound, id)
+		return models.Product{}, err
+	}
+	if updated := utils.UpdateFields(&currentProd, &prod); !updated {
+		newError := fmt.Errorf("%w : no fields provided for update", pkgErrors.ErrUnprocessableEntity)
 		return models.Product{}, newError
 	}
-	if currentProd.ProductCode != prod.ProductCode {
-		if s.rp.ExistsProdCode(prod.ProductCode) {
-			newError := pkgErrors.WrapErrConflict("product", "product code", prod.ProductCode)
-			return models.Product{}, newError
-		}
+	 
+	prodUpdate, err := s.rp.UpdateProduct(id, currentProd)
+	if err != nil {
+		return models.Product{}, err
 	}
-	return s.rp.UpdateProduct(id, prod)
+	return prodUpdate, nil
 }
 
 func (s *ProductDefault) DeleteProduct(id int) error {

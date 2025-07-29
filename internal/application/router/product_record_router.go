@@ -1,12 +1,12 @@
 package router
 
 import (
-	"ProyectoFinal/internal/handler"
+	"ProyectoFinal/internal/handler/product_record"
 
 	"github.com/go-chi/chi/v5"
 )
 
-func GetProductRecordRouter(h *handler.ProductRecordHandler) chi.Router {
+func GetProductRecordRouter(h *product_record.ProductRecordHandler) chi.Router {
 	rt := chi.NewRouter()
 
 	rt.Post("/", h.CreateProductRecord)
