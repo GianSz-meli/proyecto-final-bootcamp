@@ -102,6 +102,10 @@ func (r *ProductSQL) UpdateProduct(id int, prod models.Product) (models.Product,
 	return prod, nil
 }
 
-func (r *ProductSQL) DeleteProduct(id int) {
-	r.db.Exec(QueryDeleteProduct, id)
+func (r *ProductSQL) DeleteProduct(id int) error {
+	_, err := r.db.Exec(QueryDeleteProduct, id)
+	if err != nil {
+		return err
+	}
+	return nil
 }

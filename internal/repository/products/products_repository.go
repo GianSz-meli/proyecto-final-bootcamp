@@ -10,5 +10,5 @@ type ProductRepository interface {
 	FindAllProducts() (map[int]models.Product, error)
 	FindProductsById(id int) (models.Product, error)
 	UpdateProduct(id int, prod models.Product) (models.Product, error)
-	DeleteProduct(id int)
+	DeleteProduct(id int) error     
 }

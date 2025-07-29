@@ -106,7 +106,7 @@ func (h *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 		pkgErrors.HandleError(w, err)
 		return
 	}
-	body := models.SuccessResponse{Data: update}
+	body := models.SuccessResponse{Data: update.ModelToDoc()}
 	response.JSON(w, http.StatusOK, body)
 }
 

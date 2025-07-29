@@ -150,7 +150,8 @@ func TestMySQLRepository_DeleteProduct(t *testing.T) {
 	idProduct := 1
 	mock.ExpectExec("DELETE FROM products WHERE id = ?").WithArgs(idProduct).WillReturnResult(sqlmock.NewResult(1, 1))
 
-	repo.DeleteProduct(idProduct)
+	err = repo.DeleteProduct(idProduct)
+	require.NoError(t, err)
 
 	mock.ExpectationsWereMet()
 }

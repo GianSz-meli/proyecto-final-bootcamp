@@ -5,13 +5,14 @@ import (
 	pkgErrors "ProyectoFinal/pkg/errors"
 	"ProyectoFinal/pkg/models"
 	"fmt"
+	
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-func TestGetAllProducts(t *testing.T) {
+	func TestGetAllProducts(t *testing.T) {
 	mockRepo := &mocks.MockProductRepository{}
 	service := NewProductDefault(mockRepo)
 
