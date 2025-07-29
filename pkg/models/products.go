@@ -25,7 +25,7 @@ type ProductDoc struct {
 	NetWeight      float64 `json:"net_weight" validate:"required,gte=0"`
 	ExpirationRate float64 `json:"expiration_rate" validate:"required,gte=0"`
 	Temperature    float32 `json:"recommended_freezing_temperature" validate:"required"`
-	FreezingRate   float64 `json:"freezing_rate" validate:"required,gte=0"`
+	FreezingRate   float64 `json:"freezing_rate" validate:"gte=0"`
 	ProductTypeID  int     `json:"product_type_id"`
 	SellerID       *int    `json:"seller_id"`
 }
@@ -56,6 +56,7 @@ func (p *Product) ModelToDoc() ProductDoc {
 		Temperature:    p.Temperature,
 		FreezingRate:   p.FreezingRate,
 		ProductTypeID:  p.ProductTypeID,
+		SellerID:       p.SellerID,
 	}
 }
 
@@ -72,5 +73,6 @@ func (p *ProductDoc) DocToModel() Product {
 		Temperature:    p.Temperature,
 		FreezingRate:   p.FreezingRate,
 		ProductTypeID:  p.ProductTypeID,
+		SellerID:       p.SellerID,
 	}
 }
