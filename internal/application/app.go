@@ -12,8 +12,7 @@ import (
 )
 
 type ConfigServerChi struct {
-	ServerAddress  string
-	LoaderFilePath map[string]string
+	ServerAddress string
 }
 
 type ServerChi struct {
@@ -29,14 +28,10 @@ func NewServerChi(cfg *ConfigServerChi) *ServerChi {
 		if cfg.ServerAddress != "" {
 			defaultConfig.ServerAddress = cfg.ServerAddress
 		}
-		if len(cfg.LoaderFilePath) != 0 {
-			defaultConfig.LoaderFilePath = cfg.LoaderFilePath
-		}
 	}
 
 	return &ServerChi{
-		serverAddress:  defaultConfig.ServerAddress,
-		loaderFilePath: defaultConfig.LoaderFilePath,
+		serverAddress: defaultConfig.ServerAddress,
 	}
 }
 

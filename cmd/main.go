@@ -3,18 +3,12 @@ package main
 import (
 	"ProyectoFinal/internal/application"
 	"ProyectoFinal/internal/application/config"
-	"ProyectoFinal/internal/application/loader"
 	"fmt"
 )
 
 func main() {
 	cfg := &application.ConfigServerChi{
 		ServerAddress: ":8080",
-		LoaderFilePath: map[string]string{
-			loader.Section:   "docs/db/sections_10.json",
-			loader.Warehouse: "docs/db/warehouses.json",
-			loader.Buyer:     "docs/db/buyers.json",
-		},
 	}
 
 	config.LoadDotEnv()
