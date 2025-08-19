@@ -356,3 +356,18 @@ INSERT INTO order_details (cleanliness_status, quantity, temperature, product_re
                                                                                                                 ('Fresh',      20, 2.10, 3, 4),
                                                                                                                 ('Washed',      15, 4.00, 4, 5),
                                                                                                                 ('Sanitized',    9, 3.30, 5, 5);
+
+
+CREATE TABLE logs (
+                      id INT AUTO_INCREMENT PRIMARY KEY,
+                      method VARCHAR(10),
+                      status_code INT,
+                      request_path VARCHAR(255),
+                      remote_address VARCHAR(45),
+                      duration_ms INT,
+                      timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                      response TEXT,
+                      INDEX idx_timestamp (timestamp),
+                      INDEX idx_method_status_code (method, status_code),
+                      INDEX idx_request_path_timestamp (request_path, timestamp)
+);

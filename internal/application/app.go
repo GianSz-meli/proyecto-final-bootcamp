@@ -4,11 +4,10 @@ import (
 	"ProyectoFinal/internal/application/config"
 	"ProyectoFinal/internal/application/di"
 	"ProyectoFinal/internal/application/router"
-
+	"ProyectoFinal/pkg/middlewares"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
 )
 
 type ConfigServerChi struct {
@@ -54,7 +53,7 @@ func (a *ServerChi) Run() (err error) {
 	productRecordHandler := di.GetProductRecordHandler(sqlDB)
 
 	//Middlewares
-	rt.Use(middleware.Logger)
+	rt.Use(middlewares.Logger(sqlDB))
 
 	rt.Route("/api/v1", func(r chi.Router) {
 		r.Mount("/sections", router.GetSectionRouter(sectionHandler, productBatchHandler))
