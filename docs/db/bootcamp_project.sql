@@ -358,7 +358,7 @@ INSERT INTO order_details (cleanliness_status, quantity, temperature, product_re
                                                                                                                 ('Sanitized',    9, 3.30, 5, 5);
 
 
-CREATE TABLE logs (
+CREATE TABLE http_logs (
                       id INT AUTO_INCREMENT PRIMARY KEY,
                       method VARCHAR(10),
                       status_code INT,
