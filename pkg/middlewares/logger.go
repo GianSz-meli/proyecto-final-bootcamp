@@ -8,6 +8,7 @@ import (
 	"time"
 )
 
+// LoggerEntry stores details about an HTTP request and response.
 type LoggerEntry struct {
 	Method        string
 	RequestPath   string
@@ -17,28 +18,32 @@ type LoggerEntry struct {
 	StatusCode    int
 }
 
-type ResponseCapture struct {
+// ResponseWriterCapture wraps the ResponseWriter to capture its output.
+type ResponseWriterCapture struct {
 	http.ResponseWriter
 	Body       *bytes.Buffer
 	StatusCode int
 }
 
-func (rc *ResponseCapture) Write(b []byte) (int, error) {
-	rc.Body.Write(b)
-	return rc.ResponseWriter.Write(b)
+// Write captures the body of the response.
+func (rw *ResponseWriterCapture) Write(b []byte) (int, error) {
+	rw.Body.Write(b)
+	return rw.ResponseWriter.Write(b)
 }
 
-func (rc *ResponseCapture) WriteHeader(statusCode int) {
-	rc.StatusCode = statusCode
-	rc.ResponseWriter.WriteHeader(statusCode)
+// WriteHeader captures the status code of the response.
+func (rw *ResponseWriterCapture) WriteHeader(statusCode int) {
+	rw.StatusCode = statusCode
+	rw.ResponseWriter.WriteHeader(statusCode)
 }
 
+// Logger creates middleware for logging HTTP requests and responses.
 func Logger(db *sql.DB) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			start := time.Now()
-			rc := &ResponseCapture{ResponseWriter: w, Body: &bytes.Buffer{}}
-			next.ServeHTTP(rc, r)
+			rw := &ResponseWriterCapture{ResponseWriter: w, Body: &bytes.Buffer{}}
+			next.ServeHTTP(rw, r)
 
 			duration := time.Since(start)
 			logEntry := LoggerEntry{
@@ -46,8 +51,8 @@ func Logger(db *sql.DB) func(http.Handler) http.Handler {
 				RequestPath:   r.RequestURI,
 				RemoteAddress: r.RemoteAddr,
 				DurationMs:    duration,
-				Response:      rc.Body.String(),
-				StatusCode:    rc.StatusCode,
+				Response:      rw.Body.String(),
+				StatusCode:    rw.StatusCode,
 			}
 			_, err := db.Exec(SQL_INSERT_LOGGER, logEntry.Method, logEntry.RequestPath, logEntry.RemoteAddress, logEntry.DurationMs, logEntry.Response, logEntry.StatusCode)
 			if err != nil {
@@ -60,7 +65,7 @@ func Logger(db *sql.DB) func(http.Handler) http.Handler {
 				logEntry.StatusCode,
 				logEntry.RequestPath,
 				logEntry.RemoteAddress,
-				duration,
+				logEntry.DurationMs,
 			)
 		})
 	}
